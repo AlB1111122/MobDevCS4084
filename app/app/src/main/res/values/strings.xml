@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">app</string>
+    <string name="sign_in_button_txt">Sign in</string>
+    <string name="title_activity_firebase_ui_auth">FirebaseUiAuth</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="landingText">YIPIEEE</string>
+    <string name="sign_in_cancelled_msg">Sign in cancelled by user</string>
+    <string name="no_internet_msg">Unable to connect to the internet</string>
+    <string name="generic_error_msg">An error occurred</string>
 </resources>
