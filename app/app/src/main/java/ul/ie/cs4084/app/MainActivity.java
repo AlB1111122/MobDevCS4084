@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             //email and password auth
-            new AuthUI.IdpConfig.EmailBuilder().build()
-            //TODO: add config files for google auth
-            // new AuthUI.IdpConfig.GoogleBuilder().build()
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build(),
+            new AuthUI.IdpConfig.AnonymousBuilder().build()
     );
 
     @Override
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private void startSignIn() {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
-                .setIsSmartLockEnabled(false)
+                .setAvailableProviders(providers)
                 .build();
         signInLauncher.launch(signInIntent);
     }
