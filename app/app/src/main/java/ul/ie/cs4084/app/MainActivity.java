@@ -2,23 +2,19 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -27,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth authStaus;
+    private FirebaseAuth authStatus;
     private TextView mainText;
     private FirebaseUser user;
     List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -41,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        authStaus = FirebaseAuth.getInstance();
+        authStatus = FirebaseAuth.getInstance();
         mainText = (TextView)findViewById(R.id.textView);
-        user = authStaus.getCurrentUser();
+        user = authStatus.getCurrentUser();
         if (user != null) {
             Intent landingIntent = new Intent(this, LandingActivity.class);
             startActivity(landingIntent);
@@ -58,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private void startSignIn() {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
+                .setIsSmartLockEnabled(false)
                 .build();
         signInLauncher.launch(signInIntent);
     }
