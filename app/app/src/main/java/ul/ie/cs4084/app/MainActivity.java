@@ -61,41 +61,36 @@ public class MainActivity extends AppCompatActivity {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .build();
-
         signInLauncher.launch(signInIntent);
     }
 
     private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             (result) -> {
-                this.onSignInResult(result);
+                IdpResponse response = result.getIdpResponse();
+
+                if (result.getResultCode() == RESULT_OK) {
+                    // Successfully signed in
+                    //startActivity(SignedInActivity.createIntent(this, response));
+                    Intent landingIntent = new Intent(this, LandingActivity.class);
+                    startActivity(landingIntent);
+                    finish();
+                } else {
+                    // Sign in failed
+                    if (response == null) {
+                        // User pressed back button
+                        mainText.setText(R.string.sign_in_cancelled_msg);
+                        return;
+                    }
+
+                    if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
+                        mainText.setText(R.string.no_internet_msg);
+                        return;
+                    }
+
+                    mainText.setText(R.string.generic_error_msg);
+                    Log.e(TAG, "Sign-in error: ", response.getError());
+                }
             }
     );
-
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        IdpResponse response = result.getIdpResponse();
-
-        if (result.getResultCode() == RESULT_OK) {
-            // Successfully signed in
-            //startActivity(SignedInActivity.createIntent(this, response));
-            Intent landingIntent = new Intent(this, LandingActivity.class);
-            startActivity(landingIntent);
-            finish();
-        } else {
-            // Sign in failed
-            if (response == null) {
-                // User pressed back button
-                mainText.setText(R.string.sign_in_cancelled_msg);
-                return;
-            }
-
-            if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
-                mainText.setText(R.string.no_internet_msg);
-                return;
-            }
-
-            mainText.setText(R.string.generic_error_msg);
-            Log.e(TAG, "Sign-in error: ", response.getError());
-        }
-    }
 }
