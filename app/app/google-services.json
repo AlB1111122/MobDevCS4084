@@ -12,7 +12,20 @@
           "package_name": "ul.ie.cs4084.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "219122398833-lblaeor3kst8g2i0nvp5i2grib77mn15.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ul.ie.cs4084.app",
+            "certificate_hash": "24988eea550300375120711310b75236701e7b83"
+          }
+        },
+        {
+          "client_id": "219122398833-fcbvir4tits54mr8jvpn80oaopiccdhi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAAYFx8Zo2aqC0mWxno-QF6nXWicHe_mGc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "219122398833-fcbvir4tits54mr8jvpn80oaopiccdhi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
