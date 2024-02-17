@@ -44,20 +44,18 @@ public class MainActivity extends AppCompatActivity {
         authStaus = FirebaseAuth.getInstance();
         mainText = (TextView)findViewById(R.id.textView);
         user = authStaus.getCurrentUser();
-    }
-
-    public void signIn(View view){
         if (user != null) {
             Intent landingIntent = new Intent(this, LandingActivity.class);
             startActivity(landingIntent);
             finish();
-        } else {
-            mainText.setText("R.string.no_internet_msg");
-            startSignIn();
         }
     }
 
-    public void startSignIn() {
+    public void signIn(View view){
+        startSignIn();
+    }
+
+    private void startSignIn() {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .build();
@@ -70,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 IdpResponse response = result.getIdpResponse();
 
                 if (result.getResultCode() == RESULT_OK) {
-                    // Successfully signed in
-                    //startActivity(SignedInActivity.createIntent(this, response));
                     Intent landingIntent = new Intent(this, LandingActivity.class);
                     startActivity(landingIntent);
                     finish();
