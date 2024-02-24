@@ -6,10 +6,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,9 +25,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 public class LandingActivity extends AppCompatActivity {
@@ -54,6 +63,28 @@ public class LandingActivity extends AppCompatActivity {
                             Log.w(TAG, "Error writing document", e);
                         }
                     });
+            ImageView pfp = (ImageView)findViewById(R.id.imageView);
+            //FirebaseStorage storageRef = FirebaseStorage.getInstance();
+            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(testAccount.getProfilePictureUrl());
+
+            final long ONE_MEGABYTE = 1024 * 1024;
+
+            gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
+                            bytes,
+                            0,
+                            bytes.length
+                    ));
+                    pfp.setImageDrawable(image);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
         }else{
             Log.d(TAG, "sign in failed");
             return;
