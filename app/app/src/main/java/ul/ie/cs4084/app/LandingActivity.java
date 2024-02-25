@@ -34,7 +34,9 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Vector;
 
 public class LandingActivity extends AppCompatActivity {
 
@@ -64,11 +66,16 @@ public class LandingActivity extends AppCompatActivity {
                     signedInAccount.setAttributes(
                             (String) document.get("username"),
                             (String) document.get("profilePictureUrl"),
-                            (ArrayList<String>) document.get("followedTags" ),
-                            (ArrayList<String>) document.get("blockedTags" )
+                            (Vector<String>) document.get("followedTags" ),
+                            (Vector<String>) document.get("blockedTags" )
                     );
                     if (!document.exists()) {
                         //if not create a document in the db
+                        signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
+                        Vector<String> blockedTags = new Vector<>();
+                        Vector<String> followeddTags = new Vector<>();
+                        signedInAccount.setBlockedTags(blockedTags);
+                        signedInAccount.setFollowedTags(followeddTags);
                         signedInAccount.saveToDb();
                     }
                 }
