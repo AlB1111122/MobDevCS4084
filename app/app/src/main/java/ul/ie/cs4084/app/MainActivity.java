@@ -27,10 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView mainText;
     private FirebaseUser user;
     List<AuthUI.IdpConfig> providers = Arrays.asList(
-            //email and password auth
+            //email and password auth providers
             new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build(),
-            new AuthUI.IdpConfig.AnonymousBuilder().build()
+            new AuthUI.IdpConfig.GoogleBuilder().build()
     );
 
     @Override
