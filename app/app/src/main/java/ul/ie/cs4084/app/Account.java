@@ -16,7 +16,6 @@ public class Account {
     private final String authUuid;
     private String username;
     private String profilePictureUrl;
-
     private Vector<String> followedTags;
 
     private Vector<String> blockedTags;
