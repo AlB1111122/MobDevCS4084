@@ -9,13 +9,11 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,16 +25,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
+
+import ul.ie.cs4084.app.dataClasses.Account;
+import ul.ie.cs4084.app.dataClasses.Database;
 
 public class LandingActivity extends AppCompatActivity {
 
@@ -54,6 +50,7 @@ public class LandingActivity extends AppCompatActivity {
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account
         Account signedInAccount = new Account(fireBaseAuthUser.getUid());
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
         DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
@@ -61,22 +58,42 @@ public class LandingActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    //if yes fully populate local object
                     DocumentSnapshot document = task.getResult();
-                    signedInAccount.setAttributes(
-                            (String) document.get("username"),
-                            (String) document.get("profilePictureUrl"),
-                            (Vector<String>) document.get("followedTags" ),
-                            (Vector<String>) document.get("blockedTags" )
-                    );
-                    if (!document.exists()) {
+
+                    //if yes populate local object
+                    if (document.exists()) {
+                        Log.d(TAG, "document exists");
+                        Vector<String> followedVector;
+                        Vector<String> blockedVector;
+                        Object followedObj = document.get("followedTags");
+                        Object blockedObj = document.get("blockedTags");
+                        //check if tag lists are null to avoid crash may remove later
+                        if (followedObj == null) {
+                            followedVector = new Vector<>();
+                        } else {
+                            followedVector = new Vector<String>((ArrayList) followedObj);//we know this is strings because DB
+                        }
+                        if (blockedObj == null) {
+                            blockedVector = new Vector<>();
+                        } else {
+                            blockedVector = new Vector<String>((ArrayList) blockedObj);//we know this is strings because DB
+                        }
+
+                        signedInAccount.setAttributes(
+                                (String) document.get("username"),
+                                (String) document.get("profilePictureUrl"),
+                                followedVector,
+                                blockedVector
+                        );
+                    }else{
                         //if not create a document in the db
+                        Log.d(TAG, "document does not exist");
                         signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
                         Vector<String> blockedTags = new Vector<>();
                         Vector<String> followeddTags = new Vector<>();
                         signedInAccount.setBlockedTags(blockedTags);
                         signedInAccount.setFollowedTags(followeddTags);
-                        signedInAccount.saveToDb();
+                        Database.set(signedInAccount, signedInAccount.getId(), "accounts");
                     }
                 }
             }
