@@ -1,4 +1,4 @@
-package ul.ie.cs4084.app;
+package ul.ie.cs4084.app.dataClasses;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
@@ -13,14 +13,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Vector;
 
 public class Account {
-    private final String authUuid;
+    private final String id;
     private String username;
     private String profilePictureUrl;
     private Vector<String> followedTags;
-
     private Vector<String> blockedTags;
-    public Account(String authUuid){
-        this.authUuid = authUuid;
+    public Account(String id){
+        this.id = id;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
     }
 
@@ -51,8 +50,8 @@ public class Account {
         this.followedTags.add(tag);
     }
 
-    public String getAuthUuid(){
-        return this.authUuid;
+    public String getId(){
+        return this.id;
     }
 
     public String getUsername(){
@@ -69,24 +68,6 @@ public class Account {
 
     public Vector<String> getBlockedTags() {
         return blockedTags;
-    }
-
-    public void saveToDb() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("accounts").document(this.authUuid)
-                .set(this)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
     }
 }
 
