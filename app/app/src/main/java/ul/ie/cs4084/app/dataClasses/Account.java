@@ -1,18 +1,8 @@
 package ul.ie.cs4084.app.dataClasses;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
-
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Vector;
 
-public class Account {
+public class Account implements DBobject {
     private final String id;
     private String username;
     private String profilePictureUrl;
@@ -21,6 +11,14 @@ public class Account {
     public Account(String id){
         this.id = id;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
+    }
+
+    public void blockTag(String tag){
+        this.blockedTags.add(tag);
+    }
+
+    public void followTag(String tag){
+        this.followedTags.add(tag);
     }
 
     public void setAttributes(String username, String profilePictureUrl, Vector<String> followedTags, Vector<String> blockedTags){
@@ -34,20 +32,16 @@ public class Account {
         this.username = username;
     }
 
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
     public void setBlockedTags(Vector<String> blockedTags) {
         this.blockedTags = blockedTags;
     }
 
     public void setFollowedTags(Vector<String> followedTags) {
         this.followedTags = followedTags;
-    }
-
-    public void blockTag(String tag){
-        this.blockedTags.add(tag);
-    }
-
-    public void followTag(String tag){
-        this.followedTags.add(tag);
     }
 
     public String getId(){

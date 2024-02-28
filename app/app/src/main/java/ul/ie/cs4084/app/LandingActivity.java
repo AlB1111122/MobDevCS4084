@@ -50,7 +50,6 @@ public class LandingActivity extends AppCompatActivity {
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account
         Account signedInAccount = new Account(fireBaseAuthUser.getUid());
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
         DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
@@ -62,7 +61,7 @@ public class LandingActivity extends AppCompatActivity {
 
                     //if yes populate local object
                     if (document.exists()) {
-                        Log.d(TAG, "document exists");
+                        Log.d(TAG, "profile exists");
                         Vector<String> followedVector;
                         Vector<String> blockedVector;
                         Object followedObj = document.get("followedTags");
@@ -77,7 +76,6 @@ public class LandingActivity extends AppCompatActivity {
                             blockedVector = new Vector<>();
                         } else {
                             blockedVector = new Vector<String>((ArrayList) blockedObj);//we know this is strings because DB
-                        }
 
                         signedInAccount.setAttributes(
                                 (String) document.get("username"),
@@ -85,15 +83,16 @@ public class LandingActivity extends AppCompatActivity {
                                 followedVector,
                                 blockedVector
                         );
+                        }
                     }else{
                         //if not create a document in the db
-                        Log.d(TAG, "document does not exist");
+                        Log.d(TAG, "profile does not exist");
                         signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
                         Vector<String> blockedTags = new Vector<>();
                         Vector<String> followeddTags = new Vector<>();
                         signedInAccount.setBlockedTags(blockedTags);
                         signedInAccount.setFollowedTags(followeddTags);
-                        Database.set(signedInAccount, signedInAccount.getId(), "accounts");
+                        Database.set(signedInAccount, "accounts");
                     }
                 }
             }
