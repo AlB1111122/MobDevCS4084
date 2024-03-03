@@ -78,7 +78,7 @@ public class LandingActivity extends AppCompatActivity {
                     }else{
                         //if not create a document in the db
                         Log.d(TAG, "profile does not exist");
-                        signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
+                        signedInAccount.setUsername(fireBaseAuthUser.getDisplayName(), db);
                         HashSet<String> blockedTags = new HashSet<String>();
                         HashSet<String> followedTags = new HashSet<String>();
                         signedInAccount.setBlockedTags(blockedTags);

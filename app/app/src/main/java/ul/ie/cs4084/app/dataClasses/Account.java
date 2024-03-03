@@ -1,5 +1,8 @@
 package ul.ie.cs4084.app.dataClasses;
 
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -14,14 +17,6 @@ public class Account implements DBobject {
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
     }
 
-    public void blockTag(String tag){
-        this.blockedTags.add(tag);
-    }
-
-    public void followTag(String tag){
-        this.followedTags.add(tag);
-    }
-
     public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){
         this.username = username;
         this.profilePictureUrl = profilePictureUrl;
@@ -29,12 +24,26 @@ public class Account implements DBobject {
         this.blockedTags = blockedTags;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void blockTag(String tag, FirebaseFirestore db){
+        if(blockedTags.add(tag)){
+            db.collection("accounts").document(id).update("blockedTags", FieldValue.arrayUnion(tag));
+        }
     }
 
-    public void setProfilePictureUrl(String profilePictureUrl) {
+    public void followTag(String tag, FirebaseFirestore db){
+        if(followedTags.add(tag)){
+            db.collection("accounts").document(id).update("followedTags", FieldValue.arrayUnion(tag));
+        }
+    }
+
+    public void setUsername(String username, FirebaseFirestore db) {
+        this.username = username;
+        db.collection("accounts").document(id).update("username", username);
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl, FirebaseFirestore db) {
         this.profilePictureUrl = profilePictureUrl;
+        db.collection("accounts").document(id).update("profilePictureUrl", profilePictureUrl);
     }
 
     public void setBlockedTags(HashSet<String> blockedTags) {
