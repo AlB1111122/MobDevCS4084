@@ -15,15 +15,11 @@ public class Account implements DBobject {
     }
 
     public void blockTag(String tag){
-        if(!blockedTags.contains(tag)) {
-            this.blockedTags.add(tag);
-        }
+        this.blockedTags.add(tag);
     }
 
     public void followTag(String tag){
-        if(!blockedTags.contains(tag)) {
-            this.followedTags.add(tag);
-        }
+        this.followedTags.add(tag);
     }
 
     public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){

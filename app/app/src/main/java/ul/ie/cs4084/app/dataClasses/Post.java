@@ -1,7 +1,22 @@
 package ul.ie.cs4084.app.dataClasses;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Post implements DBobject{
     private final String id;
@@ -10,7 +25,7 @@ public class Post implements DBobject{
     private String title;
     private String body;
     private HashSet<String> tags;
-    //private String geotag;
+    private GeoPoint geotag;
     private HashSet<String> upvotes;
     private HashSet<String> downvotes;
     private String imageUrl;
@@ -20,6 +35,8 @@ public class Post implements DBobject{
             String parentBoardId,
             String profileId,
             String title,
+            String body,
+            GeoPoint geotag,
             HashSet<String> tags,
             HashSet<String> upvotes,
             HashSet<String> downvotes
@@ -28,23 +45,32 @@ public class Post implements DBobject{
         this.parentBoardId = parentBoardId;
         this.profileId = profileId;
         this.title = title;
+        this.body = body;
+        this.geotag = geotag;
         this.tags = tags;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
     }
 
-    public void addTag(String tag){
-        if(!tags.contains(tag)){
-            tags.add(tag);
+    public void addTag(String tag, DocumentReference parentPost){
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("parentPost", parentPost);
+        docData.put("tag", tag);
+        if(tags.add(tag)){
+            Database.add(docData,"postTags");
         }
     }
 
-    public void addUpvote(String upvoter){
-        upvotes.add(upvoter);
+    public void addUpvote(String upvoter, FirebaseFirestore db){
+        if(upvotes.add(upvoter)){
+            db.collection("posts").document(id).update("upvotes", FieldValue.arrayUnion(upvoter));
+        }
     }
 
-    public void addDownvote(String downvoter){
-        downvotes.add(downvoter);
+    public void addDownvote(String downvoter, FirebaseFirestore db){
+        if(downvotes.add(downvoter)){
+            db.collection("posts").document(id).update("downvotes", FieldValue.arrayUnion(downvoter));
+        }
     }
 
     public String getId(){
@@ -67,6 +93,10 @@ public class Post implements DBobject{
         return body;
     }
 
+    public GeoPoint getGeotag() {
+        return geotag;
+    }
+
     public HashSet<String> getTagsSet() {
         return tags;
     }
@@ -79,9 +109,9 @@ public class Post implements DBobject{
         return downvotes;
     }
     //for writing to the db
-    public ArrayList<String> getTags() {
-        return new ArrayList<String>(tags);
-    }
+    //public ArrayList<String> getTags() {
+    //    return new ArrayList<String>(tags);
+   // }
 
     public ArrayList<String> getUpvotes() {
         return new ArrayList<String>(upvotes);
@@ -95,27 +125,23 @@ public class Post implements DBobject{
         return imageUrl;
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title, FirebaseFirestore db){
         this.title = title;
+        db.collection("posts").document(id).update("title", title);
     }
 
-    public void setBody(String body){
+    public void setBody(String body, FirebaseFirestore db){
         this.body = body;
+        db.collection("posts").document(id).update("body", body);
     }
 
-    public void setTags(HashSet<String> tags){
-        this.tags = tags;
+    public void setGeotag(GeoPoint geotag, FirebaseFirestore db) {
+        this.geotag = geotag;
+        db.collection("posts").document(id).update("geotag", geotag);
     }
 
-    public void setUpvotes(HashSet<String> upvotes) {
-        this.upvotes = upvotes;
-    }
-
-    public void setDownvotes(HashSet<String> downvotes) {
-        this.downvotes = downvotes;
-    }
-
-    public void setImageUrl(String imageUrl) {
+    public void setImageUrl(String imageUrl, FirebaseFirestore db) {
         this.imageUrl = imageUrl;
+        db.collection("posts").document(id).update("imageUrl", imageUrl);
     }
 }

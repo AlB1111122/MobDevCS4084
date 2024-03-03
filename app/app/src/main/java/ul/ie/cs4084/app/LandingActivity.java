@@ -35,6 +35,8 @@ import java.util.Vector;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 import ul.ie.cs4084.app.dataClasses.Database;
+import ul.ie.cs4084.app.dataClasses.Post;
+import ul.ie.cs4084.app.dataClasses.PostFactory;
 
 public class LandingActivity extends AppCompatActivity {
 
@@ -60,7 +62,6 @@ public class LandingActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-
                     //if yes populate local object
                     if (document.exists()) {
                         Log.d(TAG, "profile exists");
@@ -83,9 +84,9 @@ public class LandingActivity extends AppCompatActivity {
                         Log.d(TAG, "profile does not exist");
                         signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
                         HashSet<String> blockedTags = new HashSet<String>();
-                        HashSet<String> followeddTags = new HashSet<String>();
+                        HashSet<String> followedTags = new HashSet<String>();
                         signedInAccount.setBlockedTags(blockedTags);
-                        signedInAccount.setFollowedTags(followeddTags);
+                        signedInAccount.setFollowedTags(followedTags);
                         Database.set(signedInAccount, "accounts");
                     }
                 }
@@ -111,6 +112,14 @@ public class LandingActivity extends AppCompatActivity {
                 Log.d(TAG, "error fetching defaultPFP");
             }
         });
+        //test post creation
+        HashSet<String> tags = new HashSet<String>();
+        tags.add("a");
+        tags.add("v");
+        tags.add("f");
+        tags.add("a");
+        //PostFactory poster = new PostFactory();
+        //poster.createNewPost(db,"b/test","test","test","body of the post",null,tags,tags,tags);
     }
 
     public void signOut(View view){
