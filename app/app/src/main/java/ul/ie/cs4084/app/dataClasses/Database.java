@@ -11,20 +11,20 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Database {
-    public static void set(Object obj,String objId, String colletion) {
+    public static void set(DBobject obj, String colletion) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(colletion).document(objId)
+        db.collection(colletion).document(obj.getId())
                 .set(obj)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                        Log.d(TAG, obj.getClass() + " successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
+                        Log.w(TAG, "Error writing " + obj.getClass(), e);
                     }
                 });
     }

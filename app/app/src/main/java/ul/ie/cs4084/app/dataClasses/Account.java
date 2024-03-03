@@ -1,29 +1,32 @@
 package ul.ie.cs4084.app.dataClasses;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import java.util.ArrayList;
+import java.util.HashSet;
 
-
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.Vector;
-
-public class Account {
+public class Account implements DBobject {
     private final String id;
     private String username;
     private String profilePictureUrl;
-    private Vector<String> followedTags;
-    private Vector<String> blockedTags;
+    private HashSet<String> followedTags;
+    private HashSet<String> blockedTags;
     public Account(String id){
         this.id = id;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
     }
 
-    public void setAttributes(String username, String profilePictureUrl, Vector<String> followedTags, Vector<String> blockedTags){
+    public void blockTag(String tag){
+        if(!blockedTags.contains(tag)) {
+            this.blockedTags.add(tag);
+        }
+    }
+
+    public void followTag(String tag){
+        if(!blockedTags.contains(tag)) {
+            this.followedTags.add(tag);
+        }
+    }
+
+    public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){
         this.username = username;
         this.profilePictureUrl = profilePictureUrl;
         this.followedTags = followedTags;
@@ -34,20 +37,16 @@ public class Account {
         this.username = username;
     }
 
-    public void setBlockedTags(Vector<String> blockedTags) {
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public void setBlockedTags(HashSet<String> blockedTags) {
         this.blockedTags = blockedTags;
     }
 
-    public void setFollowedTags(Vector<String> followedTags) {
+    public void setFollowedTags(HashSet<String> followedTags) {
         this.followedTags = followedTags;
-    }
-
-    public void blockTag(String tag){
-        this.blockedTags.add(tag);
-    }
-
-    public void followTag(String tag){
-        this.followedTags.add(tag);
     }
 
     public String getId(){
@@ -62,12 +61,20 @@ public class Account {
         return this.profilePictureUrl;
     }
 
-    public Vector<String> getFollowedTags() {
+    public HashSet<String> getFollowedSet() {
         return followedTags;
     }
 
-    public Vector<String> getBlockedTags() {
+    public HashSet<String> getBlockedSet() {
         return blockedTags;
+    }
+
+    public ArrayList<String> getFollowedTags() {
+        return new ArrayList<String>(followedTags);
+    }
+
+    public ArrayList<String> getBlockedTags() {
+        return new ArrayList<String>(blockedTags);
     }
 }
 
