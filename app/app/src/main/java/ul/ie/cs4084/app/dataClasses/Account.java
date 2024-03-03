@@ -1,13 +1,14 @@
 package ul.ie.cs4084.app.dataClasses;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Account implements DBobject {
     private final String id;
     private String username;
     private String profilePictureUrl;
-    private Vector<String> followedTags;
-    private Vector<String> blockedTags;
+    private HashSet<String> followedTags;
+    private HashSet<String> blockedTags;
     public Account(String id){
         this.id = id;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
@@ -25,7 +26,7 @@ public class Account implements DBobject {
         }
     }
 
-    public void setAttributes(String username, String profilePictureUrl, Vector<String> followedTags, Vector<String> blockedTags){
+    public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){
         this.username = username;
         this.profilePictureUrl = profilePictureUrl;
         this.followedTags = followedTags;
@@ -40,11 +41,11 @@ public class Account implements DBobject {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    public void setBlockedTags(Vector<String> blockedTags) {
+    public void setBlockedTags(HashSet<String> blockedTags) {
         this.blockedTags = blockedTags;
     }
 
-    public void setFollowedTags(Vector<String> followedTags) {
+    public void setFollowedTags(HashSet<String> followedTags) {
         this.followedTags = followedTags;
     }
 
@@ -60,12 +61,20 @@ public class Account implements DBobject {
         return this.profilePictureUrl;
     }
 
-    public Vector<String> getFollowedTags() {
+    public HashSet<String> getFollowedSet() {
         return followedTags;
     }
 
-    public Vector<String> getBlockedTags() {
+    public HashSet<String> getBlockedSet() {
         return blockedTags;
+    }
+
+    public ArrayList<String> getFollowedTags() {
+        return new ArrayList<String>(followedTags);
+    }
+
+    public ArrayList<String> getBlockedTags() {
+        return new ArrayList<String>(blockedTags);
     }
 }
 

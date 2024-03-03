@@ -29,6 +29,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 import ul.ie.cs4084.app.dataClasses.Account;
@@ -62,34 +64,26 @@ public class LandingActivity extends AppCompatActivity {
                     //if yes populate local object
                     if (document.exists()) {
                         Log.d(TAG, "profile exists");
-                        Vector<String> followedVector;
-                        Vector<String> blockedVector;
+                        HashSet<String> followed;
+                        HashSet<String> blocked;
                         Object followedObj = document.get("followedTags");
                         Object blockedObj = document.get("blockedTags");
                         //check if tag lists are null to avoid crash may remove later
-                        if (followedObj == null) {
-                            followedVector = new Vector<>();
-                        } else {
-                            followedVector = new Vector<String>((ArrayList) followedObj);//we know this is strings because DB
-                        }
-                        if (blockedObj == null) {
-                            blockedVector = new Vector<>();
-                        } else {
-                            blockedVector = new Vector<String>((ArrayList) blockedObj);//we know this is strings because DB
+                        followed = new HashSet<String>((List) followedObj);//we know this is strings and not null because DB
+                        blocked = new HashSet<String>((List) blockedObj);//we know this is strings and not null because DB
 
                         signedInAccount.setAttributes(
                                 (String) document.get("username"),
                                 (String) document.get("profilePictureUrl"),
-                                followedVector,
-                                blockedVector
+                                followed,
+                                blocked
                         );
-                        }
                     }else{
                         //if not create a document in the db
                         Log.d(TAG, "profile does not exist");
                         signedInAccount.setUsername(fireBaseAuthUser.getDisplayName());
-                        Vector<String> blockedTags = new Vector<>();
-                        Vector<String> followeddTags = new Vector<>();
+                        HashSet<String> blockedTags = new HashSet<String>();
+                        HashSet<String> followeddTags = new HashSet<String>();
                         signedInAccount.setBlockedTags(blockedTags);
                         signedInAccount.setFollowedTags(followeddTags);
                         Database.set(signedInAccount, "accounts");

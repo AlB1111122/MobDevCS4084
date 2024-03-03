@@ -1,6 +1,7 @@
 package ul.ie.cs4084.app.dataClasses;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Post implements DBobject{
     private final String id;
@@ -8,10 +9,10 @@ public class Post implements DBobject{
     private final String profileId;
     private String title;
     private String body;
-    private Vector<String> tags;
+    private HashSet<String> tags;
     //private String geotag;
-    private Vector<String> upvotes;
-    private Vector<String> downvotes;
+    private HashSet<String> upvotes;
+    private HashSet<String> downvotes;
     private String imageUrl;
 
     public Post(
@@ -19,9 +20,9 @@ public class Post implements DBobject{
             String parentBoardId,
             String profileId,
             String title,
-            Vector<String> tags,
-            Vector<String> upvotes,
-            Vector<String> downvotes
+            HashSet<String> tags,
+            HashSet<String> upvotes,
+            HashSet<String> downvotes
     ){
         this.id = id;
         this.parentBoardId = parentBoardId;
@@ -39,15 +40,11 @@ public class Post implements DBobject{
     }
 
     public void addUpvote(String upvoter){
-        if(!upvotes.contains(upvoter)){
-            upvotes.add(upvoter);
-        }
+        upvotes.add(upvoter);
     }
 
     public void addDownvote(String downvoter){
-        if(!downvotes.contains(downvoter)){
-            downvotes.add(downvoter);
-        }
+        downvotes.add(downvoter);
     }
 
     public String getId(){
@@ -70,16 +67,28 @@ public class Post implements DBobject{
         return body;
     }
 
-    public Vector<String> getTags() {
+    public HashSet<String> getTagsSet() {
         return tags;
     }
 
-    public Vector<String> getUpvotes() {
+    public HashSet<String> getUpvotesSet() {
         return upvotes;
     }
 
-    public Vector<String> getDownvotes() {
+    public HashSet<String> getDownvotesSet() {
         return downvotes;
+    }
+    //for writing to the db
+    public ArrayList<String> getTags() {
+        return new ArrayList<String>(tags);
+    }
+
+    public ArrayList<String> getUpvotes() {
+        return new ArrayList<String>(upvotes);
+    }
+
+    public ArrayList<String> getDownvotes() {
+        return new ArrayList<String>(downvotes);
     }
 
     public String getImageUrl() {
@@ -94,15 +103,15 @@ public class Post implements DBobject{
         this.body = body;
     }
 
-    public void setTags(Vector<String> tags){
+    public void setTags(HashSet<String> tags){
         this.tags = tags;
     }
 
-    public void setUpvotes(Vector<String> upvotes) {
+    public void setUpvotes(HashSet<String> upvotes) {
         this.upvotes = upvotes;
     }
 
-    public void setDownvotes(Vector<String> downvotes) {
+    public void setDownvotes(HashSet<String> downvotes) {
         this.downvotes = downvotes;
     }
 
