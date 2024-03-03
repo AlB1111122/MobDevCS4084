@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Comment implements DBobject {
+public class Comment{
     private final String id;
     private final String postId;
     private final String posterId;

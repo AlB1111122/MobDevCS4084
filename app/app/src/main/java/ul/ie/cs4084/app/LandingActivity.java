@@ -83,7 +83,7 @@ public class LandingActivity extends AppCompatActivity {
                         HashSet<String> followedTags = new HashSet<String>();
                         signedInAccount.setBlockedTags(blockedTags);
                         signedInAccount.setFollowedTags(followedTags);
-                        Database.set(signedInAccount, "accounts");
+                        Database.set(signedInAccount, signedInAccount.getId(), "accounts");
                     }
                 }
             }

@@ -12,9 +12,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Database {
-    public static void set(DBobject obj, String colletion) {
+    public static void set(Object obj, String objId, String colletion) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(colletion).document(obj.getId())
+        db.collection(colletion).document(objId)
                 .set(obj)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

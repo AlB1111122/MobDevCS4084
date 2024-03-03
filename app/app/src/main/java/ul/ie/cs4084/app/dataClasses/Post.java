@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class Post implements DBobject{
+public class Post{
     private final String id;
     private final String parentBoardId;
     private final String profileId;

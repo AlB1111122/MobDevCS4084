@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Account implements DBobject {
+public class Account{
     private final String id;
     private String username;
     private String profilePictureUrl;
