@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class PostFactory {
+public class Factory {
     public void createNewPost(
             FirebaseFirestore db,
             String parentBoardId,
@@ -61,6 +61,15 @@ public class PostFactory {
             docData.put("tag", tag);
             Database.add(docData, "postTags");
         }
+    }
+
+    public void createNewComment(String postId, String posterId, String body, HashSet<String> upvotes, HashSet<String> downvotes){
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("postId", postId);
+        docData.put("posterId", posterId);
+        docData.put("body", new ArrayList<String>(downvotes));
+        docData.put("upvotes", new ArrayList<String>(downvotes));
+        Database.add(docData,"posts/" + postId + "/comments");
     }
 
 }
