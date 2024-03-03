@@ -28,15 +28,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Vector;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 import ul.ie.cs4084.app.dataClasses.Database;
-import ul.ie.cs4084.app.dataClasses.Post;
-import ul.ie.cs4084.app.dataClasses.PostFactory;
 
 public class LandingActivity extends AppCompatActivity {
 

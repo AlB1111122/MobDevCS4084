@@ -54,7 +54,7 @@ public class PostFactory {
                 });
     }
 
-    public void createInitialTags(HashSet<String> tags, DocumentReference parentPost){
+    private void createInitialTags(HashSet<String> tags, DocumentReference parentPost){
         for(String tag: tags) {
             Map<String, Object> docData = new HashMap<>();
             docData.put("parentPost", parentPost);
