@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 import ul.ie.cs4084.app.dataClasses.Board;
@@ -133,22 +135,49 @@ public class LandingActivity extends AppCompatActivity {
         rules.add("rule2");
         rules.add("rule3");
 
-        /*HashSet<String> tags = new HashSet<String>();
+        HashSet<String> tags = new HashSet<String>();
         tags.add("a");
         tags.add("v");
         tags.add("f");
         tags.add("a");
+
+        DocumentReference q = db.document("accounts/P3gSsY74H0dJkkF9Xw0qpyEP6DR2");
+        DocumentReference w = db.document("accounts/eAq9tvZUAqdxM1Me2ytvP1jsoXy2");
+
+        DocumentReference z = db.document("accounts/UoXcHOdoVVnGe0bJgtpz");
+        DocumentReference x = db.document("accounts/YZjRucblHUvEWIs30iE1");
+
+        HashSet<DocumentReference> mods = new HashSet<>();
+        mods.add(q);
+        mods.add(w);
+        HashSet<DocumentReference> voters = new HashSet<>();
+        voters.add(z);
+        voters.add(x);
+
         Factory factory = new Factory();
-        factory.createNewBoard(
-                db,
-                "test",
-                "this is a test",
-                "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg",
-                rules,
-                tags,
-                tags
-        );
-        factory.createNewPost(db,"test","test","test","body of the post",null,tags);*/
+
+        DocumentReference testBoard = null;
+        DocumentReference post = null;
+        DocumentReference comment = null;
+
+
+        try {
+            testBoard = factory.createNewBoard(
+                    db,
+                    "test",
+                    "this is a test",
+                    "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg",
+                    rules,
+                    mods,
+                    tags
+            );
+
+            post = factory.createNewPost(db,testBoard,q,"test","body of the post",null,tags);
+            comment = factory.createNewComment(post, x, "String body");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Log.d(TAG, post.getId());
     }
 
     public void signOut(View view){

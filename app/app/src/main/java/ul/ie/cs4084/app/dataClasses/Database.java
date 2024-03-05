@@ -8,13 +8,14 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Database {
-    public static void add(Object obj, String colletion) {
+    public static Task<DocumentReference> add(Object obj, String collection) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(colletion)
+        return db.collection(collection)
                 .add(obj)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override

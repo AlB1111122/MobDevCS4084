@@ -2,12 +2,15 @@ package ul.ie.cs4084.app.dataClasses;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static java.lang.Thread.sleep;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -18,7 +21,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class Factory {
-    public void createNewPost(
+
+    public DocumentReference createNewPost(
             FirebaseFirestore db,
             DocumentReference parentBoard,
             DocumentReference profile,
@@ -26,7 +30,7 @@ public class Factory {
             String body,
             GeoPoint geotag,
             HashSet<String> tags
-    ){
+    ) throws InterruptedException {
         Map<String, Object> docData = new HashMap<>();
         docData.put("parentBoard", parentBoard);
         docData.put("profile", profile);
@@ -35,7 +39,8 @@ public class Factory {
         docData.put("geotag", geotag);
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
-        db.collection("posts")
+        Task<DocumentReference> dbRefrence =
+            db.collection("posts")
                 .add(docData)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -50,34 +55,43 @@ public class Factory {
                         Log.w(TAG, "Error writing post");
                     }
                 });
+        while(!dbRefrence.isComplete()){
+            sleep(5);//CHANGE LATER
+        }
+        return dbRefrence.getResult();
     }
 
-    public void createNewComment(String postId, String posterId, String body){
+    public DocumentReference createNewComment(DocumentReference post, DocumentReference poster, String body) throws InterruptedException {
         Map<String, Object> docData = new HashMap<>();
-        docData.put("postId", postId);
-        docData.put("posterId", posterId);
+        docData.put("post", post);
+        docData.put("poster", poster);
         docData.put("body", body);
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
-        Database.add(docData,"posts/" + postId + "/comments");
+        Task<DocumentReference> dbRefrence = Database.add(docData,post.getPath()+"/comments");
+        while(!dbRefrence.isComplete()){
+            sleep(5);//CHANGE LATER
+        }
+        return dbRefrence.getResult();
     }
 
-    public void createNewBoard(
+    public DocumentReference createNewBoard(
             FirebaseFirestore db,
             String name,
             String description,
             String relatedImageUrl,
             ArrayList<String> rules,
-            HashSet<String> moderators,
+            HashSet<DocumentReference> moderators,
             HashSet<String> tags
-    ){
+    ) throws InterruptedException {
         Map<String, Object> docData = new HashMap<>();
         docData.put("name", name);
         docData.put("description", description);
         docData.put("relatedImageUrl", relatedImageUrl);
         docData.put("rules", rules);
-        docData.put("moderators",  new ArrayList<String>(moderators));
-        db.collection("boards")
+        docData.put("moderators",  new ArrayList<DocumentReference>(moderators));
+
+        Task<DocumentReference> dbRefrence = db.collection("boards")
                 .add(docData)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -92,6 +106,10 @@ public class Factory {
                         Log.w(TAG, "Error writing post");
                     }
                 });
+       while(!dbRefrence.isComplete()){
+            sleep(5);//CHANGE LATER
+        }
+        return dbRefrence.getResult();
     }
 
 
