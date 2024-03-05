@@ -29,10 +29,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import ul.ie.cs4084.app.dataClasses.Account;
+import ul.ie.cs4084.app.dataClasses.Board;
 import ul.ie.cs4084.app.dataClasses.Database;
 import ul.ie.cs4084.app.dataClasses.Factory;
 
@@ -130,7 +133,7 @@ public class LandingActivity extends AppCompatActivity {
         rules.add("rule2");
         rules.add("rule3");
 
-        HashSet<String> tags = new HashSet<String>();
+        /*HashSet<String> tags = new HashSet<String>();
         tags.add("a");
         tags.add("v");
         tags.add("f");
@@ -145,7 +148,7 @@ public class LandingActivity extends AppCompatActivity {
                 tags,
                 tags
         );
-        factory.createNewPost(db,"test","test","test","body of the post",null,tags);
+        factory.createNewPost(db,"test","test","test","body of the post",null,tags);*/
     }
 
     public void signOut(View view){

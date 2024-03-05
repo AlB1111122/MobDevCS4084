@@ -12,8 +12,8 @@ import java.util.Map;
 
 public class Post{
     private final String id;
-    private final String parentBoardId;
-    private final String profileId;
+    private final DocumentReference parentBoard;
+    private final DocumentReference profile;
     private String title;
     private String body;
     private HashSet<String> tags;
@@ -24,8 +24,8 @@ public class Post{
 
     public Post(
             String id,
-            String parentBoardId,
-            String profileId,
+            DocumentReference parentBoard,
+            DocumentReference profile,
             String title,
             String body,
             GeoPoint geotag,
@@ -34,8 +34,8 @@ public class Post{
             HashSet<String> downvotes
     ){
         this.id = id;
-        this.parentBoardId = parentBoardId;
-        this.profileId = profileId;
+        this.parentBoard = parentBoard;
+        this.profile = profile;
         this.title = title;
         this.body = body;
         this.geotag = geotag;
@@ -70,12 +70,12 @@ public class Post{
         return id;
     }
 
-    public String getParentBoardId() {
-        return parentBoardId;
+    public DocumentReference getParentBoard() {
+        return parentBoard;
     }
 
-    public String getProfileId() {
-        return profileId;
+    public DocumentReference getProfile() {
+        return profile;
     }
 
     public String getTitle() {
@@ -101,10 +101,6 @@ public class Post{
     public HashSet<String> getDownvotesSet() {
         return downvotes;
     }
-    //for writing to the db
-    //public ArrayList<String> getTags() {
-    //    return new ArrayList<String>(tags);
-   // }
 
     public ArrayList<String> getUpvotes() {
         return new ArrayList<String>(upvotes);

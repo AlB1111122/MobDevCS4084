@@ -20,16 +20,16 @@ import java.util.Map;
 public class Factory {
     public void createNewPost(
             FirebaseFirestore db,
-            String parentBoardId,
-            String profileId,
+            DocumentReference parentBoard,
+            DocumentReference profile,
             String title,
             String body,
             GeoPoint geotag,
             HashSet<String> tags
     ){
         Map<String, Object> docData = new HashMap<>();
-        docData.put("parentBoardId", parentBoardId);
-        docData.put("profileId", profileId);
+        docData.put("parentBoard", parentBoard);
+        docData.put("profile", profile);
         docData.put("title", title);
         docData.put("body", body);
         docData.put("geotag", geotag);
@@ -77,7 +77,7 @@ public class Factory {
         docData.put("relatedImageUrl", relatedImageUrl);
         docData.put("rules", rules);
         docData.put("moderators",  new ArrayList<String>(moderators));
-        db.collection("accounts")
+        db.collection("boards")
                 .add(docData)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
