@@ -44,9 +44,10 @@ public class Post{
         this.downvotes = downvotes;
     }
 
-    public void addTag(String tag, DocumentReference parentPost){
+    public void addTag(String tag, FirebaseFirestore db){
+        DocumentReference postRef = db.collection("posts").document(id);
         Map<String, Object> docData = new HashMap<>();
-        docData.put("parentPost", parentPost);
+        docData.put("parentPost", postRef);
         docData.put("tag", tag);
         if(tags.add(tag)){
             Database.add(docData,"postTags");

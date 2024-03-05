@@ -28,11 +28,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 import ul.ie.cs4084.app.dataClasses.Database;
+import ul.ie.cs4084.app.dataClasses.Factory;
 
 public class LandingActivity extends AppCompatActivity {
 
@@ -75,7 +77,7 @@ public class LandingActivity extends AppCompatActivity {
                                 followed,
                                 blocked
                         );
-                    }else{
+                    } else {
                         //if not create a document in the db
                         Log.d(TAG, "profile does not exist");
                         signedInAccount.setUsername(fireBaseAuthUser.getDisplayName(), db);
@@ -83,9 +85,23 @@ public class LandingActivity extends AppCompatActivity {
                         HashSet<String> followedTags = new HashSet<String>();
                         signedInAccount.setBlockedTags(blockedTags);
                         signedInAccount.setFollowedTags(followedTags);
-                        Database.set(signedInAccount, signedInAccount.getId(), "accounts");
+                        db.collection("accounts").document(fireBaseAuthUser.getUid())
+                                .set(signedInAccount)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Account successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing account", e);
+                                    }
+                                });
                     }
                 }
+
             }
         });
         //display the pfp on screen
@@ -109,13 +125,27 @@ public class LandingActivity extends AppCompatActivity {
             }
         });
         //test post creation
+        ArrayList<String> rules = new ArrayList<>();
+        rules.add("rule1");
+        rules.add("rule2");
+        rules.add("rule3");
+
         HashSet<String> tags = new HashSet<String>();
         tags.add("a");
         tags.add("v");
         tags.add("f");
         tags.add("a");
-        //PostFactory poster = new PostFactory();
-        //poster.createNewPost(db,"b/test","test","test","body of the post",null,tags,tags,tags);
+        Factory factory = new Factory();
+        factory.createNewBoard(
+                db,
+                "test",
+                "this is a test",
+                "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg",
+                rules,
+                tags,
+                tags
+        );
+        factory.createNewPost(db,"test","test","test","body of the post",null,tags);
     }
 
     public void signOut(View view){
