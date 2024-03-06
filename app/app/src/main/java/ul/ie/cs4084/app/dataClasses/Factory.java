@@ -37,7 +37,7 @@ public class Factory {
         docData.put("title", title);
         docData.put("body", body);
         docData.put("geotag", geotag);
-        docData.put("tags", tags);
+        docData.put("tags", new ArrayList<String>(tags));
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
         return db.collection("posts")
@@ -80,7 +80,7 @@ public class Factory {
         docData.put("description", description);
         docData.put("relatedImageUrl", relatedImageUrl);
         docData.put("rules", rules);
-        docData.put("tags", tags);
+        docData.put("tags", new ArrayList<String>(tags));
         docData.put("moderators",  new ArrayList<DocumentReference>(moderators));
 
         return db.collection("boards")
