@@ -16,7 +16,7 @@ public class Board{
     private String description;
     private String relatedImageUrl;
     private ArrayList<String> rules;
-    private HashSet<String> moderators;
+    private HashSet<DocumentReference> moderators;
     private HashSet<String> tags;
 
     public Board(
@@ -25,7 +25,7 @@ public class Board{
             String description,
             String relatedImageUrl,
             ArrayList<String> rules,
-            HashSet<String> moderators,
+            HashSet<DocumentReference> moderators,
             HashSet<String> tags
     ){
         this.id = id;
@@ -69,13 +69,13 @@ public class Board{
         db.collection("boards").document(id).update("rules", FieldValue.arrayRemove(rule));
     }
 
-    public void addModerator(String moderator, FirebaseFirestore db){
+    public void addModerator(DocumentReference moderator, FirebaseFirestore db){
         if(moderators.add(moderator)){
             db.collection("boards").document(id).update("moderators", FieldValue.arrayUnion(moderator));
         }
     }
 
-    public void removeModerators(String moderator, FirebaseFirestore db){
+    public void removeModerators(DocumentReference moderator, FirebaseFirestore db){
         if(moderators.remove(moderator)){
             db.collection("boards").document(id).update("moderators", FieldValue.arrayRemove(moderator));
         }
@@ -101,7 +101,7 @@ public class Board{
         return rules;
     }
 
-    public HashSet<String> getModeratorsSet() {
+    public HashSet<DocumentReference> getModeratorsSet() {
         return moderators;
     }
 
@@ -113,7 +113,7 @@ public class Board{
         return new ArrayList<String>(tags);
     }
 
-    public ArrayList<String> getModerators() {
-        return new ArrayList<String>(moderators);
+    public ArrayList<DocumentReference> getModerators() {
+        return new ArrayList<DocumentReference>(moderators);
     }
 }
