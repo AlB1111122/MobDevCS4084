@@ -31,7 +31,8 @@ public class Post{
             GeoPoint geotag,
             HashSet<String> tags,
             HashSet<String> upvotes,
-            HashSet<String> downvotes
+            HashSet<String> downvotes,
+            String imageUrl
     ){
         this.id = id;
         this.parentBoard = parentBoard;
@@ -42,6 +43,7 @@ public class Post{
         this.tags = tags;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
+        this.imageUrl = imageUrl;
     }
 
     public void addTag(String tag, FirebaseFirestore db){

@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class Factory {
 
-    public DocumentReference createNewPost(
+    public Task<DocumentReference> createNewPost(
             FirebaseFirestore db,
             DocumentReference parentBoard,
             DocumentReference profile,
@@ -30,7 +30,7 @@ public class Factory {
             String body,
             GeoPoint geotag,
             HashSet<String> tags
-    ) throws InterruptedException {
+    ){
         Map<String, Object> docData = new HashMap<>();
         docData.put("parentBoard", parentBoard);
         docData.put("profile", profile);
@@ -39,8 +39,7 @@ public class Factory {
         docData.put("geotag", geotag);
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
-        Task<DocumentReference> dbRefrence =
-            db.collection("posts")
+        return db.collection("posts")
                 .add(docData)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -55,27 +54,19 @@ public class Factory {
                         Log.w(TAG, "Error writing post");
                     }
                 });
-        while(!dbRefrence.isComplete()){
-            sleep(5);//CHANGE LATER
-        }
-        return dbRefrence.getResult();
     }
 
-    public DocumentReference createNewComment(DocumentReference post, DocumentReference poster, String body) throws InterruptedException {
+    public Task<DocumentReference> createNewComment(DocumentReference post, DocumentReference poster, String body){
         Map<String, Object> docData = new HashMap<>();
         docData.put("post", post);
         docData.put("poster", poster);
         docData.put("body", body);
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
-        Task<DocumentReference> dbRefrence = Database.add(docData,post.getPath()+"/comments");
-        while(!dbRefrence.isComplete()){
-            sleep(5);//CHANGE LATER
-        }
-        return dbRefrence.getResult();
+        return Database.add(docData,post.getPath()+"/comments");
     }
 
-    public DocumentReference createNewBoard(
+    public Task<DocumentReference> createNewBoard(
             FirebaseFirestore db,
             String name,
             String description,
@@ -83,7 +74,7 @@ public class Factory {
             ArrayList<String> rules,
             HashSet<DocumentReference> moderators,
             HashSet<String> tags
-    ) throws InterruptedException {
+    ) {
         Map<String, Object> docData = new HashMap<>();
         docData.put("name", name);
         docData.put("description", description);
@@ -91,7 +82,7 @@ public class Factory {
         docData.put("rules", rules);
         docData.put("moderators",  new ArrayList<DocumentReference>(moderators));
 
-        Task<DocumentReference> dbRefrence = db.collection("boards")
+        return db.collection("boards")
                 .add(docData)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -106,10 +97,6 @@ public class Factory {
                         Log.w(TAG, "Error writing post");
                     }
                 });
-       while(!dbRefrence.isComplete()){
-            sleep(5);//CHANGE LATER
-        }
-        return dbRefrence.getResult();
     }
 
 

@@ -2,6 +2,8 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static java.lang.Thread.sleep;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -156,9 +158,9 @@ public class LandingActivity extends AppCompatActivity {
 
         Factory factory = new Factory();
 
-        DocumentReference testBoard = null;
-        DocumentReference post = null;
-        DocumentReference comment = null;
+        Task<DocumentReference> testBoard = null;
+        Task<DocumentReference> post = null;
+        Task<DocumentReference> comment = null;
 
 
         try {
@@ -171,13 +173,16 @@ public class LandingActivity extends AppCompatActivity {
                     mods,
                     tags
             );
+            sleep(3);
 
-            post = factory.createNewPost(db,testBoard,q,"test","body of the post",null,tags);
-            comment = factory.createNewComment(post, x, "String body");
+            post = factory.createNewPost(db,
+                    testBoard.getResult(),q,"test","body of the post",null,tags);
+
+            sleep(3);
+            comment = factory.createNewComment(post.getResult(), x, "String body");
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Log.d(TAG, post.getId());
     }
 
     public void signOut(View view){
