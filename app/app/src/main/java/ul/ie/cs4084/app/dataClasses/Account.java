@@ -66,11 +66,11 @@ public class Account{
         return this.profilePictureUrl;
     }
 
-    public HashSet<String> getFollowedSet() {
+    public HashSet<String> retriveFollowedSet() {
         return followedTags;
     }
 
-    public HashSet<String> getBlockedSet() {
+    public HashSet<String> retriveBlockedSet() {
         return blockedTags;
     }
 

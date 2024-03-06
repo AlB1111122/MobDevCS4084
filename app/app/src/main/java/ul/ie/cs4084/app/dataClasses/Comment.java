@@ -48,6 +48,14 @@ public class Comment{
         return new ArrayList<DocumentReference>(downvotes);
     }
 
+    public HashSet<DocumentReference> retriveUpvotesSet() {
+        return upvotes;
+    }
+
+    public HashSet<DocumentReference> retriveDownvotesSet() {
+        return downvotes;
+    }
+
     public void addUpvote(DocumentReference upvoter, FirebaseFirestore db){
         if(upvotes.add(upvoter)){
             db.collection(post.getPath()).document(id).update("upvotes", FieldValue.arrayUnion(upvoter));

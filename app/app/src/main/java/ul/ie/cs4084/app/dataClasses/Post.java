@@ -106,18 +106,18 @@ public class Post{
         return geotag;
     }
 
-    public HashSet<String> getTagsSet() {
+    public HashSet<String> retriveTagsSet() {
         return tags;
     }
     public ArrayList<String> getTags() {
         return  new ArrayList<String>(tags);
     }
 
-    public HashSet<DocumentReference> getUpvotesSet() {
+    public HashSet<DocumentReference> retriveUpvotesSet() {
         return upvotes;
     }
 
-    public HashSet<DocumentReference> getDownvotesSet() {
+    public HashSet<DocumentReference> retriveDownvotesSet() {
         return downvotes;
     }
 

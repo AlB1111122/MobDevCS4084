@@ -101,11 +101,11 @@ public class Board{
         return rules;
     }
 
-    public HashSet<DocumentReference> getModeratorsSet() {
+    public HashSet<DocumentReference> retriveModeratorsSet() {
         return moderators;
     }
 
-    public HashSet<String> getTagsSet() {
+    public HashSet<String> retriveTagsSet() {
         return tags;
     }
 
