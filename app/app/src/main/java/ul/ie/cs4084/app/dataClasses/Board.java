@@ -38,12 +38,14 @@ public class Board{
     }
 
     public void addTag(String tag, FirebaseFirestore db){
-        DocumentReference boardRef = db.collection("boards").document(id);
-        Map<String, Object> docData = new HashMap<>();
-        docData.put("parentBoard", boardRef);
-        docData.put("tag", tag);
         if(tags.add(tag)){
-            Database.add(docData,"boardTags");
+            db.collection("boards").document(id).update("tags", FieldValue.arrayUnion(tag));
+        }
+    }
+
+    public void removeTag(String tag, FirebaseFirestore db){
+        if(tags.remove(tag)){
+            db.collection("boards").document(id).update("tags", FieldValue.arrayRemove(tags));
         }
     }
 
@@ -75,7 +77,7 @@ public class Board{
 
     public void removeModerators(String moderator, FirebaseFirestore db){
         if(moderators.remove(moderator)){
-            db.collection("boards").document(id).update("moderators", FieldValue.arrayUnion(moderator));
+            db.collection("boards").document(id).update("moderators", FieldValue.arrayRemove(moderator));
         }
     }
 
@@ -105,6 +107,10 @@ public class Board{
 
     public HashSet<String> getTagsSet() {
         return tags;
+    }
+
+    public ArrayList<String> getTags() {
+        return new ArrayList<String>(tags);
     }
 
     public ArrayList<String> getModerators() {

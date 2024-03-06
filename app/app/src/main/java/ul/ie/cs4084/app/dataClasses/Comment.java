@@ -12,10 +12,10 @@ public class Comment{
     private final DocumentReference post;
     private final DocumentReference poster;
     private String body;
-    private HashSet<String> upvotes;
-    private HashSet<String> downvotes;
+    private HashSet<DocumentReference> upvotes;
+    private HashSet<DocumentReference> downvotes;
 
-    public Comment(String id, DocumentReference post, DocumentReference poster, String body, HashSet<String> upvotes, HashSet<String> downvotes){
+    public Comment(String id, DocumentReference post, DocumentReference poster, String body, HashSet<DocumentReference> upvotes, HashSet<DocumentReference> downvotes){
         this.id = id;
         this.post = post;
         this.poster = poster;
@@ -40,23 +40,35 @@ public class Comment{
         return body;
     }
 
-    public ArrayList<String> getUpvotes() {
-        return new ArrayList<String>(upvotes);
+    public ArrayList<DocumentReference> getUpvotes() {
+        return new ArrayList<DocumentReference>(upvotes);
     }
 
-    public ArrayList<String> getDownvotes() {
-        return new ArrayList<String>(downvotes);
+    public ArrayList<DocumentReference> getDownvotes() {
+        return new ArrayList<DocumentReference>(downvotes);
     }
 
-    public void addUpvote(String upvoter, FirebaseFirestore db){
+    public void addUpvote(DocumentReference upvoter, FirebaseFirestore db){
         if(upvotes.add(upvoter)){
             db.collection(post.getPath()).document(id).update("upvotes", FieldValue.arrayUnion(upvoter));
         }
     }
 
-    public void addDownvote(String downvoter, FirebaseFirestore db){
+    public void removeUpvote(DocumentReference upvoter, FirebaseFirestore db){
+        if(upvotes.remove(upvoter)){
+            db.collection("Comments").document(id).update("upvotes", FieldValue.arrayRemove(upvoter));
+        }
+    }
+
+    public void addDownvote(DocumentReference downvoter, FirebaseFirestore db){
         if(downvotes.add(downvoter)){
             db.collection(post.getPath()).document(id).update("downvotes", FieldValue.arrayUnion(downvoter));
+        }
+    }
+
+    public void removeDownvote(DocumentReference downvoter, FirebaseFirestore db){
+        if(downvotes.remove(downvoter)){
+            db.collection("Comments").document(id).update("downvotes", FieldValue.arrayRemove(downvoter));
         }
     }
 

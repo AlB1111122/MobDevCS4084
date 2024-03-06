@@ -37,6 +37,7 @@ public class Factory {
         docData.put("title", title);
         docData.put("body", body);
         docData.put("geotag", geotag);
+        docData.put("tags", tags);
         docData.put("upvotes", new ArrayList<String>());
         docData.put("downvotes", new ArrayList<String>());
         return db.collection("posts")
@@ -45,7 +46,6 @@ public class Factory {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG,  "new post successfully written!");
-                        createInitialTags(tags,documentReference,"Post");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -80,6 +80,7 @@ public class Factory {
         docData.put("description", description);
         docData.put("relatedImageUrl", relatedImageUrl);
         docData.put("rules", rules);
+        docData.put("tags", tags);
         docData.put("moderators",  new ArrayList<DocumentReference>(moderators));
 
         return db.collection("boards")
@@ -88,7 +89,6 @@ public class Factory {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG,  "new post successfully written!");
-                        createInitialTags(tags,documentReference,"Board");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -98,16 +98,4 @@ public class Factory {
                     }
                 });
     }
-
-
-    private void createInitialTags(HashSet<String> tags, DocumentReference parent, String parentCollection){
-        for(String tag: tags) {
-            Map<String, Object> docData = new HashMap<>();
-            docData.put("parent" + parentCollection, parent);
-            docData.put("tag", tag);
-            Database.add(docData, parentCollection.toLowerCase()+"Tags");
-        }
-    }
-
-
 }

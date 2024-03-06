@@ -18,8 +18,8 @@ public class Post{
     private String body;
     private HashSet<String> tags;
     private GeoPoint geotag;
-    private HashSet<String> upvotes;
-    private HashSet<String> downvotes;
+    private HashSet<DocumentReference> upvotes;
+    private HashSet<DocumentReference> downvotes;
     private String imageUrl;
 
     public Post(
@@ -30,8 +30,8 @@ public class Post{
             String body,
             GeoPoint geotag,
             HashSet<String> tags,
-            HashSet<String> upvotes,
-            HashSet<String> downvotes,
+            HashSet<DocumentReference> upvotes,
+            HashSet<DocumentReference> downvotes,
             String imageUrl
     ){
         this.id = id;
@@ -47,24 +47,38 @@ public class Post{
     }
 
     public void addTag(String tag, FirebaseFirestore db){
-        DocumentReference postRef = db.collection("posts").document(id);
-        Map<String, Object> docData = new HashMap<>();
-        docData.put("parentPost", postRef);
-        docData.put("tag", tag);
         if(tags.add(tag)){
-            Database.add(docData,"postTags");
+            db.collection("posts").document(id).update("tags", FieldValue.arrayUnion(tag));
         }
     }
 
-    public void addUpvote(String upvoter, FirebaseFirestore db){
+    public void removeTag(String tag, FirebaseFirestore db){
+        if(tags.remove(tag)){
+            db.collection("posts").document(id).update("tags", FieldValue.arrayRemove(tags));
+        }
+    }
+
+    public void addUpvote(DocumentReference upvoter, FirebaseFirestore db){
         if(upvotes.add(upvoter)){
             db.collection("posts").document(id).update("upvotes", FieldValue.arrayUnion(upvoter));
         }
     }
 
-    public void addDownvote(String downvoter, FirebaseFirestore db){
+    public void removeUpvote(DocumentReference upvoter, FirebaseFirestore db){
+        if(upvotes.remove(upvoter)){
+            db.collection("posts").document(id).update("upvotes", FieldValue.arrayRemove(upvoter));
+        }
+    }
+
+    public void addDownvote(DocumentReference downvoter, FirebaseFirestore db){
         if(downvotes.add(downvoter)){
             db.collection("posts").document(id).update("downvotes", FieldValue.arrayUnion(downvoter));
+        }
+    }
+
+    public void removeDownvote(DocumentReference downvoter, FirebaseFirestore db){
+        if(downvotes.remove(downvoter)){
+            db.collection("posts").document(id).update("downvotes", FieldValue.arrayRemove(downvoter));
         }
     }
 
@@ -95,21 +109,24 @@ public class Post{
     public HashSet<String> getTagsSet() {
         return tags;
     }
+    public ArrayList<String> getTags() {
+        return  new ArrayList<String>(tags);
+    }
 
-    public HashSet<String> getUpvotesSet() {
+    public HashSet<DocumentReference> getUpvotesSet() {
         return upvotes;
     }
 
-    public HashSet<String> getDownvotesSet() {
+    public HashSet<DocumentReference> getDownvotesSet() {
         return downvotes;
     }
 
-    public ArrayList<String> getUpvotes() {
-        return new ArrayList<String>(upvotes);
+    public ArrayList<DocumentReference> getUpvotes() {
+        return new ArrayList<DocumentReference>(upvotes);
     }
 
-    public ArrayList<String> getDownvotes() {
-        return new ArrayList<String>(downvotes);
+    public ArrayList<DocumentReference> getDownvotes() {
+        return new ArrayList<DocumentReference>(downvotes);
     }
 
     public String getImageUrl() {

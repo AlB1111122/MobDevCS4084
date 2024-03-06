@@ -173,12 +173,16 @@ public class LandingActivity extends AppCompatActivity {
                     mods,
                     tags
             );
-            sleep(3);
+            while(!testBoard.isComplete()){
+                sleep(5);
+            }
 
             post = factory.createNewPost(db,
                     testBoard.getResult(),q,"test","body of the post",null,tags);
 
-            sleep(3);
+            while(!post.isComplete()){
+                sleep(5);
+            }
             comment = factory.createNewComment(post.getResult(), x, "String body");
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
