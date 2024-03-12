@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -57,18 +58,21 @@ public class LandingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_landing);
         int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(NUMBER_OF_CORES);
-        TextView mainText = (TextView)findViewById(R.id.landingText);
-        String a = String.valueOf(NUMBER_OF_CORES);
-        mainText.append(" "+a);
+        db = FirebaseFirestore.getInstance();
+        try { Tasks.await(FirebaseFirestore.getInstance().enableNetwork()); }
+        catch (Exception e) {
+            Log.e(TAG, "error in Firestore enableNetwork(): ", e);
+            return;
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        signInToAccount();
         //display the pfp on screen
         ImageView pfp = (ImageView)findViewById(R.id.imageView);
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
+        signInToAccount();
+        /*StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
         final long ONE_MEGABYTE = 1024 * 1024;
         gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
@@ -140,7 +144,7 @@ public class LandingActivity extends AppCompatActivity {
 
 
 
-        );
+        );*/
 
 
         /*try {
@@ -187,7 +191,7 @@ public class LandingActivity extends AppCompatActivity {
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account
-        signedInAccount = new Account(fireBaseAuthUser.getUid());
+        //signedInAccount = new Account(fireBaseAuthUser.getUid());
         db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
         DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
@@ -199,34 +203,18 @@ public class LandingActivity extends AppCompatActivity {
                     //if yes populate local object
                     if (document.exists()) {
                         Log.d(TAG, "profile exists");
-                        HashSet<String> followed;
-                        HashSet<String> blocked;
-                        Object followedObj = document.get("followedTags");
-                        Object blockedObj = document.get("blockedTags");
-                        //check if tag lists are null to avoid crash may remove later
-                        followed = new HashSet<String>((List) followedObj);//we know this is strings and not null because DB
-                        blocked = new HashSet<String>((List) blockedObj);//we know this is strings and not null because DB
-
-                        signedInAccount.setAttributes(
-                                (String) document.get("username"),
-                                (String) document.get("profilePictureUrl"),
-                                followed,
-                                blocked
-                        );
+                        signedInAccount = new Account(document);
                     } else {
                         //if not create a document in the db
                         Log.d(TAG, "profile does not exist");
-                        signedInAccount.setUsername(fireBaseAuthUser.getDisplayName(), db);
-                        HashSet<String> blockedTags = new HashSet<String>();
-                        HashSet<String> followedTags = new HashSet<String>();
-                        signedInAccount.setBlockedTags(blockedTags);
-                        signedInAccount.setFollowedTags(followedTags);
+                        signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getUid(), new HashSet<String>(), new HashSet<String>());
                         db.collection("accounts").document(fireBaseAuthUser.getUid())
                                 .set(signedInAccount)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "Account successfully written!");
+                                        Log.e(TAG, signedInAccount.getProfilePictureUrl());
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
