@@ -1,29 +1,34 @@
 package ul.ie.cs4084.app.dataClasses;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 
-public class Account implements DBobject {
+public class Account{
     private final String id;
     private String username;
     private String profilePictureUrl;
     private HashSet<String> followedTags;
     private HashSet<String> blockedTags;
-    public Account(String id){
+    public Account(String id, String username, HashSet<String> followedTags, HashSet<String> blockedTags){
         this.id = id;
+        this.username = username;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
+        this.followedTags = followedTags;
+        this.blockedTags = blockedTags;
     }
 
-    public void blockTag(String tag){
-        if(!blockedTags.contains(tag)) {
-            this.blockedTags.add(tag);
-        }
-    }
-
-    public void followTag(String tag){
-        if(!blockedTags.contains(tag)) {
-            this.followedTags.add(tag);
-        }
+    public Account(DocumentSnapshot accountDoc){//Construct from exisiting document
+        this.id = accountDoc.getId();
+        this.username = accountDoc.getString("username");
+        this.profilePictureUrl = accountDoc.getString("profilePictureUrl");
+        this.followedTags = new HashSet<String>((List) Objects.requireNonNull(accountDoc.get("followedTags")));//known because of db
+        this.blockedTags = new HashSet<String>((List) Objects.requireNonNull(accountDoc.get("blockedTags")));
     }
 
     public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){
@@ -33,12 +38,26 @@ public class Account implements DBobject {
         this.blockedTags = blockedTags;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void blockTag(String tag, FirebaseFirestore db){
+        if(blockedTags.add(tag)){
+            db.collection("accounts").document(id).update("blockedTags", FieldValue.arrayUnion(tag));
+        }
     }
 
-    public void setProfilePictureUrl(String profilePictureUrl) {
+    public void followTag(String tag, FirebaseFirestore db){
+        if(followedTags.add(tag)){
+            db.collection("accounts").document(id).update("followedTags", FieldValue.arrayUnion(tag));
+        }
+    }
+
+    public void setUsername(String username, FirebaseFirestore db) {
+        this.username = username;
+        db.collection("accounts").document(id).update("username", username);
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl, FirebaseFirestore db) {
         this.profilePictureUrl = profilePictureUrl;
+        db.collection("accounts").document(id).update("profilePictureUrl", profilePictureUrl);
     }
 
     public void setBlockedTags(HashSet<String> blockedTags) {
@@ -61,11 +80,11 @@ public class Account implements DBobject {
         return this.profilePictureUrl;
     }
 
-    public HashSet<String> getFollowedSet() {
+    public HashSet<String> retriveFollowedSet() {
         return followedTags;
     }
 
-    public HashSet<String> getBlockedSet() {
+    public HashSet<String> retriveBlockedSet() {
         return blockedTags;
     }
 
