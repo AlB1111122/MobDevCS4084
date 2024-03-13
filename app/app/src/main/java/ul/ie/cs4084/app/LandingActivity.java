@@ -59,11 +59,6 @@ public class LandingActivity extends AppCompatActivity {
         int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(NUMBER_OF_CORES);
         db = FirebaseFirestore.getInstance();
-        try { Tasks.await(FirebaseFirestore.getInstance().enableNetwork()); }
-        catch (Exception e) {
-            Log.e(TAG, "error in Firestore enableNetwork(): ", e);
-            return;
-        }
     }
 
     @Override
@@ -71,122 +66,6 @@ public class LandingActivity extends AppCompatActivity {
         super.onStart();
         //display the pfp on screen
         ImageView pfp = (ImageView)findViewById(R.id.imageView);
-        signInToAccount();
-        /*StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
-        final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                        bytes,
-                        0,
-                        bytes.length
-                ));
-                pfp.setImageDrawable(image);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.d(TAG, "error fetching defaultPFP");
-            }
-        });
-        //test post creation
-        ArrayList<String> rules = new ArrayList<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        rules.add("rule3");
-
-        HashSet<String> tags = new HashSet<String>();
-        tags.add("a");
-        tags.add("v");
-        tags.add("f");
-        tags.add("a");
-
-        DocumentReference q = db.document("accounts/P3gSsY74H0dJkkF9Xw0qpyEP6DR2");
-        DocumentReference w = db.document("accounts/eAq9tvZUAqdxM1Me2ytvP1jsoXy2");
-
-        DocumentReference z = db.document("accounts/UoXcHOdoVVnGe0bJgtpz");
-        DocumentReference x = db.document("accounts/YZjRucblHUvEWIs30iE1");
-
-        HashSet<DocumentReference> mods = new HashSet<>();
-        mods.add(q);
-        mods.add(w);
-        HashSet<DocumentReference> voters = new HashSet<>();
-        voters.add(z);
-        voters.add(x);
-
-
-        Factory factory = new Factory(executorService);
-
-        CollectionReference car = db.collection("boards");
-        DocumentReference testBoard =
-                car.document("3tA0g237zz93lqp1xfSO");
-
-        factory.createNewPost(
-                db,
-                testBoard,
-                q,
-                "test  threded jaNHVHJBVIFUYSGDHVOHU",
-                "body of the post made on a thred2NJAVBUIODJKVNBUOIAHJNIOVDA",
-                null,
-                tags,
-                new DBCallback<DocumentReference>() {
-                    @Override
-                    public void callback(DocumentReference documentReference) {
-                        factory.createNewComment(documentReference, x, "String bodyNVJIBDIOXHB(UGDIOAVHJBGOIUDAHKJXBUIHV from thred2",new DBCallback<DocumentReference>() {
-                            @Override
-                            public void callback(DocumentReference documentReference) {
-                                Log.d(TAG, "fjiewjfwjfoifejfjwjf");
-                            }
-                        });
-                    }
-                }
-
-
-
-        );*/
-
-
-        /*try {
-            testBoard = factory.createNewBoard(
-                    db,
-                    "test",
-                    "this is a test",
-                    "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg",
-                    rules,
-                    mods,
-                    tags
-            );
-            while(!testBoard.isComplete()){
-                sleep(5);
-            }
-
-            post = factory.createNewPost(db,
-                    testBoard.getResult(),q,"test","body of the post",null,tags);
-
-            while(!post.isComplete()){
-                sleep(5);
-            }
-            comment = factory.createNewComment(post.getResult(), x, "String body");
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    */}
-
-    public void signOut(View view){
-        AuthUI.getInstance()
-                .signOut(getApplicationContext())
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // user is now signed out
-                        startActivity(new Intent(LandingActivity.this, MainActivity.class));
-                        finish();
-                    }
-                });
-
-    }
-
-    public void signInToAccount(){
         //get the user who just signed in
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
@@ -214,7 +93,6 @@ public class LandingActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "Account successfully written!");
-                                        Log.e(TAG, signedInAccount.getProfilePictureUrl());
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -225,9 +103,120 @@ public class LandingActivity extends AppCompatActivity {
                                 });
                     }
                 }
+                StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
+                final long ONE_MEGABYTE = 1024 * 1024;
+                gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
+                                bytes,
+                                0,
+                                bytes.length
+                        ));
+                        pfp.setImageDrawable(image);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.d(TAG, "error fetching defaultPFP");
+                    }
+                });
+                //test post creation
+                ArrayList<String> rules = new ArrayList<>();
+                rules.add("rule1");
+                rules.add("rule2");
+                rules.add("rule3");
 
+                HashSet<String> tags = new HashSet<String>();
+                tags.add("a");
+                tags.add("v");
+                tags.add("f");
+                tags.add("a");
+
+                DocumentReference q = db.document("accounts/eAq9tvZUAqdxM1Me2ytvP1jsoXy2");
+                //DocumentReference w = db.document("accounts/eAq9tvZUAqdxM1Me2ytvP1jsoXy2");
+
+                DocumentReference z = db.document("accounts/UoXcHOdoVVnGe0bJgtpz");
+                DocumentReference x = db.document("accounts/YZjRucblHUvEWIs30iE1");
+
+                HashSet<DocumentReference> mods = new HashSet<>();
+                mods.add(q);
+                //mods.add(w);
+                HashSet<DocumentReference> voters = new HashSet<>();
+                voters.add(z);
+                voters.add(x);
+
+
+                Factory factory = new Factory(executorService);
+
+                CollectionReference boards = db.collection("boards");
+                DocumentReference testBoard =
+                        boards.document("n5rfl0XL6Wwo8vfcGLux");
+
+                testBoard.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot snapshot) {
+                        Board b = new Board(snapshot);
+                        b.removeModerators(q,db);
+                        b.addTag("womp",db);
+                    }
+                });
             }
         });
+    }
 
+
+        /*factory.createNewPost(
+                db,
+                testBoard,
+                q,
+                "test  threded jaNHVHJBVIFUYSGDHVOHU",
+                "body of the post made on a thred2NJAVBUIODJKVNBUOIAHJNIOVDA",
+                null,
+                tags,
+                new DBCallback<DocumentReference>() {
+                    @Override
+                    public void callback(DocumentReference documentReference) {
+                        factory.createNewComment(documentReference, x, "String bodyNVJIBDIOXHB(UGDIOAVHJBGOIUDAHKJXBUIHV from thred2",new DBCallback<DocumentReference>() {
+                            @Override
+                            public void callback(DocumentReference documentReference) {
+                                Log.d(TAG, "fjiewjfwjfoifejfjwjf");
+                            }
+                        });
+                    }
+                }
+        );
+            }
+        });*/
+
+        /*StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
+        final long ONE_MEGABYTE = 1024 * 1024;
+        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
+                        bytes,
+                        0,
+                        bytes.length
+                ));
+                pfp.setImageDrawable(image);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d(TAG, "error fetching defaultPFP");
+            }
+        });*/
+
+    public void signOut(View view){
+        AuthUI.getInstance()
+                .signOut(getApplicationContext())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // user is now signed out
+                        startActivity(new Intent(LandingActivity.this, MainActivity.class));
+                        finish();
+                    }
+                });
     }
 }
