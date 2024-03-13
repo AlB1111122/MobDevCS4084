@@ -75,6 +75,7 @@ public class Post{
     }
 
     public void addUpvote(DocumentReference upvoter, FirebaseFirestore db){
+        removeDownvote(upvoter,db);
         if(upvotes.add(upvoter)){
             db.collection("posts").document(id).update("upvotes", FieldValue.arrayUnion(upvoter));
         }
@@ -87,6 +88,7 @@ public class Post{
     }
 
     public void addDownvote(DocumentReference downvoter, FirebaseFirestore db){
+        removeUpvote(downvoter,db);
         if(downvotes.add(downvoter)){
             db.collection("posts").document(id).update("downvotes", FieldValue.arrayUnion(downvoter));
         }
