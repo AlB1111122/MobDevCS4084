@@ -1,13 +1,16 @@
 package ul.ie.cs4084.app.dataClasses;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Board{
 
@@ -35,6 +38,18 @@ public class Board{
         this.rules = rules;
         this.moderators = moderators;
         this.tags = tags;
+    }
+
+    public Board(
+            DocumentSnapshot boardDoc
+    ){
+        this.id = boardDoc.getId();
+        this.name = boardDoc.getString("name");
+        this.description = boardDoc.getString("description");
+        this.relatedImageUrl = boardDoc.getString("relatedImageUrl");
+        this.rules = new ArrayList<String>((List) Objects.requireNonNull(boardDoc.get("rules")));
+        this.moderators = new HashSet<DocumentReference>((List) Objects.requireNonNull(boardDoc.get("moderators")));
+        this.tags = new HashSet<String>((List) Objects.requireNonNull(boardDoc.get("tags")));
     }
 
     public void addTag(String tag, FirebaseFirestore db){

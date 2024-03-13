@@ -1,11 +1,14 @@
 package ul.ie.cs4084.app.dataClasses;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 
 public class Comment{
     private final String id;
@@ -22,6 +25,15 @@ public class Comment{
         this.body = body;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
+    }
+
+    public Comment(DocumentSnapshot commentDoc){
+        this.id = commentDoc.getId();
+        this.post = commentDoc.getDocumentReference("post");
+        this.poster = commentDoc.getDocumentReference("poster");
+        this.body = commentDoc.getString("body");
+        this.upvotes = new HashSet<DocumentReference>((List) Objects.requireNonNull(commentDoc.get("upvotes")));
+        this.downvotes = new HashSet<DocumentReference>((List) Objects.requireNonNull(commentDoc.get("downvotes")));
     }
 
     public String getId() {

@@ -1,6 +1,7 @@
 package ul.ie.cs4084.app.dataClasses;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -8,7 +9,9 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Post{
     private final String id;
@@ -44,6 +47,19 @@ public class Post{
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.imageUrl = imageUrl;
+    }
+
+    public Post (DocumentSnapshot postDocument){
+        this.id = postDocument.getId();
+        this.parentBoard = postDocument.getDocumentReference("parentBoard");
+        this.profile = postDocument.getDocumentReference("profile");
+        this.title = postDocument.getString("title");
+        this.body = postDocument.getString("body");
+        this.geotag = postDocument.getGeoPoint("geotag");
+        this.tags =  new HashSet<String>((List) Objects.requireNonNull(postDocument.get("tags")));
+        this.upvotes = new HashSet<DocumentReference>((List) Objects.requireNonNull(postDocument.get("upvotes")));
+        this.downvotes = new HashSet<DocumentReference>((List) Objects.requireNonNull(postDocument.get("downvotes")));
+        this.imageUrl = postDocument.getString("imageUrl");
     }
 
     public void addTag(String tag, FirebaseFirestore db){

@@ -20,13 +20,13 @@ public class Database {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, obj.getClass() + " successfully written!");
+                        Log.d(TAG, collection + " successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing " + obj.getClass(), e);
+                        Log.w(TAG, "Error writing " + collection, e);
                     }
                 });
     }

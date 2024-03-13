@@ -1,10 +1,13 @@
 package ul.ie.cs4084.app.dataClasses;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 
 public class Account{
     private final String id;
@@ -12,9 +15,20 @@ public class Account{
     private String profilePictureUrl;
     private HashSet<String> followedTags;
     private HashSet<String> blockedTags;
-    public Account(String id){
+    public Account(String id, String username, HashSet<String> followedTags, HashSet<String> blockedTags){
         this.id = id;
+        this.username = username;
         this.profilePictureUrl = "gs://socialmediaapp-38b04.appspot.com/profilePictures/defaultProfile.jpg";
+        this.followedTags = followedTags;
+        this.blockedTags = blockedTags;
+    }
+
+    public Account(DocumentSnapshot accountDoc){//Construct from exisiting document
+        this.id = accountDoc.getId();
+        this.username = accountDoc.getString("username");
+        this.profilePictureUrl = accountDoc.getString("profilePictureUrl");
+        this.followedTags = new HashSet<String>((List) Objects.requireNonNull(accountDoc.get("followedTags")));//known because of db
+        this.blockedTags = new HashSet<String>((List) Objects.requireNonNull(accountDoc.get("blockedTags")));
     }
 
     public void setAttributes(String username, String profilePictureUrl, HashSet<String> followedTags, HashSet<String> blockedTags){
