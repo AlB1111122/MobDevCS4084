@@ -6,6 +6,7 @@ import static java.lang.Thread.sleep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -122,7 +123,7 @@ public class LandingActivity extends AppCompatActivity {
                     }
                 });
                 //test post creation
-                ArrayList<String> rules = new ArrayList<>();
+                /*ArrayList<String> rules = new ArrayList<>();
                 rules.add("rule1");
                 rules.add("rule2");
                 rules.add("rule3");
@@ -160,7 +161,7 @@ public class LandingActivity extends AppCompatActivity {
                         b.removeModerators(q,db);
                         b.addTag("womp",db);
                     }
-                });
+                });*/
             }
         });
     }
@@ -208,7 +209,7 @@ public class LandingActivity extends AppCompatActivity {
             }
         });*/
 
-    public void signOut(View view){
+    /*public void signOut(View view){
         AuthUI.getInstance()
                 .signOut(getApplicationContext())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -218,5 +219,5 @@ public class LandingActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-    }
+    }*/
 }
