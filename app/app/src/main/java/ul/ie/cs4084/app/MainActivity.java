@@ -5,14 +5,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import ul.ie.cs4084.app.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
+    public ExecutorService executorService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_CORES);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         NavHostFragment navHostFragment =

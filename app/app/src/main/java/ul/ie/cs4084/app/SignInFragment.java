@@ -67,10 +67,6 @@ public class SignInFragment extends Fragment {
             Bundle savedInstanceState
     ){
         View view = inflater.inflate(R.layout.fragment_sign_in, container,false);
-        //test TBR
-        TextView t = (TextView) view.findViewById(R.id.textView);
-        t.setText("YIPPIEE");
-
         Button signInB = (Button) view.findViewById(R.id.signInButton);
         signInB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,9 +94,6 @@ public class SignInFragment extends Fragment {
                 if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                     NavController navController = NavHostFragment.findNavController(this);
                     navController.navigate(R.id.action_signInTestFrag);
-                    //Intent landingIntent = new Intent(this, LandingActivity.class);
-                    //startActivity(landingIntent);
-                    //finish();
                 } else {
                     // Sign in failed
                     if (response == null) {
