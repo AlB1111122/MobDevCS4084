@@ -1,4 +1,4 @@
-<resources>
+<resources><!--TODO: clean up in here-->
     <string name="app_name">app</string>
     <string name="sign_in_button_txt">Sign in</string>
     <string name="title_activity_firebase_ui_auth">FirebaseUiAuth</string>
@@ -12,4 +12,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sign_out">sign out</string>
     <string name="sign_in_to_the_app">sign in to the app</string>
+    <string name="profile_picture">profile picture</string>
+    <string name="username_stub">u/</string>
 </resources>

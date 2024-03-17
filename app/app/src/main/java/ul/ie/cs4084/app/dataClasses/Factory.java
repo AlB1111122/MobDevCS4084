@@ -39,7 +39,7 @@ public class Factory {
             String body,
             GeoPoint geotag,
             HashSet<String> tags,
-            final DBCallback<DocumentReference> callback
+            final Callback<DocumentReference> callback
     ){
         executor.execute(new Runnable() {
             @Override
@@ -76,7 +76,7 @@ public class Factory {
             DocumentReference post,
             DocumentReference poster,
             String body,
-            final DBCallback<DocumentReference> callback
+            final Callback<DocumentReference> callback
     ){
         executor.execute(new Runnable() {
             @Override
@@ -106,7 +106,7 @@ public class Factory {
             ArrayList<String> rules,
             HashSet<DocumentReference> moderators,
             HashSet<String> tags,
-            final DBCallback<DocumentReference> callback
+            final Callback<DocumentReference> callback
     ) {
         executor.execute(new Runnable() {
             @Override

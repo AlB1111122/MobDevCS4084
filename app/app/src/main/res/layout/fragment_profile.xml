@@ -6,25 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
 
-    <TextView
-        android:id="@+id/viewItem"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
+    <!-- sign out button to be removed later -->
     <Button
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
         android:text="@string/sign_out" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_launcher_foreground"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100dp"/>
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/profile_picture"
+        android:src="@drawable/ic_launcher_foreground" />
+        <TextView
+            android:id="@+id/signedInProfileUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/username_stub"
+            android:layout_marginTop="5dp"/>
+
+    </LinearLayout>
 
 </FrameLayout>

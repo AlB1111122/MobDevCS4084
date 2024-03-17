@@ -11,12 +11,15 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,16 +35,20 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashSet;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 
 public class ProfileFragment extends Fragment {
-    private
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private Account signedInAccount;
     private ImageView pfp;
+    private TextView usernameText;
+    private ExecutorService executor;
+    Handler mainHandler;
+
+    NavController navController;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -54,29 +61,29 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MainActivity act = (MainActivity)getActivity();
+        assert act != null;
+        executor = act.executorService;//DEF not how to do it firegure out later
+        mainHandler = new Handler(Looper.getMainLooper());
+        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
+
         pfp = (ImageView) view.findViewById(R.id.imageView);
+        usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
+
         Button signOutB = (Button) view.findViewById(R.id.button2);
-        NavController navController = NavHostFragment.findNavController(this);
-        signOutB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AuthUI.getInstance()
-                        .signOut(getActivity())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            public void onComplete(@NonNull Task<Void> task) {
-                                // user is now signed out
-                                navController.navigate(R.id.signIn);//TODO: change where signing out happens
-                            }
-                        });
-            }
-        });
+        setSignOutButtonListener(signOutB);
+
         return view;
     }
 
@@ -103,7 +110,7 @@ public class ProfileFragment extends Fragment {
                     } else {
                         //if not create a document in the db
                         Log.d(TAG, "profile does not exist");
-                        signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getUid(), new HashSet<String>(), new HashSet<String>());
+                        signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getDisplayName(), new HashSet<String>(), new HashSet<String>());
                         db.collection("accounts").document(fireBaseAuthUser.getUid())
                                 .set(signedInAccount)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -120,24 +127,57 @@ public class ProfileFragment extends Fragment {
                                 });
                     }
                 }
-                StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
-                final long ONE_MEGABYTE = 1024 * 1024;
-                gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+
+                usernameText.append(signedInAccount.getUsername());
+                displayProfilePicture();
+            }
+        });
+    }
+
+    private void displayProfilePicture() {
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
+        final long ONE_MEGABYTE = 1024 * 1024;
+        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                executor.execute(new Runnable() {
                     @Override
-                    public void onSuccess(byte[] bytes) {
+                    public void run() {//runnig on a thred because its slow
                         Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
                                 bytes,
                                 0,
                                 bytes.length
                         ));
-                        pfp.setImageDrawable(image);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.d(TAG, "error fetching defaultPFP");
-                    }
-                });
+                        Runnable pfpRunnable = new Runnable() {//post back to ui thred
+                            @Override
+                            public void run() {
+                                pfp.setImageDrawable(image);}
+                        };
+                        mainHandler.post(pfpRunnable);
+
+                    }});
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d(TAG, "error fetching PFP");
+            }
+        });
+    }
+
+    private void setSignOutButtonListener(
+            Button button
+    ){
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AuthUI.getInstance()
+                        .signOut(getActivity())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                navController.navigate(R.id.signIn);
+                            }
+                        });
             }
         });
     }
