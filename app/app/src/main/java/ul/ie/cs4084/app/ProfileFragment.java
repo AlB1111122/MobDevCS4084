@@ -84,13 +84,6 @@ public class ProfileFragment extends Fragment {
         Button signOutB = (Button) view.findViewById(R.id.button2);
         setSignOutButtonListener(signOutB);
 
-        return view;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        //get the user who just signed in
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account
@@ -132,6 +125,15 @@ public class ProfileFragment extends Fragment {
                 displayProfilePicture();
             }
         });
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //get the user who just signed in
+
     }
 
     private void displayProfilePicture() {
