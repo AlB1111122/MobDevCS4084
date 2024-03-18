@@ -9,10 +9,11 @@
         android:name="ul.ie.cs4084.app.SignInFragment"
         android:label="SignIn">
 
-        <!-- Switch to profile view -->
+        <!-- Switch to home view -->
         <action
-            android:id="@+id/action_signInTestFrag"
-            app:destination="@id/Profile" />
+            android:id="@+id/action_to_home"
+            app:destination="@id/Home" />
+
     </fragment>
 
     <fragment
@@ -20,5 +21,16 @@
         android:name="ul.ie.cs4084.app.ProfileFragment"
         android:label="Profile">
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/Home"
+        android:name="ul.ie.cs4084.app.HomeFragment"
+        android:label="Home">
+
+        <!-- Switch to profile view -->
+        <action
+            android:id="@+id/action_to_sign_in"
+            app:destination="@id/Profile" />
     </fragment>
 </navigation>

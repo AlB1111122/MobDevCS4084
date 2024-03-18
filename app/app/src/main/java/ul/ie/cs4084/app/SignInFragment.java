@@ -56,7 +56,7 @@ public class SignInFragment extends Fragment {
         user = authStatus.getCurrentUser();
         if (user != null) {
             NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_signInTestFrag);
+            navController.navigate(R.id.action_to_home);
         }
     }
 
@@ -93,7 +93,7 @@ public class SignInFragment extends Fragment {
 
                 if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                     NavController navController = NavHostFragment.findNavController(this);
-                    navController.navigate(R.id.action_signInTestFrag);
+                    navController.navigate(R.id.action_to_home);
                 } else {
                     // Sign in failed
                     if (response == null) {
