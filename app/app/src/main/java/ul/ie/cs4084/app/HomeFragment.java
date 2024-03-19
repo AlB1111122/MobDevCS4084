@@ -78,8 +78,9 @@ public class HomeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navController.navigate(R.id.action_to_sign_in);
-
+                Bundle bundle = new Bundle();
+                bundle.putString("profileId", signedInAccount.getId());
+                navController.navigate(R.id.action_to_profile, bundle);
             }
         });
 

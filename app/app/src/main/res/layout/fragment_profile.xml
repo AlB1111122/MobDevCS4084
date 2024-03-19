@@ -37,6 +37,16 @@
             android:text="@string/username_stub"
             android:layout_marginTop="5dp"/>
 
-    </LinearLayout>
+        <!--<HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp">
 
+            <GridLayout
+                android:rowCount="3"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
+        </HorizontalScrollView>-->
+    </LinearLayout>
 </FrameLayout>

@@ -42,7 +42,7 @@ import ul.ie.cs4084.app.dataClasses.Account;
 public class ProfileFragment extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Account signedInAccount;
+    private Account viewingAccount;
     private ImageView pfp;
     private TextView usernameText;
     private ExecutorService executor;
@@ -81,16 +81,23 @@ public class ProfileFragment extends Fragment {
         pfp = (ImageView) view.findViewById(R.id.imageView);
         usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
 
+        assert getArguments() != null;
+        String profileId = getArguments().getString("profileId");
+        if(profileId == null){
+            navController.navigate(R.id.action_to_home);
+            return null;
+        }
+
         Button signOutB = (Button) view.findViewById(R.id.button2);
         setSignOutButtonListener(signOutB);
 
-        FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
-        assert fireBaseAuthUser != null; // we know its not null because they just signed in
+        //FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
+        //assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account
-        //signedInAccount = new Account(fireBaseAuthUser.getUid());
+        //viewingAccount = new Account(fireBaseAuthUser.getUid());
         db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
-        DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
+        DocumentReference signedInUser = db.collection("accounts").document(profileId);
         signedInUser.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -99,33 +106,15 @@ public class ProfileFragment extends Fragment {
                     //if yes populate local object
                     if (document.exists()) {
                         Log.d(TAG, "profile exists");
-                        signedInAccount = new Account(document);
+                        viewingAccount = new Account(document);
+                        usernameText.append(viewingAccount.getUsername());
+                        displayProfilePicture();
                     } else {
-                        //if not create a document in the db
-                        Log.d(TAG, "profile does not exist");
-                        signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getDisplayName(), new HashSet<String>(), new HashSet<String>());
-                        db.collection("accounts").document(fireBaseAuthUser.getUid())
-                                .set(signedInAccount)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "Account successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing account", e);
-                                    }
-                                });
+                        return;
                     }
                 }
-
-                usernameText.append(signedInAccount.getUsername());
-                displayProfilePicture();
             }
         });
-
         return view;
     }
 
@@ -137,7 +126,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void displayProfilePicture() {
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(signedInAccount.getProfilePictureUrl());
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(viewingAccount.getProfilePictureUrl());
         final long ONE_MEGABYTE = 1024 * 1024;
         gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override

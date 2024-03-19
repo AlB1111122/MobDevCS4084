@@ -21,6 +21,15 @@
         android:name="ul.ie.cs4084.app.ProfileFragment"
         android:label="Profile">
 
+        <argument
+            android:name="profileId"
+            app:argType="string"
+            app:nullable="true" />
+
+        <!-- Switch to home view -->
+        <action
+            android:id="@+id/action_to_home"
+            app:destination="@id/Home" />
     </fragment>
 
     <fragment
@@ -30,7 +39,7 @@
 
         <!-- Switch to profile view -->
         <action
-            android:id="@+id/action_to_sign_in"
+            android:id="@+id/action_to_profile"
             app:destination="@id/Profile" />
     </fragment>
 </navigation>
