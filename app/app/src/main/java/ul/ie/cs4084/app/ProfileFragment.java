@@ -2,13 +2,18 @@ package ul.ie.cs4084.app;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.DialogCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -17,12 +22,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -59,7 +66,6 @@ public class ProfileFragment extends Fragment {
     private Handler mainHandler;
     private RecyclerView followedTags;
     private RecyclerView blockedTags;
-
     NavController navController;
 
     public ProfileFragment() {
@@ -88,6 +94,12 @@ public class ProfileFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         // Inflate the layout for this fragment
+        assert getArguments() != null;
+        String profileId = getArguments().getString("profileId");
+        if(profileId == null){
+            navController.navigate(R.id.action_to_home);
+            return null;
+        }
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
         LinearLayoutManager layoutManagerf = new LinearLayoutManager(this.getContext());
         layoutManagerf.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -103,15 +115,10 @@ public class ProfileFragment extends Fragment {
         blockedTags = (RecyclerView) view.findViewById(R.id.blockList);
         blockedTags.setLayoutManager(layoutManagerb);
 
-        assert getArguments() != null;
-        String profileId = getArguments().getString("profileId");
-        if(profileId == null){
-            navController.navigate(R.id.action_to_home);
-            return null;
-        }
+        setSignOutButtonListener(view.findViewById(R.id.button2));
+        setTagFollowButton(view.findViewById(R.id.followTagButton), getContext());
+        setTagBlockButton(view.findViewById(R.id.blockTagButton), getContext());
 
-        Button signOutB = (Button) view.findViewById(R.id.button2);
-        setSignOutButtonListener(signOutB);
 
         db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
@@ -177,9 +184,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void setSignOutButtonListener(
-            Button button
-    ){
+    private void setSignOutButtonListener(Button button){
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,6 +195,60 @@ public class ProfileFragment extends Fragment {
                                 navController.navigate(R.id.signIn);
                             }
                         });
+            }
+        });
+    }
+
+    private void setTagFollowButton(Button button, Context context){
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Follow a new tag");
+
+                // Set up the input
+                final EditText input = new EditText(context);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setCancelable(true);
+                builder.setPositiveButton("Follow", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        viewingAccount.followTag(input.getText().toString(),db);
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    private void setTagBlockButton(Button button, Context context){
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Block a tag");
+
+                // Set up the input
+                final EditText input = new EditText(context);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setCancelable(true);
+                builder.setPositiveButton("Block", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        viewingAccount.blockTag(input.getText().toString(),db);
+                    }
+                });
+
+                builder.show();
             }
         });
     }
