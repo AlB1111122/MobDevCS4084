@@ -20,4 +20,5 @@
     <string name="blocked_tags">blocked tags</string>
     <string name="block_list">block list</string>
     <string name="add_inst_text">+</string>
+    <string name="edit_username_button">edit username button</string>
 </resources>

@@ -15,7 +15,15 @@
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="view profile"
+        android:text="view my profile"
         android:layout_gravity="center"/>
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="view another profile"
+        android:layout_marginTop="200dp"
+        android:layout_gravity="center_horizontal"/>
 
 </FrameLayout>

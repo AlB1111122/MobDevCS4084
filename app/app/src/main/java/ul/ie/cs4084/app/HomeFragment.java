@@ -84,6 +84,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        ((Button)view.findViewById(R.id.button4)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("profileId", "P3gSsY74H0dJkkF9Xw0qpyEP6DR2");
+                navController.navigate(R.id.action_to_profile, bundle);
+            }
+        });
+
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         //make an object to represent the Account

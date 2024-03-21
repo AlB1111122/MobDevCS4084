@@ -93,7 +93,7 @@ public class ProfileFragment extends Fragment {
             ViewGroup container,
             Bundle savedInstanceState
     ) {
-        // Inflate the layout for this fragment
+        // get the profile we are looking at
         assert getArguments() != null;
         String profileId = getArguments().getString("profileId");
         if(profileId == null){
@@ -101,26 +101,17 @@ public class ProfileFragment extends Fragment {
             return null;
         }
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
+        setSignOutButtonListener(view.findViewById(R.id.button2));//TODO: remove this later
+
+        pfp = (ImageView) view.findViewById(R.id.imageView);
+        usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
+        db = FirebaseFirestore.getInstance();
+
         LinearLayoutManager layoutManagerf = new LinearLayoutManager(this.getContext());
         layoutManagerf.setOrientation(LinearLayoutManager.HORIZONTAL);
         LinearLayoutManager layoutManagerb = new LinearLayoutManager(this.getContext());
         layoutManagerb.setOrientation(LinearLayoutManager.HORIZONTAL);
 
-        pfp = (ImageView) view.findViewById(R.id.imageView);
-        usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
-
-        followedTags = (RecyclerView) view.findViewById(R.id.followList);
-        followedTags.setLayoutManager(layoutManagerf);
-
-        blockedTags = (RecyclerView) view.findViewById(R.id.blockList);
-        blockedTags.setLayoutManager(layoutManagerb);
-
-        setSignOutButtonListener(view.findViewById(R.id.button2));
-        setTagFollowButton(view.findViewById(R.id.followTagButton), getContext());
-        setTagBlockButton(view.findViewById(R.id.blockTagButton), getContext());
-
-
-        db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
         DocumentReference viewingprofileDoc = db.collection("accounts").document(profileId);
         viewingprofileDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -135,11 +126,26 @@ public class ProfileFragment extends Fragment {
                         usernameText.append(viewingAccount.getUsername());
                         displayProfilePicture();
 
+                        followedTags = (RecyclerView) view.findViewById(R.id.followList);
+                        followedTags.setLayoutManager(layoutManagerf);
+
                         ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags());
                         followedTags.setAdapter(followAdapter);
+                        // only show edit options if looking at self
+                        if(Objects.equals(viewingAccount.getId(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())) {
 
-                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags());
-                        blockedTags.setAdapter(blockedAdapter);
+                            setChangeNameButton(view.findViewById(R.id.editUsernameButton), getContext());
+                            setTagFollowButton(view.findViewById(R.id.followTagButton), getContext());
+                            setTagBlockButton(view.findViewById(R.id.blockTagButton), getContext());
+
+                            ((TextView)view.findViewById(R.id.blockListTitle)).setVisibility(View.VISIBLE);
+                            blockedTags = (RecyclerView) view.findViewById(R.id.blockList);
+                            blockedTags.setVisibility(View.VISIBLE);
+                            blockedTags.setLayoutManager(layoutManagerb);
+
+                            ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags());
+                            blockedTags.setAdapter(blockedAdapter);
+                        }
                     }
                 }
             }
@@ -200,6 +206,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setTagFollowButton(Button button, Context context){
+        button.setVisibility(View.VISIBLE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,6 +234,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setTagBlockButton(Button button, Context context){
+        button.setVisibility(View.VISIBLE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,6 +253,34 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         viewingAccount.blockTag(input.getText().toString(),db);
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    private void setChangeNameButton(Button button, Context context){
+        button.setVisibility(View.VISIBLE);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Edit username");
+
+                // Set up the input
+                final EditText input = new EditText(context);
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setCancelable(true);
+                builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        viewingAccount.setUsername(input.getText().toString(),db);
                     }
                 });
 
