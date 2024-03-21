@@ -1,6 +1,8 @@
 package ul.ie.cs4084.app;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -10,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -17,8 +21,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
@@ -34,7 +42,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Account;
@@ -46,7 +56,12 @@ public class ProfileFragment extends Fragment {
     private ImageView pfp;
     private TextView usernameText;
     private ExecutorService executor;
-    Handler mainHandler;
+    private Handler mainHandler;
+
+    private RecyclerView followedTags;
+
+    //private ArrayList<String> blockedTags;
+
 
     NavController navController;
 
@@ -80,6 +95,10 @@ public class ProfileFragment extends Fragment {
 
         pfp = (ImageView) view.findViewById(R.id.imageView);
         usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
+        followedTags = (RecyclerView) view.findViewById(R.id.followList);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        followedTags.setLayoutManager(layoutManager);
 
         assert getArguments() != null;
         String profileId = getArguments().getString("profileId");
@@ -91,10 +110,6 @@ public class ProfileFragment extends Fragment {
         Button signOutB = (Button) view.findViewById(R.id.button2);
         setSignOutButtonListener(signOutB);
 
-        //FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
-        //assert fireBaseAuthUser != null; // we know its not null because they just signed in
-        //make an object to represent the Account
-        //viewingAccount = new Account(fireBaseAuthUser.getUid());
         db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
         DocumentReference signedInUser = db.collection("accounts").document(profileId);
@@ -109,6 +124,9 @@ public class ProfileFragment extends Fragment {
                         viewingAccount = new Account(document);
                         usernameText.append(viewingAccount.getUsername());
                         displayProfilePicture();
+
+                        ButtonAdapter adapter = new ButtonAdapter(viewingAccount.getFollowedTags());
+                        followedTags.setAdapter(adapter);
                     } else {
                         return;
                     }
@@ -163,7 +181,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AuthUI.getInstance()
-                        .signOut(getActivity())
+                        .signOut(requireActivity())
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             public void onComplete(@NonNull Task<Void> task) {
                                 navController.navigate(R.id.signIn);
@@ -173,4 +191,3 @@ public class ProfileFragment extends Fragment {
         });
     }
 }
-

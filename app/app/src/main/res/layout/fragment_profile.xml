@@ -21,14 +21,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:contentDescription="@string/profile_picture"
-        android:src="@drawable/ic_launcher_foreground" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@string/profile_picture"
+            android:src="@drawable/ic_launcher_foreground" />
+
         <TextView
             android:id="@+id/signedInProfileUsername"
             android:layout_width="wrap_content"
@@ -37,16 +38,13 @@
             android:text="@string/username_stub"
             android:layout_marginTop="5dp"/>
 
-        <!--<HorizontalScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/followList"
+            android:contentDescription="followList"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="10dp">
-
-            <GridLayout
-                android:rowCount="3"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical" />
-        </HorizontalScrollView>-->
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+        </androidx.recyclerview.widget.RecyclerView>
     </LinearLayout>
 </FrameLayout>
