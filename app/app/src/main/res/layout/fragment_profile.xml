@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -38,13 +38,32 @@
             android:text="@string/username_stub"
             android:layout_marginTop="5dp"/>
 
+        <TextView
+            android:id="@+id/followListTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/followed_tags"
+            android:layout_marginTop="5dp"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/followList"
-            android:contentDescription="followList"
+            android:contentDescription="follow list"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
-        </androidx.recyclerview.widget.RecyclerView>
+            android:layout_height="40dp"/>
+
+        <TextView
+            android:id="@+id/blockListTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="blocked tags"
+            android:layout_marginTop="5dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blockList"
+            android:contentDescription="block list"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
     </LinearLayout>
 </FrameLayout>

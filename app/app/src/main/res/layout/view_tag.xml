@@ -1,11 +1,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical">
+    android:gravity="center"
+    android:layout_margin="1dp">
 
     <Button
         android:id="@+id/tagButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="tag"/>
+        android:gravity="center"
+        android:contentDescription="@string/tag_button"
+        />
+
 </FrameLayout>

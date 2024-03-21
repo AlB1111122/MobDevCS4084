@@ -14,4 +14,6 @@
     <string name="sign_in_to_the_app">sign in to the app</string>
     <string name="profile_picture">profile picture</string>
     <string name="username_stub">u/</string>
+    <string name="followed_tags">followed tags</string>
+    <string name="tag_button">tag button</string>
 </resources>

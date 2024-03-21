@@ -57,11 +57,8 @@ public class ProfileFragment extends Fragment {
     private TextView usernameText;
     private ExecutorService executor;
     private Handler mainHandler;
-
     private RecyclerView followedTags;
-
-    //private ArrayList<String> blockedTags;
-
+    private RecyclerView blockedTags;
 
     NavController navController;
 
@@ -92,13 +89,19 @@ public class ProfileFragment extends Fragment {
     ) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
+        LinearLayoutManager layoutManagerf = new LinearLayoutManager(this.getContext());
+        layoutManagerf.setOrientation(LinearLayoutManager.HORIZONTAL);
+        LinearLayoutManager layoutManagerb = new LinearLayoutManager(this.getContext());
+        layoutManagerb.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         pfp = (ImageView) view.findViewById(R.id.imageView);
         usernameText = (TextView) view.findViewById(R.id.signedInProfileUsername);
+
         followedTags = (RecyclerView) view.findViewById(R.id.followList);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        followedTags.setLayoutManager(layoutManager);
+        followedTags.setLayoutManager(layoutManagerf);
+
+        blockedTags = (RecyclerView) view.findViewById(R.id.blockList);
+        blockedTags.setLayoutManager(layoutManagerb);
 
         assert getArguments() != null;
         String profileId = getArguments().getString("profileId");
@@ -125,10 +128,11 @@ public class ProfileFragment extends Fragment {
                         usernameText.append(viewingAccount.getUsername());
                         displayProfilePicture();
 
-                        ButtonAdapter adapter = new ButtonAdapter(viewingAccount.getFollowedTags());
-                        followedTags.setAdapter(adapter);
-                    } else {
-                        return;
+                        ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags());
+                        followedTags.setAdapter(followAdapter);
+
+                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags());
+                        blockedTags.setAdapter(blockedAdapter);
                     }
                 }
             }
