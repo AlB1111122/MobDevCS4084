@@ -16,4 +16,8 @@
     <string name="username_stub">u/</string>
     <string name="followed_tags">followed tags</string>
     <string name="tag_button">tag button</string>
+    <string name="follow_list">follow list</string>
+    <string name="blocked_tags">blocked tags</string>
+    <string name="block_list">block list</string>
+    <string name="add_inst_text">+</string>
 </resources>

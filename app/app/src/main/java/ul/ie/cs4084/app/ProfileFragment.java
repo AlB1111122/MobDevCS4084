@@ -115,8 +115,8 @@ public class ProfileFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         //check if the Account for this fireBaseAuthUser exists
-        DocumentReference signedInUser = db.collection("accounts").document(profileId);
-        signedInUser.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        DocumentReference viewingprofileDoc = db.collection("accounts").document(profileId);
+        viewingprofileDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -143,7 +143,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        //get the user who just signed in
 
     }
 
