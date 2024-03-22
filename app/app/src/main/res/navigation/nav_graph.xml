@@ -41,5 +41,14 @@
         <action
             android:id="@+id/action_to_profile"
             app:destination="@id/Profile" />
+        <action
+            android:id="@+id/action_Home_to_FullscreenPost"
+            app:destination="@id/FullscreenPost" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/FullscreenPost"
+        android:name="ul.ie.cs4084.app.FullscreenPostFragment"
+        android:label="fullscreenPost">
     </fragment>
 </navigation>
