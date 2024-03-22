@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putString("profileId", "P3gSsY74H0dJkkF9Xw0qpyEP6DR2");
+                bundle.putString("profileId", "example profile");
                 navController.navigate(R.id.action_to_profile, bundle);
             }
         });
