@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.DialogCompat;
@@ -97,7 +98,6 @@ public class ProfileFragment extends Fragment {
         assert getArguments() != null;
         String profileId = getArguments().getString("profileId");
         if(profileId == null){
-            navController.navigate(R.id.action_to_home);
             return null;
         }
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
