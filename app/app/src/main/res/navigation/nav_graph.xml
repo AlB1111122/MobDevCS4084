@@ -50,5 +50,9 @@
         android:id="@+id/FullscreenPost"
         android:name="ul.ie.cs4084.app.FullscreenPostFragment"
         android:label="fullscreenPost">
+        <argument
+            android:name="postId"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 </navigation>

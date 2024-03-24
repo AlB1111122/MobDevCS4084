@@ -52,7 +52,6 @@ public class SignInFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         authStatus = FirebaseAuth.getInstance();
-        //mainText = (TextView)getView().findViewById(R.id.textView);
         user = authStatus.getCurrentUser();
         if (user != null) {
             NavController navController = NavHostFragment.findNavController(this);

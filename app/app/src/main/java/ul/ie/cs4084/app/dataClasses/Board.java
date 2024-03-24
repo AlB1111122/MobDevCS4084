@@ -101,7 +101,7 @@ public class Board{
     }
 
     public String getName() {
-        return id;
+        return name;
     }
 
     public String getDescription() {

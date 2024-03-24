@@ -1,13 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FullscreenPostFragment">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
 
-</FrameLayout>
+        <LinearLayout
+            android:id="@+id/postInformation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/OPpfp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="start"
+                android:contentDescription="@string/op_s_profile_picture"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/postUsernameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="5dp"
+                android:text="@string/username_stub" />
+
+            <TextView
+                android:id="@+id/postBoardText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="5dp"
+                android:text="@string/board_stub" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/postTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_placeholder"
+            android:textSize="25sp"/>
+
+        <TextView
+            android:id="@+id/postBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/example_text"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/postTagRV"
+            android:contentDescription="@string/post_tag_desc"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+
+        <LinearLayout
+            android:id="@+id/postInteracts"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/upvoteButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:text="@string/add_inst_text" />
+
+            <Button
+                android:id="@+id/downvoteButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/downvote"
+                android:text="@string/minus_inst_text" />
+
+            <Button
+                android:id="@+id/commentButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/comment_desc"
+                android:outlineProvider="paddedBounds"
+                app:icon="@android:drawable/stat_notify_chat"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

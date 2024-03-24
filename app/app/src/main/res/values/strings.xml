@@ -21,4 +21,13 @@
     <string name="block_list">block list</string>
     <string name="add_inst_text">+</string>
     <string name="edit_username_button">edit username button</string>
+    <string name="title_placeholder">Title</string>
+    <string name="op_s_profile_picture">OP\'s profile picture</string>
+    <string name="board_stub">b/</string>
+    <string name="post_tag_desc">list of tags asociated with the post</string>
+    <string name="example_text">example text</string>
+    <string name="minus_inst_text">-</string>
+    <string name="comment_desc">make a comment</string>
+    <string name="upvote">upvote</string>
+    <string name="downvote">downvote</string>
 </resources>

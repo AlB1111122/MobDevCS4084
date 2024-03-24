@@ -2,6 +2,8 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static java.lang.Thread.sleep;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,14 +28,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Account;
+import ul.ie.cs4084.app.dataClasses.Factory;
 
 public class HomeFragment extends Fragment {
 
@@ -54,7 +61,6 @@ public class HomeFragment extends Fragment {
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -96,7 +102,9 @@ public class HomeFragment extends Fragment {
         ((Button)view.findViewById(R.id.postExampleButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navController.navigate(R.id.action_Home_to_FullscreenPost);
+                Bundle bundle = new Bundle();
+                bundle.putString("postId", "example post");
+                navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
             }
         });
 
@@ -140,5 +148,10 @@ public class HomeFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 }
