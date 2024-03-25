@@ -2,8 +2,6 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,6 +26,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,14 +47,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
-import ul.ie.cs4084.app.dataClasses.Account;
 import ul.ie.cs4084.app.dataClasses.Post;
 
-public class FullscreenPostFragment extends Fragment {
+public class FullscreenPostFragment extends Fragment implements OnMapReadyCallback{
 
     private ExecutorService executor;
     Handler mainHandler;
@@ -61,6 +66,7 @@ public class FullscreenPostFragment extends Fragment {
     Button upvote;
     Button downvote;
     Button comment;
+    MapView mapView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -82,6 +88,10 @@ public class FullscreenPostFragment extends Fragment {
         upvote = view.findViewById(R.id.upvoteButton);
         downvote = view.findViewById(R.id.downvoteButton);
         comment = view.findViewById(R.id.commentButton);
+
+        mapView = (MapView) view.findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
 
         Context c = getContext();
 
@@ -233,5 +243,13 @@ public class FullscreenPostFragment extends Fragment {
                 Log.d(TAG, "error fetching PFP");
             }
         });
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .title("Marker"));
+
     }
 }

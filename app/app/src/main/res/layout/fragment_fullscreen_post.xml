@@ -63,6 +63,12 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"/>
 
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:contentDescription="@string/location_posted" />
+
         <LinearLayout
             android:id="@+id/postInteracts"
             android:layout_width="match_parent"
