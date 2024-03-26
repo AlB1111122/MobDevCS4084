@@ -67,7 +67,8 @@
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:contentDescription="@string/location_posted" />
+            android:contentDescription="@string/location_posted"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/postInteracts"

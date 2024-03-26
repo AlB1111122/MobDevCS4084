@@ -1,6 +1,7 @@
 package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static androidx.constraintlayout.widget.ConstraintSet.GONE;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -44,9 +45,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Post;
@@ -67,6 +70,8 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
     Button downvote;
     Button comment;
     MapView mapView;
+    GeoPoint location;
+    private final CountDownLatch locationLatch = new CountDownLatch(1);
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -103,10 +108,10 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
+                    DocumentSnapshot postDocument = task.getResult();
                     //if yes populate local object
-                    if (document.exists()) {
-                        p = new Post(document);
+                    if (postDocument.exists()) {
+                        p = new Post(postDocument);
                         postTitle.setText(p.getTitle());
                         postBody.setText(p.getBody());
 
@@ -116,6 +121,10 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
 
                         ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags());
                         postTags.setAdapter(tagAdapter);
+
+
+                        location = p.getGeotag();
+                        locationLatch.countDown();
                         //set buttons
                         upvote.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -247,9 +256,26 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .title("Marker"));
-
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        locationLatch.await();
+                        if (location != null) {
+                            Runnable runnable = new Runnable() {//post back to ui thred
+                                @Override
+                                public void run() {
+                                    mapView.setVisibility(View.VISIBLE);
+                                    googleMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                            .title("Marker"));
+                                }
+                            };
+                            mainHandler.post(runnable);
+                        }
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }});
     }
 }
