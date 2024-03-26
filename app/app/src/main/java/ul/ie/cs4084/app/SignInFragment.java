@@ -21,6 +21,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -30,9 +31,7 @@ import java.util.Objects;
 
 public class SignInFragment extends Fragment {
 
-    private FirebaseAuth authStatus;
-    private TextView mainText;
-    private FirebaseUser user;
+    Snackbar snackbar;
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             //email and password auth providers
             new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -44,16 +43,14 @@ public class SignInFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SignInFragment newInstance(String param1, String param2) {
+    public static SignInFragment newInstance() {
         return new SignInFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        authStatus = FirebaseAuth.getInstance();
-        user = authStatus.getCurrentUser();
-        if (user != null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.action_to_home);
         }
@@ -66,13 +63,9 @@ public class SignInFragment extends Fragment {
             Bundle savedInstanceState
     ){
         View view = inflater.inflate(R.layout.fragment_sign_in, container,false);
-        Button signInB = (Button) view.findViewById(R.id.signInButton);
-        signInB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startSignIn();
-            }
-        });
+        Button signInB = view.findViewById(R.id.signInButton);
+        signInB.setOnClickListener(v -> startSignIn());
+        snackbar = Snackbar.make(view.findViewById(R.id.signInLayout),R.string.example_text,Snackbar.LENGTH_SHORT);
         return view;
     }
 
@@ -85,7 +78,7 @@ public class SignInFragment extends Fragment {
         signInLauncher.launch(signInIntent);
     }
 
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             (result) -> {
                 IdpResponse response = result.getIdpResponse();
@@ -97,16 +90,18 @@ public class SignInFragment extends Fragment {
                     // Sign in failed
                     if (response == null) {
                         // User pressed back button
-                        mainText.setText(R.string.sign_in_cancelled_msg);
+                        snackbar.setText(R.string.sign_in_cancelled_msg);
+                        snackbar.show();
                         return;
                     }
 
                     if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
-                        mainText.setText(R.string.no_internet_msg);
+                        snackbar.setText(R.string.no_internet_msg);
+                        snackbar.show();
                         return;
                     }
-
-                    mainText.setText(R.string.generic_error_msg);
+                    snackbar.setText(R.string.generic_error_msg);
+                    snackbar.show();
                     Log.e(TAG, "Sign-in error: ", response.getError());
                 }
             }
