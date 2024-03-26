@@ -31,4 +31,7 @@
     <string name="upvote">upvote</string>
     <string name="downvote">downvote</string>
     <string name="location_posted">location posted</string>
+    <string name="title">title</string>
+    <string name="post_body">post body</string>
+    <string name="create">create</string>
 </resources>
