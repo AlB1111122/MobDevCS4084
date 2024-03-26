@@ -1,7 +1,6 @@
 package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static androidx.constraintlayout.widget.ConstraintSet.GONE;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -27,20 +26,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -49,6 +40,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
@@ -94,7 +86,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         downvote = view.findViewById(R.id.downvoteButton);
         comment = view.findViewById(R.id.commentButton);
 
-        mapView = (MapView) view.findViewById(R.id.mapView);
+        mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
@@ -102,99 +94,69 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userId = db.document("accounts/"+
-                FirebaseAuth.getInstance().getCurrentUser().getUid());
+                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         DocumentReference viewingprofileDoc = db.collection("posts").document(postId);
-        viewingprofileDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot postDocument = task.getResult();
-                    //if yes populate local object
-                    if (postDocument.exists()) {
-                        p = new Post(postDocument);
-                        postTitle.setText(p.getTitle());
-                        postBody.setText(p.getBody());
+        viewingprofileDoc.get().addOnCompleteListener(getPostTask -> {
+            if (getPostTask.isSuccessful()) {
+                DocumentSnapshot postDocument = getPostTask.getResult();
+                //if yes populate local object
+                if (postDocument.exists()) {
+                    p = new Post(postDocument);
+                    postTitle.setText(p.getTitle());
+                    postBody.setText(p.getBody());
 
-                        LinearLayoutManager layoutManager = new LinearLayoutManager(c);
-                        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-                        postTags.setLayoutManager(layoutManager);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(c);
+                    layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                    postTags.setLayoutManager(layoutManager);
 
-                        ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags());
-                        postTags.setAdapter(tagAdapter);
+                    ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags());
+                    postTags.setAdapter(tagAdapter);
 
 
-                        location = p.getGeotag();
-                        locationLatch.countDown();
-                        //set buttons
-                        upvote.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                p.addUpvote(userId,db);
+                    location = p.getGeotag();
+                    locationLatch.countDown();
+                    //set buttons
+                    upvote.setOnClickListener(v -> p.addUpvote(userId,db));
+                    downvote.setOnClickListener(v -> p.addDownvote(userId,db));
+                    DocumentReference op = p.getProfile();
+                    DocumentReference parentBoard = p.getParentBoard();
+                    //display op information
+                    executor.execute(() -> {//runnig on a thred because its slow
+                        op.get().addOnCompleteListener(getOPTask -> {
+                            if (getOPTask.isSuccessful()) {
+                                DocumentSnapshot accountDocument = getOPTask.getResult();
+                                if (accountDocument.exists()) {
+                                    //post back to ui thred
+                                    Runnable runnable = () -> {
+                                        displayProfilePicture(accountDocument.getString("profilePictureUrl"));
+                                        OPname.append(accountDocument.getString("username"));
+                                    };
+                                    mainHandler.post(runnable);
+                                } else {
+                                    Log.d(TAG, "error fetching posts original poster");
+                                }
                             }
+
                         });
-                        downvote.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                p.addDownvote(userId,db);
+                    });
+                    //display the name of the board it was posted to
+                    executor.execute(() -> {//runnig on a thred because its slow
+                        parentBoard.get().addOnCompleteListener(getBoardTask -> {
+                            if (getBoardTask.isSuccessful()) {
+                                DocumentSnapshot boardDocument = getBoardTask.getResult();
+                                if (boardDocument.exists()) {
+                                    //post back to ui thred
+                                    Runnable runnable = () -> board.append(boardDocument.getString("name"));
+                                    mainHandler.post(runnable);
+                                } else {
+                                    Log.d(TAG, "error board");
+                                }
                             }
+
                         });
-                        DocumentReference op = p.getProfile();
-                        DocumentReference parentBoard = p.getParentBoard();
-                        //display op information
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {//runnig on a thred because its slow
-                                op.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot document = task.getResult();
-                                            if (document.exists()) {
-                                                Runnable runnable = new Runnable() {//post back to ui thred
-                                                    @Override
-                                                    public void run() {
-                                                        displayProfilePicture(document.getString("profilePictureUrl"));
-                                                        OPname.append(document.getString("username"));
-                                                    }
-                                                };
-                                                mainHandler.post(runnable);
-                                            } else {
-                                                Log.d(TAG, "error fetching posts original poster");
-                                            }
-                                        }
-
-                                    }
-                                });
-                            }});
-                        //display the name of the board it was posted to
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {//runnig on a thred because its slow
-                                parentBoard.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot document = task.getResult();
-                                            if (document.exists()) {
-
-                                                Runnable runnable = new Runnable() {//post back to ui thred
-                                                    @Override
-                                                    public void run() {
-                                                        board.append(document.getString("name"));
-                                                    }
-                                                };
-                                                mainHandler.post(runnable);
-                                            } else {
-                                                Log.d(TAG, "error board");
-                                            }
-                                        }
-
-                                    }
-                                });
-                            }});
-                    }else{
-                        Log.d(TAG, "Post not found");
-                    }
+                    });
+                }else{
+                    Log.d(TAG, "Post not found");
                 }
             }
         });
@@ -226,56 +188,36 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
     private void displayProfilePicture(String url) {
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
         final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {//runnig on a thred because its slow
-                        Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                                bytes,
-                                0,
-                                bytes.length
-                        ));
-                        Runnable pfpRunnable = new Runnable() {//post back to ui thred
-                            @Override
-                            public void run() {
-                                OPpfp.setImageDrawable(image);}
-                        };
-                        mainHandler.post(pfpRunnable);
+        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
+            Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
+                    bytes,
+                    0,
+                    bytes.length
+            ));
+            //post back to ui thred
+            mainHandler.post(() -> OPpfp.setImageDrawable(image));
 
-                    }});
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.d(TAG, "error fetching PFP");
-            }
-        });
+        })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        locationLatch.await();
-                        if (location != null) {
-                            Runnable runnable = new Runnable() {//post back to ui thred
-                                @Override
-                                public void run() {
-                                    mapView.setVisibility(View.VISIBLE);
-                                    googleMap.addMarker(new MarkerOptions()
-                                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                                            .title("Marker"));
-                                }
-                            };
-                            mainHandler.post(runnable);
-                        }
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+            executor.execute(() -> {
+                try {
+                    locationLatch.await();
+                    if (location != null) {
+                        //post back to ui thred
+                        Runnable runnable = () -> {
+                            mapView.setVisibility(View.VISIBLE);
+                            googleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                    .title("Marker"));
+                        };
+                        mainHandler.post(runnable);
                     }
-                }});
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
     }
 }
