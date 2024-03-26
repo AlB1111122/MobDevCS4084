@@ -23,7 +23,7 @@ public class Account{
         this.blockedTags = blockedTags;
     }
 
-    public Account(DocumentSnapshot accountDoc){//Construct from exisiting document
+    public Account(DocumentSnapshot accountDoc){//Construct from existing document
         this.id = accountDoc.getId();
         this.username = accountDoc.getString("username");
         this.profilePictureUrl = accountDoc.getString("profilePictureUrl");
