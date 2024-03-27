@@ -94,7 +94,11 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         postTags = view.findViewById(R.id.postTagRV);
         addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
         view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
+            mapView = view.findViewById(R.id.setMapMarkerView);
+            mapView.onCreate(savedInstanceState);
+            mapView.getMapAsync(this);
             mapView.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
             (view.findViewById(R.id.addLocationByText)).setVisibility(View.VISIBLE);
             (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
             this.setLocation();
@@ -105,14 +109,11 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             mapView.setVisibility(View.GONE);
             (view.findViewById(R.id.addLocationByText)).setVisibility(View.GONE);
             (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
-            view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
+            view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
         });
         //(view.findViewById(R.id.addLocationByText)).setOnClickListener(task ->{
 
         //});
-        mapView = view.findViewById(R.id.setMapMarkerView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -262,8 +263,13 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                                 mainHandler.post(()->{
                                         map.addMarker(new MarkerOptions()
                                                 .position(position)
+                                                .title("location")
                                         );
                                         map.moveCamera(camera);
+                                    map.setOnMapClickListener(mapClick ->{
+                                        map.clear();
+                                        map.addMarker(new MarkerOptions().position(new LatLng(mapClick.latitude,mapClick.longitude)));
+                                    });
                                 });
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
