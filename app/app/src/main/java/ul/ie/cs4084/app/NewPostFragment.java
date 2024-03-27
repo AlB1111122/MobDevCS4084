@@ -330,7 +330,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(position, 15);
         map.addMarker(new MarkerOptions()
                 .position(position)
-                .title("location")
         );
         map.moveCamera(camera);
     }

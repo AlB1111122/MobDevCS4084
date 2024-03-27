@@ -115,7 +115,7 @@
         <com.google.android.gms.maps.MapView
             android:id="@+id/setMapMarkerView"
             android:layout_width="match_parent"
-            android:layout_height="404dp"
+            android:layout_height="400dp"
             android:contentDescription="@string/location_posted"/>
 
         <Button
