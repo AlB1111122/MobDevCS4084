@@ -31,5 +31,12 @@
             android:text="view example post"
             android:layout_gravity="center_horizontal"/>
 
+        <Button
+            android:id="@+id/createPostButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="create a post"
+            android:layout_gravity="center_horizontal"/>
+
     </LinearLayout>
 </FrameLayout>

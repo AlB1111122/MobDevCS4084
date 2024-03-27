@@ -26,6 +26,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -207,11 +209,14 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     locationLatch.await();
                     if (location != null) {
                         //post back to ui thred
+                        LatLng position = new LatLng(location.getLatitude(),location.getLongitude());
+                        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(position, 15);
                         Runnable runnable = () -> {
                             mapView.setVisibility(View.VISIBLE);
                             googleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                    .position(position)
                                     .title("Marker"));
+                            googleMap.moveCamera(camera);
                         };
                         mainHandler.post(runnable);
                     }

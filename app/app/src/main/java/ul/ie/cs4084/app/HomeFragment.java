@@ -76,6 +76,11 @@ public class HomeFragment extends Fragment {
             navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
         });
 
+        (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("boardId", "example board");
+            navController.navigate(R.id.action_to_new_post, bundle);
+        });
 
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
