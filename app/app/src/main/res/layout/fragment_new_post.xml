@@ -81,14 +81,6 @@
                 android:text="@string/add_geotag"/>
 
             <Button
-                android:id="@+id/addLocationByText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/add_location_by_search"
-                android:layout_marginStart="10dp"
-                android:visibility="gone"/>
-
-            <Button
                 android:id="@+id/cancelGeotag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,12 +89,34 @@
 
         </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/addLocationByTextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="150dp"
+            android:text="@string/add_location_by_search"
+            android:layout_marginStart="10dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/autoCompleteFragmentView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            tools:layout="@layout/places_autocomplete_fragment"
+            android:visibility="gone"/>
+
         <com.google.android.gms.maps.MapView
             android:id="@+id/setMapMarkerView"
             android:layout_width="match_parent"
             android:layout_height="404dp"
-            android:contentDescription="@string/location_posted"
-            android:visibility="gone"/>
+            android:contentDescription="@string/location_posted"/>
 
         <Button
             android:id="@+id/createPostButton"

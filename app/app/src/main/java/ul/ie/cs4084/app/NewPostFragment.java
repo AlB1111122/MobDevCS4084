@@ -2,6 +2,7 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -43,6 +45,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.CircularBounds;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.api.net.SearchByTextRequest;
+import com.google.android.libraries.places.widget.AutocompleteFragment;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -53,7 +65,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -76,6 +90,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private final CountDownLatch mapLatch = new CountDownLatch(1);
     private FusedLocationProviderClient fusedLocationClient;
     private GeoPoint postLocation = null;
+    PlacesClient placesClient;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -99,21 +116,41 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             mapView.getMapAsync(this);
             mapView.setVisibility(View.VISIBLE);
             view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
-            (view.findViewById(R.id.addLocationByText)).setVisibility(View.VISIBLE);
+            (view.findViewById(R.id.addLocationByTextButton)).setVisibility(View.VISIBLE);
             (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.VISIBLE);
             this.setLocation();
+
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+            AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                    this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
+
+            assert autocompleteFragment != null;
+            autocompleteFragment.setPlaceFields(placeFields);
+            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                @Override
+                public void onError(@NonNull Status status) {
+                    if (status.getStatusMessage() != null) {
+                        Log.i(TAG, status.getStatusMessage());
+                    }
+                }
+                @Override
+                public void onPlaceSelected(@NonNull Place place) {
+                    updateMapMarker(place.getLatLng());
+                }
+            });
         });
 
         view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {
             postLocation = null;
             mapView.setVisibility(View.GONE);
-            (view.findViewById(R.id.addLocationByText)).setVisibility(View.GONE);
+            (view.findViewById(R.id.addLocationByTextButton)).setVisibility(View.GONE);
             (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
             view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
         });
-        //(view.findViewById(R.id.addLocationByText)).setOnClickListener(task ->{
+        (view.findViewById(R.id.addLocationByTextButton)).setOnClickListener(task ->{
 
-        //});
+        });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -198,6 +235,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         executor = act.executorService;//DEF not how to do it firegure out later
         mainHandler = new Handler(Looper.getMainLooper());
         navController = NavHostFragment.findNavController(this);
+
+        Places.initialize(getContext(), getContext().getString(R.string.map_key));
+        placesClient = Places.createClient(getContext());
     }
 
     @Override
@@ -258,14 +298,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                                 postLocation = new GeoPoint(location.getLatitude(),location.getLongitude());
                                 LatLng position = new LatLng(location.getLatitude(),location.getLongitude());
 
-                                CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(position, 15);
-
                                 mainHandler.post(()->{
-                                        map.addMarker(new MarkerOptions()
-                                                .position(position)
-                                                .title("location")
-                                        );
-                                        map.moveCamera(camera);
+
+                                    updateMapMarker(position);
                                     map.setOnMapClickListener(mapClick ->{
                                         map.clear();
                                         map.addMarker(new MarkerOptions().position(new LatLng(mapClick.latitude,mapClick.longitude)));
@@ -282,9 +317,21 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map=googleMap;
+        map.setMyLocationEnabled(true);
         mapLatch.countDown();
+    }
+
+    private void updateMapMarker(LatLng position){
+        map.clear();
+        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(position, 15);
+        map.addMarker(new MarkerOptions()
+                .position(position)
+                .title("location")
+        );
+        map.moveCamera(camera);
     }
 }

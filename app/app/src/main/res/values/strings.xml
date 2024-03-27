@@ -37,4 +37,5 @@
     <string name="add_geotag">add geotag</string>
     <string name="add_location_by_search">add location by search</string>
     <string name="cancel_geotag">cancel geotag</string>
+    <string name="location">location</string>
 </resources>
