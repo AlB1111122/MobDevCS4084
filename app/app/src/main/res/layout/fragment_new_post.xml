@@ -89,21 +89,6 @@
 
         </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/addLocationByTextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxWidth="150dp"
-            android:text="@string/add_location_by_search"
-            android:layout_marginStart="10dp"
-            android:visibility="gone"/>
-
-    </LinearLayout>
-
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/autoCompleteFragmentView"
             android:layout_width="match_parent"
@@ -116,7 +101,8 @@
             android:id="@+id/setMapMarkerView"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:contentDescription="@string/location_posted"/>
+            android:contentDescription="@string/location_posted"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/createPostButton"

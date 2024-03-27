@@ -2,13 +2,11 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcel;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,17 +41,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.CircularBounds;
+import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.api.net.SearchByTextRequest;
-import com.google.android.libraries.places.widget.AutocompleteFragment;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.textfield.TextInputEditText;
@@ -82,7 +77,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private ImageView OPpfp;
     private TextView OPname;
     private TextView board;
-    private RecyclerView postTags;
     private ButtonAdapter tagAdapter;
     private HashSet<String> tagSet = new HashSet<>();
     private MapView mapView;
@@ -108,48 +102,56 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         OPpfp = view.findViewById(R.id.OPpfp);
         OPname = view.findViewById(R.id.postUsernameText);
         board = view.findViewById(R.id.postBoardText);
-        postTags = view.findViewById(R.id.postTagRV);
+        RecyclerView postTags = view.findViewById(R.id.postTagRV);
         addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
-        view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
-            mapView = view.findViewById(R.id.setMapMarkerView);
-            mapView.onCreate(savedInstanceState);
-            mapView.getMapAsync(this);
-            mapView.setVisibility(View.VISIBLE);
-            view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
-            (view.findViewById(R.id.addLocationByTextButton)).setVisibility(View.VISIBLE);
-            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.VISIBLE);
-            this.setLocation();
-
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-            AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                    this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
-
-            assert autocompleteFragment != null;
-            autocompleteFragment.setPlaceFields(placeFields);
-            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                @Override
-                public void onError(@NonNull Status status) {
-                    if (status.getStatusMessage() != null) {
-                        Log.i(TAG, status.getStatusMessage());
+            view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
+                mapView = view.findViewById(R.id.setMapMarkerView);
+                mapView.onCreate(savedInstanceState);
+                mapView.getMapAsync(this);
+                mapView.setVisibility(View.VISIBLE);
+                view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
+                (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.VISIBLE);
+                (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.VISIBLE);
+                this.setLocation();
+                executor.execute(() -> {
+                    try {
+                        mapLatch.await();
+                        mainHandler.post(()-> map.setOnMapClickListener(mapClick -> updateMapMarker(new LatLng(mapClick.latitude, mapClick.longitude))));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                }
-                @Override
-                public void onPlaceSelected(@NonNull Place place) {
-                    updateMapMarker(place.getLatLng());
-                }
-            });
-        });
+                });
 
+                final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+                AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                        this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
+
+                assert autocompleteFragment != null;
+                autocompleteFragment.setPlaceFields(placeFields);
+                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                    @Override
+                    public void onError(@NonNull Status status) {
+                        if (status.getStatusMessage() != null) {
+                            Log.i(TAG, status.getStatusMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onPlaceSelected(Place place) {
+                        if (place != null) {
+                            updateMapMarker(place.getLatLng());
+                        }
+                    }
+                });
+            });
         view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {
             postLocation = null;
             mapView.setVisibility(View.GONE);
-            (view.findViewById(R.id.addLocationByTextButton)).setVisibility(View.GONE);
+            (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.GONE);
             (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
             view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
-        });
-        (view.findViewById(R.id.addLocationByTextButton)).setOnClickListener(task ->{
-
+            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.GONE);
         });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
@@ -299,12 +301,8 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                                 LatLng position = new LatLng(location.getLatitude(),location.getLongitude());
 
                                 mainHandler.post(()->{
-
+                                    map.setMyLocationEnabled(true);
                                     updateMapMarker(position);
-                                    map.setOnMapClickListener(mapClick ->{
-                                        map.clear();
-                                        map.addMarker(new MarkerOptions().position(new LatLng(mapClick.latitude,mapClick.longitude)));
-                                    });
                                 });
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
@@ -317,11 +315,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map=googleMap;
-        map.setMyLocationEnabled(true);
         mapLatch.countDown();
     }
 
