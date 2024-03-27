@@ -29,6 +29,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -44,7 +47,7 @@ import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Factory;
 
-public class NewPostFragment extends Fragment {
+public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
     private ExecutorService executor;
     Handler mainHandler;
@@ -55,6 +58,7 @@ public class NewPostFragment extends Fragment {
     RecyclerView postTags;
     ButtonAdapter tagAdapter;
     HashSet<String> tagSet = new HashSet<>();
+    MapView mapView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -72,8 +76,9 @@ public class NewPostFragment extends Fragment {
         board = view.findViewById(R.id.postBoardText);
         postTags = view.findViewById(R.id.postTagRV);
         addTagButton(view.findViewById(R.id.addPostTagButton),getContext());
-        /*postTitle = view.findViewById(R.id.postTitle);
-        postBody = view.findViewById(R.id.postBody);*/
+        mapView = view.findViewById(R.id.setMapMarkerView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -203,4 +208,7 @@ public class NewPostFragment extends Fragment {
             builder.show();
         });
     }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {}
 }

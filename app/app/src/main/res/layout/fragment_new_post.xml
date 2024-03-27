@@ -70,6 +70,12 @@
             android:layout_gravity="end"
             android:text="@string/add_inst_text"/>
 
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/setMapMarkerView"
+            android:layout_width="match_parent"
+            android:layout_height="404dp"
+            android:contentDescription="@string/location_posted"/>
+
         <Button
             android:id="@+id/createPostButton"
             android:layout_width="match_parent"
