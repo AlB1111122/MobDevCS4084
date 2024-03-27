@@ -3,14 +3,17 @@ package ul.ie.cs4084.app;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -29,9 +32,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,6 +51,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Factory;
@@ -59,6 +68,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     ButtonAdapter tagAdapter;
     HashSet<String> tagSet = new HashSet<>();
     MapView mapView;
+    GoogleMap map;
+    CountDownLatch mapLatch = new CountDownLatch(1);
+    private FusedLocationProviderClient fusedLocationClient;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,7 +80,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         assert getArguments() != null;
         String boardId = getArguments().getString("boardId");
-        if(boardId == null){
+        if (boardId == null) {
             return null;
         }
 
@@ -75,10 +88,34 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         OPname = view.findViewById(R.id.postUsernameText);
         board = view.findViewById(R.id.postBoardText);
         postTags = view.findViewById(R.id.postTagRV);
-        addTagButton(view.findViewById(R.id.addPostTagButton),getContext());
+        addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
         mapView = view.findViewById(R.id.setMapMarkerView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (!(ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(executor, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+                                try {
+                                    mapLatch.await();
+                                    mainHandler.post(()->
+                                            map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(location.getLatitude(),location.getLongitude())))
+                                    );
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+                            }
+                        }
+                    });
+        }
+
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -90,10 +127,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        final DocumentReference parentBoard = db.document("boards/"+
+        final DocumentReference parentBoard = db.document("boards/" +
                 boardId);
 
-        final DocumentReference account = db.document("accounts/"+
+        final DocumentReference account = db.document("accounts/" +
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         executor.execute(() -> account.get().addOnCompleteListener(getProfileTask -> {
             if (getProfileTask.isSuccessful()) {
@@ -101,7 +138,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                 if (accountDocument.exists()) {
                     //post back to ui thred
                     String pfpUrl = accountDocument.getString("profilePictureUrl");
-                    String username= accountDocument.getString("username");
+                    String username = accountDocument.getString("username");
                     Runnable runnable = () -> {
                         displayProfilePicture(pfpUrl);
                         OPname.append(username);
@@ -135,14 +172,14 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     db,
                     parentBoard,
                     account,
-                    ((TextInputEditText)view.findViewById(R.id.postTitle)).getText().toString(),
-                    ((TextInputEditText)view.findViewById(R.id.postBody)).getText().toString(),
+                    ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString(),
+                    ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
                     null,
                     tagSet,
                     documentReference -> {
                         Bundle bundle = new Bundle();
                         bundle.putString("postId", documentReference.getId());
-                        navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
+                        navController.navigate(R.id.action_Home_to_FullscreenPost, bundle);
                     }
             );
         });
@@ -158,7 +195,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MainActivity act = (MainActivity)getActivity();
+        MainActivity act = (MainActivity) getActivity();
         assert act != null;
         executor = act.executorService;//DEF not how to do it firegure out later
         mainHandler = new Handler(Looper.getMainLooper());
@@ -210,5 +247,8 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {}
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        map=googleMap;
+        mapLatch.countDown();
+    }
 }
