@@ -34,4 +34,7 @@
     <string name="title">title</string>
     <string name="post_body">post body</string>
     <string name="create">create</string>
+    <string name="add_geotag">add geotag</string>
+    <string name="add_location_by_search">add location by search</string>
+    <string name="cancel_geotag">cancel geotag</string>
 </resources>

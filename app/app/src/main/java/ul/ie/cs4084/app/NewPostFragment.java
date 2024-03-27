@@ -34,10 +34,13 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
@@ -45,6 +48,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -59,19 +63,19 @@ import ul.ie.cs4084.app.dataClasses.Factory;
 public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
     private ExecutorService executor;
-    Handler mainHandler;
-    NavController navController;
-    ImageView OPpfp;
-    TextView OPname;
-    TextView board;
-    RecyclerView postTags;
-    ButtonAdapter tagAdapter;
-    HashSet<String> tagSet = new HashSet<>();
-    MapView mapView;
-    GoogleMap map;
-    CountDownLatch mapLatch = new CountDownLatch(1);
+    private Handler mainHandler;
+    private NavController navController;
+    private ImageView OPpfp;
+    private TextView OPname;
+    private TextView board;
+    private RecyclerView postTags;
+    private ButtonAdapter tagAdapter;
+    private HashSet<String> tagSet = new HashSet<>();
+    private MapView mapView;
+    private GoogleMap map;
+    private final CountDownLatch mapLatch = new CountDownLatch(1);
     private FusedLocationProviderClient fusedLocationClient;
-
+    private GeoPoint postLocation = null;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -89,33 +93,26 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         board = view.findViewById(R.id.postBoardText);
         postTags = view.findViewById(R.id.postTagRV);
         addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
+        view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
+            mapView.setVisibility(View.VISIBLE);
+            (view.findViewById(R.id.addLocationByText)).setVisibility(View.VISIBLE);
+            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
+            this.setLocation();
+        });
+
+        view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {
+            postLocation = null;
+            mapView.setVisibility(View.GONE);
+            (view.findViewById(R.id.addLocationByText)).setVisibility(View.GONE);
+            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
+            view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
+        });
+        //(view.findViewById(R.id.addLocationByText)).setOnClickListener(task ->{
+
+        //});
         mapView = view.findViewById(R.id.setMapMarkerView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
-        if (!(ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(executor, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null) {
-                                // Logic to handle location object
-                                try {
-                                    mapLatch.await();
-                                    mainHandler.post(()->
-                                            map.addMarker(new MarkerOptions()
-                                            .position(new LatLng(location.getLatitude(),location.getLongitude())))
-                                    );
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
-                                }
-
-                            }
-                        }
-                    });
-        }
-
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -174,7 +171,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     account,
                     ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString(),
                     ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
-                    null,
+                    postLocation,
                     tagSet,
                     documentReference -> {
                         Bundle bundle = new Bundle();
@@ -244,6 +241,39 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
             builder.show();
         });
+    }
+
+    private void setLocation(){
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (!(ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(executor, location -> {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                            try {
+                                mapLatch.await();
+                                postLocation = new GeoPoint(location.getLatitude(),location.getLongitude());
+                                LatLng position = new LatLng(location.getLatitude(),location.getLongitude());
+
+                                CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(position, 15);
+
+                                mainHandler.post(()->{
+                                        map.addMarker(new MarkerOptions()
+                                                .position(position)
+                                        );
+                                        map.moveCamera(camera);
+                                });
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                        }
+                    });
+        }else{
+            Log.d(TAG, "no location permission");
+        }
     }
 
     @Override

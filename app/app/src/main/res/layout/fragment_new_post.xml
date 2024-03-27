@@ -70,11 +70,39 @@
             android:layout_gravity="end"
             android:text="@string/add_inst_text"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/addLocationButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_geotag"/>
+
+            <Button
+                android:id="@+id/addLocationByText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_location_by_search"
+                android:layout_marginStart="10dp"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/cancelGeotag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_geotag"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
         <com.google.android.gms.maps.MapView
             android:id="@+id/setMapMarkerView"
             android:layout_width="match_parent"
             android:layout_height="404dp"
-            android:contentDescription="@string/location_posted"/>
+            android:contentDescription="@string/location_posted"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/createPostButton"
