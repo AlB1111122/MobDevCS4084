@@ -297,7 +297,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                             // Logic to handle location object
                             try {
                                 mapLatch.await();
-                                postLocation = new GeoPoint(location.getLatitude(),location.getLongitude());
                                 LatLng position = new LatLng(location.getLatitude(),location.getLongitude());
 
                                 mainHandler.post(()->{
@@ -328,5 +327,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                 .position(position)
         );
         map.moveCamera(camera);
+        postLocation = new GeoPoint(position.latitude, position.longitude);
     }
 }
