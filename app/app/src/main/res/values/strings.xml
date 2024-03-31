@@ -31,4 +31,12 @@
     <string name="upvote">upvote</string>
     <string name="downvote">downvote</string>
     <string name="location_posted">location posted</string>
+    <string name="title">title</string>
+    <string name="post_body">post body</string>
+    <string name="create">create</string>
+    <string name="add_geotag">add geotag</string>
+    <string name="add_location_by_search">add location by search</string>
+    <string name="cancel_geotag">cancel geotag</string>
+    <string name="location">location</string>
+    <string name="hashtag">#</string>
 </resources>

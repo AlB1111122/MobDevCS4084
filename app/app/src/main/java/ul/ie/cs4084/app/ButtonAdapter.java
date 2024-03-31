@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder> {
 
-    private final ArrayList<String> localDataSet;
+    private ArrayList<String> localDataSet;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final Button button;
@@ -29,6 +29,21 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
 
     public ButtonAdapter(ArrayList<String> dataSet) {
         localDataSet = dataSet;
+    }
+
+    public ButtonAdapter() {
+        localDataSet = new ArrayList<>();
+    }
+
+    public void addButton(String tag){
+        localDataSet.add(tag);
+        this.notifyItemInserted(this.getItemCount());
+    }
+    public void addButtons(ArrayList<String> tags){
+        int start = this.getItemCount();
+        int length = tags.size();
+        localDataSet.addAll(tags);
+        this.notifyItemRangeInserted(start,length);
     }
 
     // Create new views (invoked by the layout manager)
@@ -48,7 +63,8 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.getTextView().setText(localDataSet.get(position));
+
+        viewHolder.getTextView().append(localDataSet.get(position));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

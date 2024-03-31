@@ -4,6 +4,11 @@
     android:id="@+id/nav_graph.xml"
     app:startDestination="@id/signIn">
 
+
+    <action
+        android:id="@+id/action_Home_to_FullscreenPost"
+        app:destination="@id/FullscreenPost" />
+
     <fragment
         android:id="@+id/signIn"
         android:name="ul.ie.cs4084.app.SignInFragment"
@@ -42,8 +47,8 @@
             android:id="@+id/action_to_profile"
             app:destination="@id/Profile" />
         <action
-            android:id="@+id/action_Home_to_FullscreenPost"
-            app:destination="@id/FullscreenPost" />
+            android:id="@+id/action_to_new_post"
+            app:destination="@id/NewPost" />
     </fragment>
 
     <fragment
@@ -52,6 +57,16 @@
         android:label="fullscreenPost">
         <argument
             android:name="postId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/NewPost"
+        android:name="ul.ie.cs4084.app.NewPostFragment"
+        android:label="NewPost">
+        <argument
+            android:name="boardId"
             app:argType="string"
             app:nullable="true" />
     </fragment>

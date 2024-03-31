@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FullscreenPostFragment">
-
+    tools:context=".NewPostFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,18 +42,19 @@
                 android:text="@string/board_stub" />
         </LinearLayout>
 
-        <TextView
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/postTitle"
+            android:hint="@string/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_placeholder"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
 
-        <TextView
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/postBody"
+            android:hint="@string/post_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/example_text"/>
+            android:minHeight="48dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/postTagRV"
@@ -63,47 +62,52 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"/>
 
+        <Button
+            android:id="@+id/addPostTagButton"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="end"
+            android:text="@string/add_inst_text"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/addLocationButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_geotag"/>
+
+            <Button
+                android:id="@+id/cancelGeotag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_geotag"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/autoCompleteFragmentView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            tools:layout="@layout/places_autocomplete_fragment"
+            android:visibility="gone"/>
+
         <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView"
+            android:id="@+id/setMapMarkerView"
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:contentDescription="@string/location_posted"
             android:visibility="gone"/>
 
-        <LinearLayout
-            android:id="@+id/postInteracts"
+        <Button
+            android:id="@+id/createPostButton"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/upvoteButton"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="55dp"
-                android:layout_height="wrap_content"
-                android:text="@string/add_inst_text" />
-
-            <Button
-                android:id="@+id/downvoteButton"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="55dp"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/downvote"
-                android:text="@string/minus_inst_text" />
-
-            <Button
-                android:id="@+id/commentButton"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="55dp"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/comment_desc"
-                android:outlineProvider="paddedBounds"
-                app:icon="@android:drawable/stat_notify_chat"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp" />
-
-        </LinearLayout>
-
+            android:layout_height="wrap_content"
+            android:text="@string/create" />
     </LinearLayout>
-
 </ScrollView>
