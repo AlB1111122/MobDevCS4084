@@ -5,9 +5,6 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -41,8 +38,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -133,9 +128,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                 if (accountDocument.exists()) {
                                     displayPicture(accountDocument.getString("profilePictureUrl"), OPpfp, executor, mainHandler, getResources());
                                     //post back to ui thred
-                                    Runnable runnable = () -> {
-                                        OPname.append(accountDocument.getString("username"));
-                                    };
+                                    Runnable runnable = () -> OPname.append(accountDocument.getString("username"));
                                     mainHandler.post(runnable);
                                 } else {
                                     Log.d(TAG, "error fetching posts original poster");
