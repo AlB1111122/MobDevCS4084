@@ -1,10 +1,9 @@
 package ul.ie.cs4084.app;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
+
 import android.content.Context;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -32,8 +31,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -105,7 +102,14 @@ public class ProfileFragment extends Fragment {
                     Log.d(TAG, "profile exists");
                     viewingAccount = new Account(accountDocument);
                     usernameText.append(viewingAccount.getUsername());
-                    displayProfilePicture();
+                    //displayProfilePicture();
+                    displayPicture(
+                            viewingAccount.getProfilePictureUrl(),
+                            pfp,
+                            executor,
+                            mainHandler,
+                            getResources()
+                    );
 
                     followedTags = view.findViewById(R.id.followList);
                     followedTags.setLayoutManager(layoutManagerf);
@@ -137,21 +141,6 @@ public class ProfileFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-    }
-
-    private void displayProfilePicture() {
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(viewingAccount.getProfilePictureUrl());
-        final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
-            Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                    bytes,
-                    0,
-                    bytes.length
-            ));
-            //post back to ui thred
-            mainHandler.post(() -> pfp.setImageDrawable(image));
-
-        })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
     }
 
     private void setSignOutButtonListener(Button button){

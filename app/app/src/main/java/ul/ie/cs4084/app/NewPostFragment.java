@@ -2,13 +2,16 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -21,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcel;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,10 +45,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.CircularBounds;
-import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -85,7 +84,8 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
     private GeoPoint postLocation = null;
     PlacesClient placesClient;
-
+    ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    Uri localImageUri = null;
 
 
     @Override
@@ -153,6 +153,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
             view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.GONE);
         });
+        view.findViewById(R.id.addImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build())
+        );
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -176,8 +180,11 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     //post back to ui thred
                     String pfpUrl = accountDocument.getString("profilePictureUrl");
                     String username = accountDocument.getString("username");
+
+                    tagAdapter.addButton("u/"+username);
+                    tagSet.add("u/"+username);
                     Runnable runnable = () -> {
-                        displayProfilePicture(pfpUrl);
+                        displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
                         OPname.append(username);
                     };
                     mainHandler.post(runnable);
@@ -194,6 +201,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     //post back to ui thred
                     mainHandler.post(() -> board.append(name));
                     ArrayList<String> boardTagArray = (ArrayList<String>) Objects.requireNonNull(boardDocument.get("tags"));
+                    boardTagArray.add("b/" + name);
                     tagSet.addAll(boardTagArray);
                     tagAdapter.addButtons(boardTagArray);
                 } else {
@@ -205,6 +213,16 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
             Factory factory = new Factory(executor);
+            String cloudImageUriStr = null;
+
+            Log.d(TAG, "CLOUDCLOUDCLOUD "+ localImageUri);
+            if(localImageUri != null){
+                StorageReference cloudInstance = FirebaseStorage.getInstance().getReference();
+                StorageReference storageRef = cloudInstance.child("postPictures/" + localImageUri.getLastPathSegment());
+
+                storageRef.putFile(localImageUri);
+                cloudImageUriStr = "gs://socialmediaapp-38b04.appspot.com/postPictures/" + localImageUri.getLastPathSegment();
+            }
             factory.createNewPost(
                     db,
                     parentBoard,
@@ -213,6 +231,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
                     postLocation,
                     tagSet,
+                    cloudImageUriStr,
                     documentReference -> {
                         Bundle bundle = new Bundle();
                         bundle.putString("postId", documentReference.getId());
@@ -240,26 +259,19 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         Places.initialize(getContext(), getContext().getString(R.string.map_key));
         placesClient = Places.createClient(getContext());
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri != null) {
+                        localImageUri = uri;
+                    } else {
+                        localImageUri = null;
+                    }
+                });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void displayProfilePicture(String url) {
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
-        final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
-            Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                    bytes,
-                    0,
-                    bytes.length
-            ));
-            //post back to ui thred
-            mainHandler.post(() -> OPpfp.setImageDrawable(image));
-
-        })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
     }
 
     private void addTagButton(Button button, Context context){
@@ -278,8 +290,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             builder.setCancelable(true);
             builder.setPositiveButton("Add", (dialog, which) -> {
                 String tagStr = input.getText().toString();
-                tagAdapter.addButton(tagStr);
-                tagSet.add(tagStr);
+                if(!tagStr.contains("/")) {
+                    tagAdapter.addButton(tagStr);
+                    tagSet.add(tagStr);
+                }
             });
 
             builder.show();
