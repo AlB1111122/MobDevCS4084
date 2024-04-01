@@ -189,6 +189,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     //post back to ui thred
                     String pfpUrl = accountDocument.getString("profilePictureUrl");
                     String username = accountDocument.getString("username");
+
+                    tagAdapter.addButton("u/"+username);
+                    tagSet.add("u/"+username);
                     Runnable runnable = () -> {
                         displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
                         OPname.append(username);
@@ -207,6 +210,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     //post back to ui thred
                     mainHandler.post(() -> board.append(name));
                     ArrayList<String> boardTagArray = (ArrayList<String>) Objects.requireNonNull(boardDocument.get("tags"));
+                    boardTagArray.add("b/" + name);
                     tagSet.addAll(boardTagArray);
                     tagAdapter.addButtons(boardTagArray);
                 } else {
@@ -286,8 +290,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             builder.setCancelable(true);
             builder.setPositiveButton("Add", (dialog, which) -> {
                 String tagStr = input.getText().toString();
-                tagAdapter.addButton(tagStr);
-                tagSet.add(tagStr);
+                if(!tagStr.contains("/")) {
+                    tagAdapter.addButton(tagStr);
+                    tagSet.add(tagStr);
+                }
             });
 
             builder.show();
