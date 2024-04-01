@@ -103,6 +103,11 @@
             android:layout_height="400dp"
             android:contentDescription="@string/location_posted"
             android:visibility="gone"/>
+        <Button
+            android:id="@+id/addImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="add image"/>
 
         <Button
             android:id="@+id/createPostButton"

@@ -2,13 +2,19 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -65,6 +71,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Factory;
@@ -85,7 +92,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
     private GeoPoint postLocation = null;
     PlacesClient placesClient;
-
+    ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
 
     @Override
@@ -153,6 +160,12 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
             view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.GONE);
         });
+        view.findViewById(R.id.addImageButton).setOnClickListener(task -> {
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                    .build());
+
+        });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -177,7 +190,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     String pfpUrl = accountDocument.getString("profilePictureUrl");
                     String username = accountDocument.getString("username");
                     Runnable runnable = () -> {
-                        displayProfilePicture(pfpUrl);
+                        displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
                         OPname.append(username);
                     };
                     mainHandler.post(runnable);
@@ -240,26 +253,21 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         Places.initialize(getContext(), getContext().getString(R.string.map_key));
         placesClient = Places.createClient(getContext());
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    // Callback is invoked after the user selects a media item or closes the
+                    // photo picker.
+                    if (uri != null) {
+                        Log.d("PhotoPicker", "Selected URI: " + uri);
+                    } else {
+                        Log.d("PhotoPicker", "No media selected");
+                    }
+                });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void displayProfilePicture(String url) {
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
-        final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
-            Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                    bytes,
-                    0,
-                    bytes.length
-            ));
-            //post back to ui thred
-            mainHandler.post(() -> OPpfp.setImageDrawable(image));
-
-        })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
     }
 
     private void addTagButton(Button button, Context context){

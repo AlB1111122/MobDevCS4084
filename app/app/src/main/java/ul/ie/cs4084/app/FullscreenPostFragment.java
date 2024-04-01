@@ -2,6 +2,8 @@ package ul.ie.cs4084.app;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
+
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -106,6 +108,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     p = new Post(postDocument);
                     postTitle.setText(p.getTitle());
                     postBody.setText(p.getBody());
+                    displayPicture(p.getImageUrl(), view.findViewById(R.id.postImage), executor, mainHandler, getResources());
 
                     LinearLayoutManager layoutManager = new LinearLayoutManager(c);
                     layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -128,9 +131,9 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                             if (getOPTask.isSuccessful()) {
                                 DocumentSnapshot accountDocument = getOPTask.getResult();
                                 if (accountDocument.exists()) {
+                                    displayPicture(accountDocument.getString("profilePictureUrl"), OPpfp, executor, mainHandler, getResources());
                                     //post back to ui thred
                                     Runnable runnable = () -> {
-                                        displayProfilePicture(accountDocument.getString("profilePictureUrl"));
                                         OPname.append(accountDocument.getString("username"));
                                     };
                                     mainHandler.post(runnable);
@@ -185,21 +188,6 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private void displayProfilePicture(String url) {
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
-        final long ONE_MEGABYTE = 1024 * 1024;
-        gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
-            Drawable image = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(
-                    bytes,
-                    0,
-                    bytes.length
-            ));
-            //post back to ui thred
-            mainHandler.post(() -> OPpfp.setImageDrawable(image));
-
-        })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
     }
 
     @Override
