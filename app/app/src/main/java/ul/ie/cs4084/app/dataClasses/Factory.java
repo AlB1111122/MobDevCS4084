@@ -30,6 +30,7 @@ public class Factory {
             String body,
             GeoPoint geotag,
             HashSet<String> tags,
+            String imageUrl,
             final Callback<DocumentReference> callback
     ){
         executor.execute(new Runnable() {
@@ -44,6 +45,7 @@ public class Factory {
                 docData.put("tags", new ArrayList<String>(tags));
                 docData.put("upvotes", new ArrayList<String>());
                 docData.put("downvotes", new ArrayList<String>());
+                docData.put("imageUrl", imageUrl);
                 db.collection("posts")
                     .add(docData)
                     .addOnSuccessListener(documentReference -> {

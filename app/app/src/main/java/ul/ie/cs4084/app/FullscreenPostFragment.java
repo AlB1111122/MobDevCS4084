@@ -103,7 +103,9 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     p = new Post(postDocument);
                     postTitle.setText(p.getTitle());
                     postBody.setText(p.getBody());
-                    displayPicture(p.getImageUrl(), view.findViewById(R.id.postImage), executor, mainHandler, getResources());
+                    if(p.getImageUrl() != null) {
+                        displayPicture(p.getImageUrl(), view.findViewById(R.id.postImage), executor, mainHandler, getResources());
+                    }
 
                     LinearLayoutManager layoutManager = new LinearLayoutManager(c);
                     layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);

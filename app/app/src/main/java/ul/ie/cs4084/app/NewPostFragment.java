@@ -6,6 +6,7 @@ import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -54,6 +55,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +85,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private GeoPoint postLocation = null;
     PlacesClient placesClient;
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    Uri localImageUri = null;
 
 
     @Override
@@ -151,7 +155,8 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         });
         view.findViewById(R.id.addImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-                .build()));
+                .build())
+        );
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -208,6 +213,16 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
             Factory factory = new Factory(executor);
+            String cloudImageUriStr = null;
+
+            Log.d(TAG, "CLOUDCLOUDCLOUD "+ localImageUri);
+            if(localImageUri != null){
+                StorageReference cloudInstance = FirebaseStorage.getInstance().getReference();
+                StorageReference storageRef = cloudInstance.child("postPictures/" + localImageUri.getLastPathSegment());
+
+                storageRef.putFile(localImageUri);
+                cloudImageUriStr = "gs://socialmediaapp-38b04.appspot.com/postPictures/" + localImageUri.getLastPathSegment();
+            }
             factory.createNewPost(
                     db,
                     parentBoard,
@@ -216,6 +231,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
                     postLocation,
                     tagSet,
+                    cloudImageUriStr,
                     documentReference -> {
                         Bundle bundle = new Bundle();
                         bundle.putString("postId", documentReference.getId());
@@ -245,12 +261,10 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         placesClient = Places.createClient(getContext());
         pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                    // Callback is invoked after the user selects a media item or closes the
-                    // photo picker.
                     if (uri != null) {
-                        Log.d("PhotoPicker", "Selected URI: " + uri);
+                        localImageUri = uri;
                     } else {
-                        Log.d("PhotoPicker", "No media selected");
+                        localImageUri = null;
                     }
                 });
     }
