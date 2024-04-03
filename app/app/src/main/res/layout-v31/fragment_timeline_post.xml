@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".timelinePostFragment">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="5dp"
+        app:cardBackgroundColor="@android:color/system_accent1_0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/postTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_placeholder"
+                android:textSize="25sp" />
+
+            <TextView
+                android:id="@+id/postBody"
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:text="@string/example_text" />
+
+            <LinearLayout
+                android:id="@+id/postInteracts"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/upvoteButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_inst_text" />
+
+                <Button
+                    android:id="@+id/downvoteButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/downvote"
+                    android:text="@string/minus_inst_text" />
+
+                <Button
+                    android:id="@+id/commentButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="55dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/comment_desc"
+                    android:outlineProvider="paddedBounds"
+                    app:icon="@android:drawable/stat_notify_chat"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>
