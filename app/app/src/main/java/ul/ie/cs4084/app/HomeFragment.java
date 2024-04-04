@@ -5,8 +5,11 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -105,6 +108,15 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        Bundle b = new Bundle();
+        b.putString("postId","example post");
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, TimelinePostFragment.class, b)
+                .setReorderingAllowed(true)
+                .addToBackStack("name") // Name can be null
+                .commit();
+
         return view;
     }
 

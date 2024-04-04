@@ -40,9 +40,8 @@
 
     </LinearLayout>
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/postCardFragmentView"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:name="ul.ie.cs4084.app.timelinePostFragment"
-        tools:layout="@layout/fragment_timeline_post" />
+        android:layout_height="wrap_content"/>
+
 </FrameLayout>

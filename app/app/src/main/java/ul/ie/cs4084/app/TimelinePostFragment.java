@@ -1,19 +1,22 @@
 package ul.ie.cs4084.app;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Post;
 
-public class timelinePostFragment extends Fragment {
+public class TimelinePostFragment extends Fragment {
 
     private TextView postTitle;
     private TextView postBody;
@@ -35,12 +38,12 @@ public class timelinePostFragment extends Fragment {
     private Handler mainHandler;
     private NavController navController;
     private ExecutorService executor;
-    public timelinePostFragment() {
+    public TimelinePostFragment() {
         // Required empty public constructor
     }
 
-    public static timelinePostFragment newInstance() {
-        return new timelinePostFragment();
+    public static TimelinePostFragment newInstance() {
+        return new TimelinePostFragment();
     }
 
     @Override
@@ -51,7 +54,7 @@ public class timelinePostFragment extends Fragment {
         assert act != null;
         executor = act.executorService;//DEF not how to do it firegure out later
         mainHandler = new Handler(Looper.getMainLooper());
-        navController = NavHostFragment.findNavController(this);
+        navController = act.navController;
     }
 
     @Override
@@ -59,6 +62,13 @@ public class timelinePostFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_timeline_post, container, false);
+
+        assert getArguments() != null;
+        String postId = getArguments().getString("postId");
+        if(postId == null){
+            Log.e(TAG, "no arguments");
+            return null;
+        }
         executor.execute(()->{
         // Inflate the layout for this fragment
         postTitle = view.findViewById(R.id.postTitleText);
@@ -73,7 +83,7 @@ public class timelinePostFragment extends Fragment {
         DocumentReference userId = db.document("accounts/"+
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
-        DocumentReference postDoc = db.collection("posts").document("example post");
+        DocumentReference postDoc = db.collection("posts").document(postId);
         postDoc.get().addOnCompleteListener(getPostTask -> executor.execute(()-> {
             if (getPostTask.isSuccessful()) {
                 DocumentSnapshot postDocument = getPostTask.getResult();
