@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -90,6 +91,11 @@ public class timelinePostFragment extends Fragment {
                         upCount.setText(upStr);
                         downCount.setText(downStr);
                         card.setVisibility(View.VISIBLE);
+                        card.setOnClickListener(clicked -> {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("postId", p.getId());
+                            navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
+                        });
                         upvote.setOnClickListener(upvote -> {
                             p.addUpvote(userId,db);
                             upCount.setText(Integer.toString(p.retriveUpvotesSet().size()));
