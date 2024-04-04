@@ -10,7 +10,9 @@
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="15dp">
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="15dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,18 +24,17 @@
                 android:id="@+id/postTitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/title_placeholder"
                 android:textColor="?android:attr/textColorPrimary"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:paddingTop="10dp"/>
 
             <TextView
                 android:id="@+id/postBody"
                 android:layout_width="match_parent"
-                android:layout_height="37dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="85dp"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:text="@string/example_text"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:textColor="?android:attr/textColorPrimary"/>
 
             <LinearLayout
                 android:id="@+id/postInteracts"
@@ -44,17 +45,27 @@
                 <Button
                     android:id="@+id/upvoteButton"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="80dp"
+                    android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:text="@string/add_inst_text" />
+                <TextView
+                    android:id="@+id/upvoteCounter"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/zero"/>
 
                 <Button
                     android:id="@+id/downvoteButton"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="80dp"
+                    android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/downvote"
                     android:text="@string/minus_inst_text" />
+                <TextView
+                    android:id="@+id/downvoteCounter"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/zero"/>
 
                 <Button
                     android:id="@+id/commentButton"
