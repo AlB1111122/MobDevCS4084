@@ -28,7 +28,7 @@ public class Database {
     }
 
     public static void displayPicture(String url, ImageView imageView, Executor executor, Handler mainHandler, Resources theme) {
-        if(url != null) {
+        try{
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
             final long ONE_MEGABYTE = 1024 * 1024;
             gsReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> executor.execute(() -> {//runnig on a thred because its slow
@@ -41,6 +41,8 @@ public class Database {
                 mainHandler.post(() -> imageView.setImageDrawable(image));
 
             })).addOnFailureListener(exception -> Log.d(TAG, "error fetching PFP"));
+        }catch(NullPointerException | IllegalArgumentException e){
+            return;
         }
     }
 }

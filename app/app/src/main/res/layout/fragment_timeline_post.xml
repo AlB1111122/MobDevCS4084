@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="15dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="7dp">
+
+            <TextView
+                android:id="@+id/postTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="25sp"
+                android:paddingTop="10dp"
+                android:text="@string/title"/>
+
+            <TextView
+                android:id="@+id/postBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="85dp"
+                android:ellipsize="end"
+                android:textColor="?android:attr/textColorPrimary"
+                android:text="@string/title"/>
+
+            <LinearLayout
+                android:id="@+id/postInteracts"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/upvoteButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_inst_text" />
+                <TextView
+                    android:id="@+id/upvoteCounter"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/zero"/>
+
+                <Button
+                    android:id="@+id/downvoteButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/downvote"
+                    android:text="@string/minus_inst_text" />
+                <TextView
+                    android:id="@+id/downvoteCounter"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/zero"/>
+
+                <Button
+                    android:id="@+id/commentButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="55dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/comment_desc"
+                    android:outlineProvider="paddedBounds"
+                    app:icon="@android:drawable/stat_notify_chat"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>

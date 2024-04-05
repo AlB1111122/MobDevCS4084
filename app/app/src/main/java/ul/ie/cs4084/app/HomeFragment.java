@@ -5,6 +5,7 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -23,14 +24,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 import ul.ie.cs4084.app.dataClasses.Account;
 
 public class HomeFragment extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Account signedInAccount;
+    public Account signedInAccount;
     Handler mainHandler;
     NavController navController;
+    DocumentReference profileDoc;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -94,6 +97,7 @@ public class HomeFragment extends Fragment {
                 if (document.exists()) {
                     Log.d(TAG, "profile exists");
                     signedInAccount = new Account(document);
+                    profileDoc = db.collection("account").document(signedInAccount.getId());
                 } else {
                     //if not create a document in the db
                     Log.d(TAG, "profile does not exist");
@@ -102,9 +106,20 @@ public class HomeFragment extends Fragment {
                             .set(signedInAccount)
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Account successfully written!"))
                             .addOnFailureListener(e -> Log.w(TAG, "Error writing account", e));
+
+                    profileDoc = db.collection("account").document(signedInAccount.getId());
                 }
             }
         });
+
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, TimelineFragment.class,null)
+                //.addToBackStack("name") // Name can be null
+                .commit();
+
+
+
         return view;
     }
 
@@ -113,3 +128,4 @@ public class HomeFragment extends Fragment {
         super.onStart();
     }
 }
+
