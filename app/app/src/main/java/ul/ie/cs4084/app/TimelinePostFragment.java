@@ -42,8 +42,12 @@ public class TimelinePostFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimelinePostFragment newInstance() {
-        return new TimelinePostFragment();
+    public static TimelinePostFragment newInstance(String postId) {
+        TimelinePostFragment fragment = new TimelinePostFragment();
+        Bundle args = new Bundle();
+        args.putString("postId", postId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -62,9 +66,13 @@ public class TimelinePostFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_timeline_post, container, false);
+        String postId;
 
-        assert getArguments() != null;
-        String postId = getArguments().getString("postId");
+        if (getArguments() == null){
+            postId = "example postId";
+        }else{
+            postId = getArguments().getString("postId");
+        }
         if(postId == null){
             Log.e(TAG, "no arguments");
             return null;
