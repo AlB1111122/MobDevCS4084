@@ -38,11 +38,13 @@
             android:layout_height="wrap_content"
             android:text="create a post"
             android:layout_gravity="center_horizontal"/>
+
+
+        <Button
+            android:id="@+id/tagViewExampleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="click into tag"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
 </LinearLayout>

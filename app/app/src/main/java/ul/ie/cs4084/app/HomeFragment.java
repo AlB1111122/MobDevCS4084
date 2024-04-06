@@ -85,6 +85,11 @@ public class HomeFragment extends Fragment {
             navController.navigate(R.id.action_to_new_post, bundle);
         });
 
+        (view.findViewById(R.id.tagViewExampleButton)).setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            navController.navigate(R.id.action_to_tag_view, bundle);
+        });
+
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         db = FirebaseFirestore.getInstance();
@@ -111,15 +116,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerView, TimelineFragment.class,null)
-                //.addToBackStack("name") // Name can be null
-                .commit();
-
-
-
         return view;
     }
 

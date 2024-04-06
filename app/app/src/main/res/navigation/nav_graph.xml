@@ -4,10 +4,14 @@
     android:id="@+id/nav_graph.xml"
     app:startDestination="@id/signIn">
 
-
     <action
         android:id="@+id/action_Home_to_FullscreenPost"
         app:destination="@id/FullscreenPost" />
+
+
+    <action
+        android:id="@+id/action_to_tag_view"
+        app:destination="@id/TagView" />
 
     <fragment
         android:id="@+id/signIn"
@@ -70,4 +74,12 @@
             app:argType="string"
             app:nullable="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/TagView"
+        android:name="ul.ie.cs4084.app.TagFragment"
+        android:label="ViewTag">
+
+    </fragment>
+
 </navigation>
