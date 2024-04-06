@@ -87,6 +87,7 @@ public class HomeFragment extends Fragment {
 
         (view.findViewById(R.id.tagViewExampleButton)).setOnClickListener(v -> {
             Bundle bundle = new Bundle();
+            bundle.putString("tagsOnPosts", "u/USerNAmmme");
             navController.navigate(R.id.action_to_tag_view, bundle);
         });
 

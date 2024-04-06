@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -41,8 +40,6 @@ public class TimelineFragment extends Fragment {
     private Executor executor;
     RecyclerView timeline;
     LinearLayoutManager layoutManager;
-
-    android.os.Parcelable recyclerState;
     public TimelineFragment() {
         // Required empty public constructor
     }
@@ -80,7 +77,12 @@ public class TimelineFragment extends Fragment {
         timeline.setLayoutManager(layoutManager);
 
         ArrayList<Post> posts = new ArrayList<Post>();
-        CollectionReference postsColl = db.collection("posts");
+        Query postsColl;
+        if(tagsOnPosts == null){
+            postsColl = db.collection("posts");
+        }else{
+            postsColl = db.collection("posts").whereArrayContainsAny("tags",tagsOnPosts);
+        }
         postsColl.orderBy("upvotes", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(task -> executor.execute(() -> {{

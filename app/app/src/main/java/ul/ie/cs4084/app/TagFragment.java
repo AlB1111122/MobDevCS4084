@@ -8,10 +8,13 @@ import androidx.fragment.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class TagFragment extends Fragment {
 
-    private static final String ARG_TAG = "tag";
+    private static final String ARG_TAG = "tagsOnPosts";
 
     // TODO: Rename and change types of parameters
     private String tag;
@@ -42,9 +45,16 @@ public class TagFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tag_, container, false);
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+
+        Bundle bundle = new Bundle();
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(tag);
+        bundle.putStringArrayList(ARG_TAG, tags);
         fragmentManager.beginTransaction()
-                .replace(R.id.tagPostsFrag, TimelineFragment.class,null)
+                .replace(R.id.tagPostsFrag, TimelineFragment.class,bundle)
                 .commit();
+        ((TextView)view.findViewById(R.id.viewingTagName)).setText(tag);
+
         return view;
     }
 }
