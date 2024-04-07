@@ -111,7 +111,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
                     postTags.setLayoutManager(layoutManager);
 
-                    ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags());
+                    ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags(),navController);
                     postTags.setAdapter(tagAdapter);
 
 
@@ -132,6 +132,11 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                     //post back to ui thred
                                     Runnable runnable = () -> OPname.append(accountDocument.getString("username"));
                                     mainHandler.post(runnable);
+                                    view.findViewById(R.id.opClickable).setOnClickListener(v ->{
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("profileId", accountDocument.getId());
+                                        navController.navigate(R.id.action_to_profile, bundle);
+                                    });
                                 } else {
                                     Log.d(TAG, "error fetching posts original poster");
                                 }

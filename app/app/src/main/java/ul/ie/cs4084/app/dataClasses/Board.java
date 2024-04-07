@@ -36,6 +36,7 @@ public class Board{
         this.rules = rules;
         this.moderators = moderators;
         this.tags = tags;
+        this.tags.add("b/"+name);
     }
 
     public Board(

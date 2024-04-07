@@ -1,39 +1,25 @@
 package ul.ie.cs4084.app;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashSet;
-import java.util.Objects;
-
-import ul.ie.cs4084.app.dataClasses.Account;
-
 public class HomeFragment extends Fragment {
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    public Account signedInAccount;
+    private FirebaseFirestore db;
     Handler mainHandler;
     NavController navController;
-    DocumentReference profileDoc;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -53,6 +39,7 @@ public class HomeFragment extends Fragment {
         assert act != null;
         mainHandler = new Handler(Looper.getMainLooper());
         navController = NavHostFragment.findNavController(this);
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -63,7 +50,7 @@ public class HomeFragment extends Fragment {
         Button button = view.findViewById(R.id.button3);
         button.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putString("profileId", signedInAccount.getId());
+            bundle.putString("profileId", ((MainActivity)requireActivity()).signedInAccount.getId());
             navController.navigate(R.id.action_to_profile, bundle);
         });
 
@@ -85,41 +72,12 @@ public class HomeFragment extends Fragment {
             navController.navigate(R.id.action_to_new_post, bundle);
         });
 
-        FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
-        assert fireBaseAuthUser != null; // we know its not null because they just signed in
-        db = FirebaseFirestore.getInstance();
-        //check if the Account for this fireBaseAuthUser exists
-        DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
-        signedInUser.get().addOnCompleteListener(getAccountTask -> {
-            if (getAccountTask.isSuccessful()) {
-                DocumentSnapshot document = getAccountTask.getResult();
-                //if yes populate local object
-                if (document.exists()) {
-                    Log.d(TAG, "profile exists");
-                    signedInAccount = new Account(document);
-                    profileDoc = db.collection("account").document(signedInAccount.getId());
-                } else {
-                    //if not create a document in the db
-                    Log.d(TAG, "profile does not exist");
-                    signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getDisplayName(), new HashSet<String>(), new HashSet<String>());
-                    db.collection("accounts").document(fireBaseAuthUser.getUid())
-                            .set(signedInAccount)
-                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Account successfully written!"))
-                            .addOnFailureListener(e -> Log.w(TAG, "Error writing account", e));
-
-                    profileDoc = db.collection("account").document(signedInAccount.getId());
-                }
-            }
+        (view.findViewById(R.id.tagViewExampleButton)).setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("tagsOnPosts", "u/USerNAmmme");
+            navController.navigate(R.id.action_to_tag_view, bundle);
         });
-
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerView, TimelineFragment.class,null)
-                //.addToBackStack("name") // Name can be null
-                .commit();
-
-
-
+        //check if the Account for this fireBaseAuthUser exists
         return view;
     }
 

@@ -4,10 +4,20 @@
     android:id="@+id/nav_graph.xml"
     app:startDestination="@id/signIn">
 
-
     <action
         android:id="@+id/action_Home_to_FullscreenPost"
         app:destination="@id/FullscreenPost" />
+
+
+    <action
+        android:id="@+id/action_to_tag_view"
+        app:destination="@id/TagView" />
+    <action
+        android:id="@+id/action_to_profile"
+        app:destination="@id/Profile" />
+    <action
+        android:id="@+id/action_to_new_post"
+        app:destination="@id/NewPost" />
 
     <fragment
         android:id="@+id/signIn"
@@ -42,13 +52,6 @@
         android:name="ul.ie.cs4084.app.HomeFragment"
         android:label="Home">
 
-        <!-- Switch to profile view -->
-        <action
-            android:id="@+id/action_to_profile"
-            app:destination="@id/Profile" />
-        <action
-            android:id="@+id/action_to_new_post"
-            app:destination="@id/NewPost" />
     </fragment>
 
     <fragment
@@ -70,4 +73,12 @@
             app:argType="string"
             app:nullable="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/TagView"
+        android:name="ul.ie.cs4084.app.TagFragment"
+        android:label="ViewTag">
+
+    </fragment>
+
 </navigation>

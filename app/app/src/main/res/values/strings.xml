@@ -40,4 +40,8 @@
     <string name="location">location</string>
     <string name="hashtag">#</string>
     <string name="zero">0</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">unfollow</string>
+    <string name="block">Block</string>
+    <string name="unblock">unblock</string>
 </resources>
