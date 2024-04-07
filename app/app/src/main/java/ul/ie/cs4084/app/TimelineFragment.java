@@ -23,6 +23,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
@@ -31,8 +33,9 @@ import ul.ie.cs4084.app.dataClasses.Post;
 
 public class TimelineFragment extends Fragment {
 
+    private static final String ARG_TAG = "tagsOnPosts";
     private ArrayList<String> tagsOnPosts;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db;
     private Handler mainHandler;
     private NavController navController;
     private DocumentReference signedInDoc;
@@ -44,8 +47,11 @@ public class TimelineFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimelineFragment newInstance() {
+    public static TimelineFragment newInstance(ArrayList<String>tagsOnPosts) {
         TimelineFragment fragment = new TimelineFragment();
+        Bundle args = new Bundle();
+        args.putStringArrayList(ARG_TAG, tagsOnPosts);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -54,14 +60,15 @@ public class TimelineFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //TODO add aguments to get diffrent timelines
         if (getArguments() != null) {
-            tagsOnPosts = getArguments().getStringArrayList("tagsOnPosts");
+            tagsOnPosts = getArguments().getStringArrayList(ARG_TAG);
         }
 
         MainActivity act = (MainActivity)getActivity();
         assert act != null;
         mainHandler = new Handler(Looper.getMainLooper());
         navController = act.navController;
-        signedInDoc = db.collection("accounts").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        db = FirebaseFirestore.getInstance();
+        signedInDoc = db.collection("accounts").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         pLatch.countDown();
         executor = ((MainActivity) requireActivity()).executorService;
     }
@@ -71,7 +78,7 @@ public class TimelineFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_timeline, container, false);
 
-        timeline = (RecyclerView) view.findViewById(R.id.postList);
+        timeline = view.findViewById(R.id.postList);
         layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         timeline.setLayoutManager(layoutManager);
@@ -89,7 +96,9 @@ public class TimelineFragment extends Fragment {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Post p = new Post(document);
-                            posts.add(p);
+                            if(Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())){
+                                posts.add(p);
+                            }
                         }
                         pLatch.countDown();
                     } else {

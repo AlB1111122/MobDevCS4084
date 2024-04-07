@@ -15,11 +15,27 @@
         android:textSize="35sp"
         android:layout_marginHorizontal="10dp"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
     <Button
+        android:id="@+id/followTagButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/follow"
         android:layout_marginHorizontal="10dp"/>
+
+
+    <Button
+        android:id="@+id/blockTagButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/block"
+        android:layout_marginHorizontal="10dp"/>
+
+    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/tagPostsFrag"

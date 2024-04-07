@@ -8,17 +8,22 @@ import androidx.fragment.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
 public class TagFragment extends Fragment {
 
     private static final String ARG_TAG = "tagsOnPosts";
-
-    // TODO: Rename and change types of parameters
     private String tag;
-
+    Boolean isFollowing;
+    Button followButton;
+    Boolean isBlocked;
+    Button blockButton;
+    FirebaseFirestore db;
     public TagFragment() {
         // Required empty public constructor
     }
@@ -37,6 +42,7 @@ public class TagFragment extends Fragment {
         if (getArguments() != null) {
             tag = getArguments().getString(ARG_TAG);
         }
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -45,6 +51,19 @@ public class TagFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tag_, container, false);
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        isFollowing = ((MainActivity)requireActivity()).signedInAccount.retriveFollowedSet().contains(tag);
+        isBlocked = ((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet().contains(tag);
+        followButton = view.findViewById(R.id.followTagButton);
+        blockButton = view.findViewById(R.id.blockTagButton);
+
+        if(isFollowing){
+            followButton.setText(R.string.unfollow);
+        }
+        if(isBlocked){
+            blockButton.setText(R.string.unblock);
+        }
+        followButton.setOnClickListener(v -> buttonFollow());
+        blockButton.setOnClickListener(v -> buttonBlock());
 
         Bundle bundle = new Bundle();
         ArrayList<String> tags = new ArrayList<>();
@@ -53,8 +72,29 @@ public class TagFragment extends Fragment {
         fragmentManager.beginTransaction()
                 .replace(R.id.tagPostsFrag, TimelineFragment.class,bundle)
                 .commit();
-        ((TextView)view.findViewById(R.id.viewingTagName)).setText(tag);
+        String hashtagStr = getString(R.string.hashtag)+tag;
+        ((TextView)view.findViewById(R.id.viewingTagName)).setText(hashtagStr);
 
         return view;
+    }
+
+    private void buttonFollow(){
+        if(isFollowing) {
+            ((MainActivity) requireActivity()).signedInAccount.unfollowTag(tag,db);
+            followButton.setText(R.string.follow);
+        }else{
+            ((MainActivity) requireActivity()).signedInAccount.followTag(tag, db);
+            followButton.setText(R.string.unfollow);
+        }
+    }
+
+    private void buttonBlock(){
+        if(isBlocked) {
+            ((MainActivity) requireActivity()).signedInAccount.unBlockTag(tag,db);
+            blockButton.setText(R.string.block);
+        }else{
+            ((MainActivity) requireActivity()).signedInAccount.blockTag(tag, db);
+            blockButton.setText(R.string.unblock);
+        }
     }
 }
