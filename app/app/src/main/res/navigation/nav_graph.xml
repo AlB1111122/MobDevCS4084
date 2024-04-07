@@ -12,6 +12,12 @@
     <action
         android:id="@+id/action_to_tag_view"
         app:destination="@id/TagView" />
+    <action
+        android:id="@+id/action_to_profile"
+        app:destination="@id/Profile" />
+    <action
+        android:id="@+id/action_to_new_post"
+        app:destination="@id/NewPost" />
 
     <fragment
         android:id="@+id/signIn"
@@ -46,13 +52,6 @@
         android:name="ul.ie.cs4084.app.HomeFragment"
         android:label="Home">
 
-        <!-- Switch to profile view -->
-        <action
-            android:id="@+id/action_to_profile"
-            app:destination="@id/Profile" />
-        <action
-            android:id="@+id/action_to_new_post"
-            app:destination="@id/NewPost" />
     </fragment>
 
     <fragment
