@@ -114,7 +114,7 @@ public class ProfileFragment extends Fragment {
                     followedTags = view.findViewById(R.id.followList);
                     followedTags.setLayoutManager(layoutManagerf);
 
-                    ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags());
+                    ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController);
                     followedTags.setAdapter(followAdapter);
                     // only show edit options if looking at self
                     if(Objects.equals(viewingAccount.getId(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())) {
@@ -128,7 +128,7 @@ public class ProfileFragment extends Fragment {
                         blockedTags.setVisibility(View.VISIBLE);
                         blockedTags.setLayoutManager(layoutManagerb);
 
-                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags());
+                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController);
                         blockedTags.setAdapter(blockedAdapter);
                     }
                 }
