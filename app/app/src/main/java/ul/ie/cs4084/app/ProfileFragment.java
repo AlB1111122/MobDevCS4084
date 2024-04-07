@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
@@ -102,7 +105,6 @@ public class ProfileFragment extends Fragment {
                     Log.d(TAG, "profile exists");
                     viewingAccount = new Account(accountDocument);
                     usernameText.append(viewingAccount.getUsername());
-                    //displayProfilePicture();
                     displayPicture(
                             viewingAccount.getProfilePictureUrl(),
                             pfp,
@@ -116,6 +118,15 @@ public class ProfileFragment extends Fragment {
 
                     ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController);
                     followedTags.setAdapter(followAdapter);
+
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("tagsOnPosts", "u/"+viewingAccount.getUsername());
+                    bundle.putBoolean("hideHashtagName", true);
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.profileTagFragHolder, TagFragment.class, bundle)
+                            .commit();
+
                     // only show edit options if looking at self
                     if(Objects.equals(viewingAccount.getId(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())) {
 
@@ -130,6 +141,7 @@ public class ProfileFragment extends Fragment {
 
                         ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController);
                         blockedTags.setAdapter(blockedAdapter);
+                        view.findViewById(R.id.button2).setVisibility(View.VISIBLE);
                     }
                 }
             }

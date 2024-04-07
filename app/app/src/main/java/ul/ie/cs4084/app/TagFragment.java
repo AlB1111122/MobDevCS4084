@@ -18,20 +18,24 @@ import java.util.ArrayList;
 public class TagFragment extends Fragment {
 
     private static final String ARG_TAG = "tagsOnPosts";
+
+    private static final String ARG_HIDE_NAME = "hideHashtagName";
     private String tag;
-    Boolean isFollowing;
-    Button followButton;
-    Boolean isBlocked;
-    Button blockButton;
-    FirebaseFirestore db;
+    private Boolean isFollowing;
+    private Button followButton;
+    private Boolean isBlocked;
+    private Button blockButton;
+    private FirebaseFirestore db;
+    private Boolean hideHashtagName;
     public TagFragment() {
         // Required empty public constructor
     }
 
-    public static TagFragment newInstance(String tag) {
+    public static TagFragment newInstance(String tag,Boolean hideHashtagName) {
         TagFragment fragment = new TagFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TAG, tag);
+        args.putBoolean(ARG_HIDE_NAME, hideHashtagName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -41,6 +45,7 @@ public class TagFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             tag = getArguments().getString(ARG_TAG);
+            hideHashtagName = getArguments().getBoolean(ARG_HIDE_NAME);
         }
         db = FirebaseFirestore.getInstance();
     }
@@ -62,6 +67,12 @@ public class TagFragment extends Fragment {
         if(isBlocked){
             blockButton.setText(R.string.unblock);
         }
+        if(!hideHashtagName){
+            TextView nameView = ((TextView)view.findViewById(R.id.viewingTagName));
+            String hashtagStr = getString(R.string.hashtag)+tag;
+            nameView.setText(hashtagStr);
+            nameView.setVisibility(View.VISIBLE);
+        }
         followButton.setOnClickListener(v -> buttonFollow());
         blockButton.setOnClickListener(v -> buttonBlock());
 
@@ -72,8 +83,6 @@ public class TagFragment extends Fragment {
         fragmentManager.beginTransaction()
                 .replace(R.id.tagPostsFrag, TimelineFragment.class,bundle)
                 .commit();
-        String hashtagStr = getString(R.string.hashtag)+tag;
-        ((TextView)view.findViewById(R.id.viewingTagName)).setText(hashtagStr);
 
         return view;
     }
