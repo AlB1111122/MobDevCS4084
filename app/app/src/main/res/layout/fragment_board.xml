@@ -28,8 +28,13 @@
             android:text="@string/board_stub"
             android:textSize="30sp"
             android:layout_gravity="bottom"/>
-
     </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/boardTagsRV"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"

@@ -3,6 +3,10 @@ package ul.ie.cs4084.app;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
@@ -37,6 +41,7 @@ public class BoardFragment extends Fragment {
     private ArrayList <String> rules;
     private ArrayList <String> mods;
     private CountDownLatch latch = new CountDownLatch(1);
+    private NavController navController;
     public BoardFragment() {
         // Required empty public constructor
     }
@@ -57,6 +62,7 @@ public class BoardFragment extends Fragment {
         }
         executor = ((MainActivity)requireActivity()).executorService;
         mainHandler = new Handler(Looper.getMainLooper());
+        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
@@ -68,6 +74,12 @@ public class BoardFragment extends Fragment {
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        RecyclerView boardsTags = view.findViewById(R.id.boardTagsRV);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        boardsTags.setLayoutManager(layoutManager);
+
         DocumentReference boardRef = db.collection("boards").document(boardId);
         boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(()->{
             if (getBoardTask.isSuccessful()) {
@@ -76,7 +88,11 @@ public class BoardFragment extends Fragment {
                 if (boardDoc.exists()) {
                     Board b = new Board(boardDoc);
                     name = b.getName();
-                    mainHandler.post(()->((TextView)view.findViewById(R.id.boardName)).append(name));
+                    ButtonAdapter tagAdapter = new ButtonAdapter(b.getTags(),navController);
+                    mainHandler.post(()->{
+                        ((TextView)view.findViewById(R.id.boardName)).append(name);
+                        boardsTags.setAdapter(tagAdapter);
+                    });
                     description = b.getDescription();
                     rules = b.getRules();
                     mods = b.getStrModerators();
