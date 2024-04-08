@@ -37,6 +37,10 @@ public class BoardFragment extends Fragment {
     private ExecutorService executor;
     private Handler mainHandler;
     private String name;
+
+    String description;
+    ArrayList <String> rules;
+    ArrayList <String> mods;
     private CountDownLatch latch = new CountDownLatch(1);
     public BoardFragment() {
         // Required empty public constructor
@@ -78,17 +82,12 @@ public class BoardFragment extends Fragment {
                     Board b = new Board(boardDoc);
                     name = b.getName();
                     mainHandler.post(()->((TextView)view.findViewById(R.id.boardName)).append(name));
+                    description = b.getDescription();
+                    rules = b.getRules();
+                    mods = b.getStrModerators();
+
                     latch.countDown();
                     Database.displayPicture(b.getRelatedImageUrl(),view.findViewById(R.id.boardImage),executor,mainHandler,getResources());
-                    /*
-                    *
-            String name,
-            String description,
-            String relatedImageUrl,
-            ArrayList<String> rules,
-            HashSet<DocumentReference> moderators,
-            HashSet<String> tags*/
-
                 }
             }
         }));
@@ -96,7 +95,7 @@ public class BoardFragment extends Fragment {
                 try {
                     latch.await();
                     mainHandler.post(()->{
-                        pager.setAdapter(new TabsAdapter(this, "b/"+name));
+                        pager.setAdapter(new TabsAdapter(this, "b/"+name,description,rules,mods));
                         new TabLayoutMediator(tabLayout, pager,
                                 (tab, position) -> tab.setText(position==0?"Posts":"Info")
 

@@ -12,12 +12,12 @@ import java.util.HashSet;
 public class TabsAdapter extends FragmentStateAdapter {
     int noTabs = 2;
     TagFragment posts;
-    Fragment info;
+    BoardInfoFragment info;
 
-    TabsAdapter(Fragment f, String name) {// String description,ArrayList<String> rules, HashSet<DocumentReference> moderators,HashSet<String> tags
+    TabsAdapter(Fragment f, String name,String description, ArrayList<String> rules, ArrayList<String> mods) {
         super(f);
         posts = TagFragment.newInstance(name, true);
-        info = new Fragment();
+        info = BoardInfoFragment.newInstance(description, rules, mods);
     }
 
     @NonNull
