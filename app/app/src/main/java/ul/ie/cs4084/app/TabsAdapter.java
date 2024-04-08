@@ -4,10 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.google.firebase.firestore.DocumentReference;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class TabsAdapter extends FragmentStateAdapter {
     int noTabs = 2;

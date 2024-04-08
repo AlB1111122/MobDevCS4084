@@ -47,4 +47,5 @@
     <string name="posts">Posts</string>
     <string name="info">Info</string>
     <string name="board_contents">board contents</string>
+    <string name="delete_post">Delete Post</string>
 </resources>

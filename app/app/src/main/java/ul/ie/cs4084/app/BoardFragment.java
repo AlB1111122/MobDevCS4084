@@ -2,10 +2,7 @@ package ul.ie.cs4084.app;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
@@ -13,7 +10,6 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -23,7 +19,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
@@ -38,9 +33,9 @@ public class BoardFragment extends Fragment {
     private Handler mainHandler;
     private String name;
 
-    String description;
-    ArrayList <String> rules;
-    ArrayList <String> mods;
+    private String description;
+    private ArrayList <String> rules;
+    private ArrayList <String> mods;
     private CountDownLatch latch = new CountDownLatch(1);
     public BoardFragment() {
         // Required empty public constructor

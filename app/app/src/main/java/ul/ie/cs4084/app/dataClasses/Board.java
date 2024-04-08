@@ -134,7 +134,8 @@ public class Board{
     public ArrayList<String> getStrModerators() {
         ArrayList<String> strModerators = new ArrayList<>();
         for (DocumentReference mod: moderators) {
-            strModerators.add(mod.getPath().substring(mod.getPath().indexOf('/'+ 1)));
+            int slashIndex = (mod.getPath().indexOf('/')) + 1;
+            strModerators.add(mod.getPath().substring(slashIndex));
         }
         return new ArrayList<String>(strModerators);
     }
