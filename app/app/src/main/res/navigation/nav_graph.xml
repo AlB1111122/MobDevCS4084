@@ -18,6 +18,9 @@
     <action
         android:id="@+id/action_to_new_post"
         app:destination="@id/NewPost" />
+    <action
+        android:id="@+id/action_to_board"
+        app:destination="@id/Board" />
 
     <fragment
         android:id="@+id/signIn"
@@ -79,6 +82,26 @@
         android:name="ul.ie.cs4084.app.TagFragment"
         android:label="ViewTag">
 
+        <argument
+            android:name="tag"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="hideHashtagName"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
+
+    <fragment
+        android:id="@+id/Board"
+        android:name="ul.ie.cs4084.app.BoardFragment"
+        android:label="Board">
+        <argument
+            android:name="boardId"
+            app:argType="string"
+            app:nullable="false" />
+    </fragment>
+
 
 </navigation>

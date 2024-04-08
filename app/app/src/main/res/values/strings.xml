@@ -44,4 +44,7 @@
     <string name="unfollow">unfollow</string>
     <string name="block">Block</string>
     <string name="unblock">unblock</string>
+    <string name="posts">Posts</string>
+    <string name="info">Info</string>
+    <string name="board_contents">board contents</string>
 </resources>
