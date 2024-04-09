@@ -46,5 +46,12 @@
             android:layout_height="wrap_content"
             android:text="click into tag"
             android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:id="@+id/boardViewExampleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="view example bard"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
 </LinearLayout>

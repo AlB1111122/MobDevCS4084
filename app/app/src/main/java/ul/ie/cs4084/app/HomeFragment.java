@@ -77,6 +77,11 @@ public class HomeFragment extends Fragment {
             bundle.putString("tagsOnPosts", "u/USerNAmmme");
             navController.navigate(R.id.action_to_tag_view, bundle);
         });
+        (view.findViewById(R.id.boardViewExampleButton)).setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("boardId", "example board");
+            navController.navigate(R.id.action_to_board, bundle);
+        });
         //check if the Account for this fireBaseAuthUser exists
         return view;
     }

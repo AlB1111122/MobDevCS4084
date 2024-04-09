@@ -47,7 +47,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
                 android:layout_marginStart="5dp"
-                android:text="@string/board_stub" />
+                android:text="@string/board_stub"
+                android:focusable="true"
+                android:clickable="true"/>
         </LinearLayout>
 
         <TextView
