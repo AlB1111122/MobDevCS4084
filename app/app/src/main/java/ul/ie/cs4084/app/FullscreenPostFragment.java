@@ -153,6 +153,11 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                     //post back to ui thred
                                     Runnable runnable = () -> board.append(boardDocument.getString("name"));
                                     mainHandler.post(runnable);
+                                    board.setOnClickListener(clicked->{
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("boardId", boardDocument.getId());
+                                        navController.navigate(R.id.action_to_board, bundle);
+                                    });
                                 } else {
                                     Log.d(TAG, "error board");
                                 }
