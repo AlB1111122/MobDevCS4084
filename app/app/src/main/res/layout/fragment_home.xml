@@ -51,7 +51,13 @@
             android:id="@+id/boardViewExampleButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="view example bard"
+            android:text="view example board"
+            android:layout_gravity="center_horizontal"/>
+        <Button
+            android:id="@+id/searchPage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>
 </LinearLayout>
