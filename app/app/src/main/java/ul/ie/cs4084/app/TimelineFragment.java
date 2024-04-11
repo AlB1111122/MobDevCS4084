@@ -34,7 +34,9 @@ import ul.ie.cs4084.app.dataClasses.Post;
 public class TimelineFragment extends Fragment {
 
     private static final String ARG_TAG = "tagsOnPosts";
+    private static final String ARG_EX_TAG = "excludeTags";
     private ArrayList<String> tagsOnPosts;
+    private ArrayList<String> excludeTags;
     private FirebaseFirestore db;
     private Handler mainHandler;
     private NavController navController;
@@ -47,10 +49,11 @@ public class TimelineFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimelineFragment newInstance(ArrayList<String>tagsOnPosts) {
+    public static TimelineFragment newInstance(ArrayList<String>tagsOnPosts,ArrayList<String>excludeTags) {
         TimelineFragment fragment = new TimelineFragment();
         Bundle args = new Bundle();
         args.putStringArrayList(ARG_TAG, tagsOnPosts);
+        args.putStringArrayList(ARG_EX_TAG, excludeTags);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,6 +64,7 @@ public class TimelineFragment extends Fragment {
         //TODO add aguments to get diffrent timelines
         if (getArguments() != null) {
             tagsOnPosts = getArguments().getStringArrayList(ARG_TAG);
+            excludeTags = getArguments().getStringArrayList(ARG_EX_TAG);
         }
 
         MainActivity act = (MainActivity)getActivity();
@@ -96,7 +100,9 @@ public class TimelineFragment extends Fragment {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Post p = new Post(document);
-                            if(Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())){
+                            if(
+                                    Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())
+                                    && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))){
                                 posts.add(p);
                             }
                         }
