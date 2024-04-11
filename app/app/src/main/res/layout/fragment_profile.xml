@@ -54,7 +54,6 @@
             app:icon="@android:drawable/ic_menu_edit"
             app:iconGravity="textStart"
             app:iconPadding="0dp" />
-        <!--android:padding="0dp"-->
 
     </LinearLayout>
 

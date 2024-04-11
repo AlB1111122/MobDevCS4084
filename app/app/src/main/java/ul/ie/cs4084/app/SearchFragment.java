@@ -1,5 +1,7 @@
 package ul.ie.cs4084.app;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +26,10 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Callback;
@@ -82,33 +87,37 @@ public class SearchFragment extends Fragment {
         view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
         view.findViewById(R.id.excludeTagButton).setOnClickListener(clicked -> excludeTagButton(getContext()));
 
-        ChipGroup chipGroup = view.findViewById(R.id.searchChips);
+        /*ChipGroup chipGroup = view.findViewById(R.id.searchChips);
         int accountChip = R.id.accountsChip;
         int postChip = R.id.postsChip;
-        int boardChip = R.id.boardsChip;
-        view.findViewById(R.id.button5).setOnClickListener(clicked ->{        executor.execute(() ->{
-            //if(chipGroup.getCheckedChipId()==postChip){
-            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-            Bundle bundle = null;
-            if(!rTagAdapter.getLocalDataSet().isEmpty()) {
-                bundle = new Bundle();
-                ArrayList<String> tags = new ArrayList<>(rTagAdapter.getLocalDataSet());
-                ArrayList<String> exlTags = new ArrayList<>(eTagAdapter.getLocalDataSet());
-                bundle.putStringArrayList("tagsOnPosts", tags);
-                bundle.putStringArrayList("excludeTags", exlTags);
-            }
-            if(!eTagAdapter.getLocalDataSet().isEmpty()) {
-                if(bundle==null){ bundle=new Bundle();}
-                ArrayList<String> exlTags = new ArrayList<>(eTagAdapter.getLocalDataSet());
-                bundle.putStringArrayList("excludeTags", exlTags);
-            }
-            fragmentManager.beginTransaction()
-                    .replace(R.id.searchResFragment, TimelineFragment.class,bundle)
-                    .commit();
-            mainHandler.post(()->{view.findViewById(R.id.searchResFragment).setVisibility(View.VISIBLE);});
-            //}
-        });
-        });
+        int boardChip = R.id.boardsChip;*/
+        view.findViewById(R.id.searchButton).setOnClickListener(clicked -> executor.execute(() ->{
+        //if(chipGroup.getCheckedChipId()==postChip){
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        Bundle bundle = null;
+        if(!rTagAdapter.getLocalDataSet().isEmpty()) {
+            bundle = new Bundle();
+            ArrayList<String> tags = new ArrayList<>(rTagAdapter.getLocalDataSet());
+            ArrayList<String> exlTags = new ArrayList<>(eTagAdapter.getLocalDataSet());
+            bundle.putStringArrayList("tagsOnPosts", tags);
+            bundle.putStringArrayList("excludeTags", exlTags);
+        }
+        if(!eTagAdapter.getLocalDataSet().isEmpty()) {
+            if(bundle==null){ bundle=new Bundle();}
+            ArrayList<String> exlTags = new ArrayList<>(eTagAdapter.getLocalDataSet());
+            bundle.putStringArrayList("excludeTags", exlTags);
+        }
+        String searchTerm = Objects.requireNonNull(((TextInputEditText) view.findViewById(R.id.search_bar)).getText()).toString();
+        if(!searchTerm.isEmpty()) {
+            if(bundle==null){ bundle=new Bundle();}
+            bundle.putString("searchTerm", searchTerm);
+        }
+        fragmentManager.beginTransaction()
+                .replace(R.id.searchResFragment, TimelineFragment.class,bundle)
+                .commit();
+        mainHandler.post(()->{view.findViewById(R.id.searchResFragment).setVisibility(View.VISIBLE);});
+        //}
+    }));
         return view;
     }
 
@@ -141,9 +150,5 @@ public class SearchFragment extends Fragment {
         builder.setPositiveButton("Require", (dialog, which) -> eTagAdapter.addButton(input.getText().toString()));
 
         builder.show();
-    }
-
-    private void search(){
-
     }
 }

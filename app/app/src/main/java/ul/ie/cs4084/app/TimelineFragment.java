@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -35,8 +36,10 @@ public class TimelineFragment extends Fragment {
 
     private static final String ARG_TAG = "tagsOnPosts";
     private static final String ARG_EX_TAG = "excludeTags";
+    private static final String ARG_TERM = "searchTerm";
     private ArrayList<String> tagsOnPosts;
     private ArrayList<String> excludeTags;
+    private String searchTerm;
     private FirebaseFirestore db;
     private Handler mainHandler;
     private NavController navController;
@@ -49,11 +52,12 @@ public class TimelineFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimelineFragment newInstance(ArrayList<String>tagsOnPosts,ArrayList<String>excludeTags) {
+    public static TimelineFragment newInstance(ArrayList<String>tagsOnPosts,ArrayList<String>excludeTags,String searchTerm) {
         TimelineFragment fragment = new TimelineFragment();
         Bundle args = new Bundle();
         args.putStringArrayList(ARG_TAG, tagsOnPosts);
         args.putStringArrayList(ARG_EX_TAG, excludeTags);
+        args.putString(ARG_TERM, searchTerm);
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,6 +69,7 @@ public class TimelineFragment extends Fragment {
         if (getArguments() != null) {
             tagsOnPosts = getArguments().getStringArrayList(ARG_TAG);
             excludeTags = getArguments().getStringArrayList(ARG_EX_TAG);
+            searchTerm = getArguments().getString(ARG_TERM);
         }
 
         MainActivity act = (MainActivity)getActivity();
@@ -102,7 +107,8 @@ public class TimelineFragment extends Fragment {
                             Post p = new Post(document);
                             if(
                                     Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())
-                                    && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))){
+                                    && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))
+                                    && (searchTerm ==null || (p.getTitle().contains(searchTerm)|| p.getBody().contains(searchTerm)))){
                                 posts.add(p);
                             }
                         }
