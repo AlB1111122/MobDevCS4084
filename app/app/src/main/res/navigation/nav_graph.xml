@@ -21,6 +21,9 @@
     <action
         android:id="@+id/action_to_board"
         app:destination="@id/Board" />
+    <action
+        android:id="@+id/action_to_search"
+        app:destination="@id/Search" />
 
     <fragment
         android:id="@+id/signIn"
@@ -102,6 +105,10 @@
             app:argType="string"
             app:nullable="false" />
     </fragment>
-
+    <fragment
+        android:id="@+id/Search"
+        android:name="ul.ie.cs4084.app.SearchFragment"
+        android:label="Search">
+    </fragment>
 
 </navigation>

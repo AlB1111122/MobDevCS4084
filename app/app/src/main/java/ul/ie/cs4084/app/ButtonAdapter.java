@@ -79,4 +79,8 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     public int getItemCount() {
         return localDataSet.size();
     }
+
+    public ArrayList<String> getLocalDataSet() {
+        return localDataSet;
+    }
 }

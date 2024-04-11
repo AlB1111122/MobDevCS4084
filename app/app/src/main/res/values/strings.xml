@@ -24,7 +24,7 @@
     <string name="title_placeholder">Title</string>
     <string name="op_s_profile_picture">OP\'s profile picture</string>
     <string name="board_stub">b/</string>
-    <string name="post_tag_desc">list of tags asociated with the post</string>
+    <string name="post_tag_desc">list of tags associated with the post</string>
     <string name="example_text">example text</string>
     <string name="minus_inst_text">-</string>
     <string name="comment_desc">make a comment</string>
@@ -48,4 +48,7 @@
     <string name="info">Info</string>
     <string name="board_contents">board contents</string>
     <string name="delete_post">Delete Post</string>
+    <string name="required_tags">Required tags</string>
+    <string name="excluded_tags">Excluded tags</string>
+    <string name="search">Search</string>
 </resources>

@@ -4,6 +4,8 @@ package ul.ie.cs4084.app;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -82,7 +84,9 @@ public class HomeFragment extends Fragment {
             bundle.putString("boardId", "example board");
             navController.navigate(R.id.action_to_board, bundle);
         });
-        //check if the Account for this fireBaseAuthUser exists
+        (view.findViewById(R.id.searchPage)).setOnClickListener(v -> {
+            navController.navigate(R.id.action_to_search, null);
+        });
         return view;
     }
 
