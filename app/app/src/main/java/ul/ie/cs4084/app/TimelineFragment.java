@@ -88,7 +88,6 @@ public class TimelineFragment extends Fragment {
         if (!dataFetched) {
             fetchPosts();
         }
-        requireView().findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
     }
 
     private void fetchPosts() {
@@ -116,6 +115,7 @@ public class TimelineFragment extends Fragment {
                             }
                             dataFetched = true; // Update data fetch status
                         }
+                        requireActivity().runOnUiThread(() ->requireView().findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
                     }));
         });
     }
