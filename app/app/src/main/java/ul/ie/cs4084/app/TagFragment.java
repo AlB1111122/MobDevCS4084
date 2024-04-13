@@ -20,7 +20,6 @@ import java.util.ArrayList;
 public class TagFragment extends Fragment {
 
     private static final String ARG_TAG = "tagsOnPosts";
-
     private static final String ARG_HIDE_NAME = "hideHashtagName";
     private String tag;
     private Boolean isFollowing;
@@ -28,6 +27,7 @@ public class TagFragment extends Fragment {
     private Boolean isBlocked;
     private Button blockButton;
     private FirebaseFirestore db;
+    //flags
     private Boolean hideHashtagName;
     private boolean renderedFlag=false;
     public TagFragment() {
@@ -66,20 +66,21 @@ public class TagFragment extends Fragment {
 
         followButton = view.findViewById(R.id.followTagButton);
         blockButton = view.findViewById(R.id.blockTagButton);
+
         if(!renderedFlag) {
             isFollowing = ((MainActivity) requireActivity()).signedInAccount.retriveFollowedSet().contains(tag);
             isBlocked = ((MainActivity) requireActivity()).signedInAccount.retriveBlockedSet().contains(tag);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(tag);
-            if (getChildFragmentManager().findFragmentById(R.id.tagPostsFrag) == null) {
-                FragmentManager fragmentManager = getChildFragmentManager();
-                TimelineFragment timelineFragment = TimelineFragment.newInstance(tags, null,null);
-                fragmentManager.beginTransaction()
-                        .replace(R.id.tagPostsFrag, timelineFragment)
-                        .commit();
+            FragmentManager fragmentManager = getChildFragmentManager();
+            TimelineFragment timelineFragment = TimelineFragment.newInstance(tags, null,null);
+            fragmentManager.beginTransaction()
+                    .replace(R.id.tagPostsFrag, timelineFragment)
+                    .commit();
 
-                renderedFlag = true;
-            }
+            renderedFlag = true;
+            followButton.setOnClickListener(v -> buttonFollow());
+            blockButton.setOnClickListener(v -> buttonBlock());
         }
             if (isFollowing) {
                 followButton.setText(R.string.unfollow);
@@ -93,8 +94,6 @@ public class TagFragment extends Fragment {
                 nameView.setText(hashtagStr);
                 nameView.setVisibility(View.VISIBLE);
             }
-            followButton.setOnClickListener(v -> buttonFollow());
-            blockButton.setOnClickListener(v -> buttonBlock());
     }
 
     private void buttonFollow(){

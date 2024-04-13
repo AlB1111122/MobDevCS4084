@@ -87,6 +87,8 @@ public class TimelineFragment extends Fragment {
 
         if (!dataFetched) {
             fetchPosts();
+        }else{
+            view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
         }
     }
 

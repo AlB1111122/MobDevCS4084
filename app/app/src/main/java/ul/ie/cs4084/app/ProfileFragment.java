@@ -116,7 +116,7 @@ public class ProfileFragment extends Fragment {
                     ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController, false);
                     followedTags.setAdapter(followAdapter);
 
-                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    FragmentManager fragmentManager = getChildFragmentManager();
                     Bundle bundle = new Bundle();
                     bundle.putString("tagsOnPosts", "u/"+viewingAccount.getUsername());
                     bundle.putBoolean("hideHashtagName", true);
