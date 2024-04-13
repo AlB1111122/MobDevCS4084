@@ -117,7 +117,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
                     postTags.setLayoutManager(layoutManager);
 
-                    ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags(),navController);
+                    ButtonAdapter tagAdapter = new ButtonAdapter(p.getTags(),navController,false);
                     postTags.setAdapter(tagAdapter);
 
 

@@ -113,8 +113,7 @@ public class ProfileFragment extends Fragment {
 
                     followedTags = view.findViewById(R.id.followList);
                     followedTags.setLayoutManager(layoutManagerf);
-
-                    ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController);
+                    ButtonAdapter followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController, false);
                     followedTags.setAdapter(followAdapter);
 
                     FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
@@ -137,7 +136,7 @@ public class ProfileFragment extends Fragment {
                         blockedTags.setVisibility(View.VISIBLE);
                         blockedTags.setLayoutManager(layoutManagerb);
 
-                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController);
+                        ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController,false);
                         blockedTags.setAdapter(blockedAdapter);
                         view.findViewById(R.id.buttonSignOut).setVisibility(View.VISIBLE);
                     }

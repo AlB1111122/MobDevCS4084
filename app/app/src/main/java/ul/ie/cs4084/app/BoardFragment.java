@@ -93,7 +93,7 @@ public class BoardFragment extends Fragment {
                 if (boardDoc.exists()) {
                     Board b = new Board(boardDoc);
                     name = b.getName();
-                    ButtonAdapter tagAdapter = new ButtonAdapter(b.getTags(),navController);
+                    ButtonAdapter tagAdapter = new ButtonAdapter(b.getTags(),navController,false);
                     mainHandler.post(()->{
                         ((TextView)view.findViewById(R.id.boardName)).append(name);
                         boardsTags.setAdapter(tagAdapter);

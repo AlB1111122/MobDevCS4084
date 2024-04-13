@@ -74,14 +74,14 @@ public class SearchFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         requiredTags = view.findViewById(R.id.includeTags);
         requiredTags.setLayoutManager(layoutManager);
-        rTagAdapter = new ButtonAdapter(navController);
+        rTagAdapter = new ButtonAdapter(navController, true);
         requiredTags.setAdapter(rTagAdapter);
 
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         excludedTags = view.findViewById(R.id.excludeTags);
         excludedTags.setLayoutManager(layoutManager2);
-        eTagAdapter = new ButtonAdapter(navController);
+        eTagAdapter = new ButtonAdapter(navController,true);
         excludedTags.setAdapter(eTagAdapter);
 
         view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
