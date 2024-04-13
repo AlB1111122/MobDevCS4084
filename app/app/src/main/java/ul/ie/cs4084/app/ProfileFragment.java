@@ -82,7 +82,7 @@ public class ProfileFragment extends Fragment {
             return null;
         }
         View view = inflater.inflate(R.layout.fragment_profile, container,false);
-        setSignOutButtonListener(view.findViewById(R.id.button2));//TODO: remove this later
+        setSignOutButtonListener(view.findViewById(R.id.buttonSignOut));
 
         pfp = view.findViewById(R.id.imageView);
         usernameText = view.findViewById(R.id.signedInProfileUsername);
@@ -139,7 +139,7 @@ public class ProfileFragment extends Fragment {
 
                         ButtonAdapter blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController);
                         blockedTags.setAdapter(blockedAdapter);
-                        view.findViewById(R.id.button2).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.buttonSignOut).setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -147,16 +147,12 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-    }
-
     private void setSignOutButtonListener(Button button){
-        button.setOnClickListener(v -> AuthUI.getInstance()
+        button.setOnClickListener(v -> {
+            AuthUI.getInstance()
                 .signOut(requireActivity())
-                .addOnCompleteListener(task -> navController.navigate(R.id.signIn)));
+                .addOnCompleteListener(task -> navController.navigate(R.id.signIn));
+            ((MainActivity) requireActivity()).navView.setVisibility(View.GONE);});
     }
 
     private void setTagFollowButton(Button button, Context context){

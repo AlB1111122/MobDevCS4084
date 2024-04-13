@@ -42,7 +42,6 @@ public class SignInFragment extends Fragment {
             new AuthUI.IdpConfig.GoogleBuilder().build()
     );
 
-
     public SignInFragment() {
         // Required empty public constructor
     }
@@ -56,8 +55,6 @@ public class SignInFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             loadAccount();
-            NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_to_home);
         }
     }
 
@@ -90,8 +87,6 @@ public class SignInFragment extends Fragment {
 
                 if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                     loadAccount();
-                    NavController navController = NavHostFragment.findNavController(this);
-                    navController.navigate(R.id.action_to_home);
                 } else {
                     // Sign in failed
                     if (response == null) {
@@ -116,6 +111,7 @@ public class SignInFragment extends Fragment {
         FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
         assert fireBaseAuthUser != null; // we know its not null because they just signed in
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        NavController navController = NavHostFragment.findNavController(this);
         DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
         signedInUser.get().addOnCompleteListener(getAccountTask -> {
             if (getAccountTask.isSuccessful()) {
@@ -124,6 +120,8 @@ public class SignInFragment extends Fragment {
                 if (document.exists()) {
                     Log.d(TAG, "profile exists");
                     ((MainActivity) requireActivity()).signedInAccount = new Account(document);
+                    navController.navigate(R.id.action_to_timeline);
+                    ((MainActivity) requireActivity()).navView.setVisibility(View.VISIBLE);
                 } else {
                     //if not create a document in the db
                     Log.d(TAG, "profile does not exist");
@@ -132,6 +130,8 @@ public class SignInFragment extends Fragment {
                         .set(((MainActivity) requireActivity()).signedInAccount)
                         .addOnSuccessListener(aVoid -> Log.d(TAG, "Account successfully written!"))
                         .addOnFailureListener(e -> Log.w(TAG, "Error writing account", e));
+                    navController.navigate(R.id.action_to_timeline);
+                    ((MainActivity) requireActivity()).navView.setVisibility(View.VISIBLE);
                 }
             }
         });

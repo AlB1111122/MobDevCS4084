@@ -118,7 +118,7 @@ public class TimelineFragment extends Fragment {
                                     mainHandler.post(()-> postAdapter.addPost(p));
                                 }
                             }
-                            view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
+                            mainHandler.post(()-> view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }

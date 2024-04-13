@@ -7,10 +7,8 @@
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
 
-
-    <!-- sign out button to be removed later -->
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonSignOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"

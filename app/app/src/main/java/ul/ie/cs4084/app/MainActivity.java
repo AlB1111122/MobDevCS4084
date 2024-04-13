@@ -3,6 +3,7 @@ package ul.ie.cs4084.app;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.activity.OnBackPressedCallback;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public ExecutorService executorService;
     public NavController navController;
     public Account signedInAccount;
+    public BottomNavigationView navView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         assert navHostFragment != null;
         navController = navHostFragment.getNavController();
+        navView = findViewById(R.id.nav_view);
+        navView.setSelectedItemId(R.id.navigation_popular);
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -50,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                 navController.popBackStack();
             }
         };
-        BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if(itemId == R.id.navigation_search){
@@ -60,10 +63,16 @@ public class MainActivity extends AppCompatActivity {
                 navController.navigate(R.id.action_to_timeline, null);
                 return true;
             }else if(itemId == R.id.navigation_following){
-                Bundle bundle = new Bundle();
-                bundle.putString("tagsOnPosts", "u/USerNAmmme");
-                navController.navigate(R.id.action_to_tag_view, bundle);
-                return true;
+                if(!signedInAccount.getFollowedTags().isEmpty()){
+                    Bundle bundle = new Bundle();
+                    bundle.putStringArrayList("tagsOnPosts", signedInAccount.getFollowedTags());
+                    navController.navigate(R.id.action_to_timeline, bundle);
+                    return true;
+                }else{
+                    Toast toast = Toast.makeText(this, "You don't follow any tags!", Toast.LENGTH_SHORT);
+                    toast.show();
+                    return false;
+                }
             }else if(itemId == R.id.navigation_profile){
                 Bundle profileBundle = new Bundle();
                 profileBundle.putString("profileId", signedInAccount.getId());
