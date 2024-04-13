@@ -95,6 +95,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         this.notifyItemInserted(this.getItemCount());
     }
 
+    public void addAllPosts(ArrayList<Post> posts){
+        int start = this.getItemCount();
+        int length = posts.size();
+        localDataSet.addAll(posts);
+        this.notifyItemRangeInserted(start,length);
+    }
+
     @Override
     public int getItemCount() {
         return localDataSet.size();

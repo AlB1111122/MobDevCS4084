@@ -46,6 +46,7 @@ import java.util.concurrent.ExecutorService;
 import ul.ie.cs4084.app.dataClasses.Post;
 
 public class FullscreenPostFragment extends Fragment implements OnMapReadyCallback{
+    String postId;
 
     private ExecutorService executor;
     Handler mainHandler;
@@ -70,7 +71,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         View view = inflater.inflate(R.layout.fragment_fullscreen_post, container, false);
 
         assert getArguments() != null;
-        String postId = getArguments().getString("postId");
+        postId = getArguments().getString("postId");
         if(postId == null){
             return null;
         }
