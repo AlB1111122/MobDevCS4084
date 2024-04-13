@@ -36,7 +36,6 @@ public class BoardFragment extends Fragment {
     private ExecutorService executor;
     private Handler mainHandler;
     private String name;
-
     private String description;
     private ArrayList <String> rules;
     private ArrayList <String> mods;
@@ -80,6 +79,12 @@ public class BoardFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         boardsTags.setLayoutManager(layoutManager);
 
+        view.findViewById(R.id.addNewPostButton).setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("boardId", boardId);
+            navController.navigate(R.id.action_to_new_post, bundle);
+        });
+
         DocumentReference boardRef = db.collection("boards").document(boardId);
         boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(()->{
             if (getBoardTask.isSuccessful()) {
@@ -93,6 +98,7 @@ public class BoardFragment extends Fragment {
                         ((TextView)view.findViewById(R.id.boardName)).append(name);
                         boardsTags.setAdapter(tagAdapter);
                     });
+
                     description = b.getDescription();
                     rules = b.getRules();
                     mods = b.getStrModerators();

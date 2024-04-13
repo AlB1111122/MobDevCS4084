@@ -104,7 +104,12 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     postTitle.setText(p.getTitle());
                     postBody.setText(p.getBody());
                     if(p.getImageUrl() != null) {
-                        displayPicture(p.getImageUrl(), view.findViewById(R.id.postImage), executor, mainHandler, getResources());
+                        displayPicture(
+                                p.getImageUrl(),
+                                view.findViewById(R.id.postImage),
+                                executor,
+                                mainHandler,
+                                getResources());
                     }
 
                     LinearLayoutManager layoutManager = new LinearLayoutManager(c);
