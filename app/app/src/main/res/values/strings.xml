@@ -54,4 +54,5 @@
     <string name="popular">Popular</string>
     <string name="following">Following</string>
     <string name="profile">Profile</string>
+    <string name="add_post_board">+ post</string>
 </resources>

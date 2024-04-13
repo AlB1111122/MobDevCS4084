@@ -8,7 +8,6 @@
         android:id="@+id/action_Home_to_FullscreenPost"
         app:destination="@id/FullscreenPost" />
 
-
     <action
         android:id="@+id/action_to_tag_view"
         app:destination="@id/TagView" />
@@ -33,10 +32,10 @@
         android:name="ul.ie.cs4084.app.SignInFragment"
         android:label="SignIn">
 
-        <!-- Switch to home view -->
+        <!-- Switch to home view
         <action
             android:id="@+id/action_to_home"
-            app:destination="@id/Home" />
+            app:destination="@id/Home" />-->
 
     </fragment>
 
@@ -50,17 +49,10 @@
             app:argType="string"
             app:nullable="true" />
 
-        <!-- Switch to home view -->
+        <!-- Switch to home view
         <action
             android:id="@+id/action_to_home"
-            app:destination="@id/Home" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/Home"
-        android:name="ul.ie.cs4084.app.HomeFragment"
-        android:label="Home">
-
+            app:destination="@id/Home" />-->
     </fragment>
 
     <fragment

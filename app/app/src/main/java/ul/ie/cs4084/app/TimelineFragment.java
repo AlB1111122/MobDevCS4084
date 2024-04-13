@@ -44,7 +44,7 @@ public class TimelineFragment extends Fragment {
     private Handler mainHandler;
     private NavController navController;
     private DocumentReference signedInDoc;
-    private final CountDownLatch pLatch = new CountDownLatch(2);
+    private final CountDownLatch pLatch = new CountDownLatch(1);
     private Executor executor;
     RecyclerView timeline;
     LinearLayoutManager layoutManager;
@@ -99,35 +99,34 @@ public class TimelineFragment extends Fragment {
         }else{
             postsColl = db.collection("posts").whereArrayContainsAny("tags",tagsOnPosts);
         }
-        postsColl.orderBy("upvotes", Query.Direction.DESCENDING)
-                .get()
-                .addOnCompleteListener(task -> executor.execute(() -> {{
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Post p = new Post(document);
-                            if(
-                                    Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())
-                                    && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))
-                                    && (searchTerm ==null || (p.getTitle().contains(searchTerm)|| p.getBody().contains(searchTerm)))){
-                                posts.add(p);
-                            }
-                        }
-                        pLatch.countDown();
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                }}));
 
         executor.execute(() -> {
             try {
-                pLatch.await();
-                PostAdapter postAdapter = new PostAdapter(posts,signedInDoc,db,navController);
-                mainHandler.post(()->timeline.setAdapter(postAdapter));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            pLatch.await();
+            PostAdapter postAdapter = new PostAdapter(new ArrayList<Post>(),signedInDoc,db,navController);
+                mainHandler.post(()-> timeline.setAdapter(postAdapter));
+            postsColl.orderBy("upvotes", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnCompleteListener(task -> executor.execute(() -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Post p = new Post(document);
+                                if(
+                                        Collections.disjoint(p.retriveTagsSet(),((MainActivity)requireActivity()).signedInAccount.retriveBlockedSet())
+                                                && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))
+                                                && (searchTerm ==null || (p.getTitle().contains(searchTerm)|| p.getBody().contains(searchTerm)))){
+                                    mainHandler.post(()-> postAdapter.addPost(p));
+                                }
+                            }
+                            mainHandler.post(()-> view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }));
+        } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
         });
-
         return view;
     }
 }

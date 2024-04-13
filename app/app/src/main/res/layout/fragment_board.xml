@@ -28,6 +28,14 @@
             android:text="@string/board_stub"
             android:textSize="30sp"
             android:layout_gravity="bottom"/>
+
+        <Button
+            android:id="@+id/addNewPostButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_post_board"
+            android:layout_gravity="bottom"/>
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -90,6 +90,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     }
 
+    public void addPost(Post p){
+        localDataSet.add(p);
+        this.notifyItemInserted(this.getItemCount());
+    }
+
     @Override
     public int getItemCount() {
         return localDataSet.size();
