@@ -24,6 +24,9 @@
     <action
         android:id="@+id/action_to_search"
         app:destination="@id/Search" />
+    <action
+        android:id="@+id/action_to_timeline"
+        app:destination="@id/Timeline" />
 
     <fragment
         android:id="@+id/signIn"
@@ -110,5 +113,9 @@
         android:name="ul.ie.cs4084.app.SearchFragment"
         android:label="Search">
     </fragment>
-
+    <fragment
+        android:id="@+id/Timeline"
+        android:name="ul.ie.cs4084.app.TimelineFragment"
+        android:label="Timeline">
+    </fragment>
 </navigation>

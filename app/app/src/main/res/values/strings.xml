@@ -51,4 +51,7 @@
     <string name="required_tags">Required tags</string>
     <string name="excluded_tags">Excluded tags</string>
     <string name="search">Search</string>
+    <string name="popular">Popular</string>
+    <string name="following">Following</string>
+    <string name="profile">Profile</string>
 </resources>
