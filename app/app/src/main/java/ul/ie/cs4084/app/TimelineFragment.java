@@ -1,6 +1,8 @@
 package ul.ie.cs4084.app;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,7 @@ public class TimelineFragment extends Fragment {
     private DocumentReference signedInDoc;
     private Executor executor;
     private RecyclerView timeline;
+    private Handler mainHandler;
     private boolean dataFetched = false; // Flag to track data fetch status
     PostAdapter postAdapter;
 
@@ -67,6 +70,7 @@ public class TimelineFragment extends Fragment {
         signedInDoc = db.collection("accounts").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         executor = act.executorService;
         postAdapter = new PostAdapter(new ArrayList<>(), signedInDoc, db, navController);
+        mainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -86,13 +90,13 @@ public class TimelineFragment extends Fragment {
         timeline.setAdapter(postAdapter);
 
         if (!dataFetched) {
-            fetchPosts();
+            fetchPosts(view.findViewById(R.id.loadingProgressBar));
         }else{
             view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
         }
     }
 
-    private void fetchPosts() {
+    private void fetchPosts(View view) {
         Query postsColl;
         if (tagsOnPosts == null) {
             postsColl = db.collection("posts");
@@ -117,7 +121,7 @@ public class TimelineFragment extends Fragment {
                             }
                             dataFetched = true; // Update data fetch status
                         }
-                        requireActivity().runOnUiThread(() ->requireView().findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
+                        requireActivity().runOnUiThread(() ->view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
                     }));
         });
     }
