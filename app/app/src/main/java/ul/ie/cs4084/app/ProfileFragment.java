@@ -125,6 +125,7 @@ public class ProfileFragment extends Fragment {
                     blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController, false);
                 }
             }
+            //write to screen
             displayPicture(
                     viewingAccount.getProfilePictureUrl(),
                     pfp,
