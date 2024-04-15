@@ -5,6 +5,7 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -71,6 +72,8 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
     private MapView mapView;
     private GeoPoint location;
     private final CountDownLatch locationLatch = new CountDownLatch(1);
+
+    private final CountDownLatch profileLatch = new CountDownLatch(1);
     private boolean renderFlag = false;
     private DocumentReference userId;
 
@@ -79,6 +82,9 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             postId = getArguments().getString(ARG_POST);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                p = getArguments().getSerializable("postObj",Post.class);
+            }
         }
 
         MainActivity act = (MainActivity)getActivity();
@@ -120,8 +126,6 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         postTags.setLayoutManager(layoutManager);
@@ -129,15 +133,24 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         userId = db.document("accounts/" +
                 ((MainActivity)requireActivity()).signedInAccount.getId());
         if(!renderFlag) {
-        DocumentReference viewingprofileDoc = db.collection("posts").document(postId);
-        viewingprofileDoc.get().addOnCompleteListener(getPostTask -> {
-            if (getPostTask.isSuccessful()) {
-                DocumentSnapshot postDocument = getPostTask.getResult();
-                //if yes populate local object
-                if (postDocument.exists()) {
-                    p = new Post(postDocument);
-                    postTitle.setText(p.getTitle());
-                    postBody.setText(p.getBody());
+            if (p == null) {
+                DocumentReference viewingprofileDoc = db.collection("posts").document(postId);
+                viewingprofileDoc.get().addOnCompleteListener(getPostTask -> {
+                    if (getPostTask.isSuccessful()) {
+                        DocumentSnapshot postDocument = getPostTask.getResult();
+                        //if yes populate local object
+                        if (postDocument.exists()) {
+                            p = new Post(postDocument);
+                            profileLatch.countDown();
+                        }
+                    }
+                });
+            }else{
+                profileLatch.countDown();
+            }
+            executor.execute(() -> {
+                try {
+                    profileLatch.await();
                     if (p.getImageUrl() != null) {
                         displayPicture(
                             p.getImageUrl(),
@@ -148,13 +161,16 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     }
 
                     tagAdapter = new ButtonAdapter(p.getTags(), navController, false);
-                    postTags.setAdapter(tagAdapter);
-
+                    mainHandler.post(() -> {
+                        postTitle.setText(p.getTitle());
+                        postBody.setText(p.getBody());
+                        postTags.setAdapter(tagAdapter);
+                        //set buttons
+                        upvote.setOnClickListener(v -> p.addUpvote(userId, db));
+                        downvote.setOnClickListener(v -> p.addDownvote(userId, db));
+                    });
                     location = p.getGeotag();
                     locationLatch.countDown();
-                    //set buttons
-                    upvote.setOnClickListener(v -> p.addUpvote(userId, db));
-                    downvote.setOnClickListener(v -> p.addDownvote(userId, db));
                     DocumentReference op = p.getProfile();
                     DocumentReference parentBoard = p.getParentBoard();
                     //display op information
@@ -200,11 +216,11 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
 
                     });
                     });
-                } else {
-                    Log.d(TAG, "Post not found");
+
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            }
-        });
+            });
         renderFlag = true;
         }else{
         setScreen(view.findViewById(R.id.postImage));
