@@ -12,7 +12,7 @@ public class LocationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         long currentTime = System.currentTimeMillis();
-        if (intent.getAction() != null && currentTime - lastShownTime > SUPPRESS_DURATION) {
+        if (intent.getAction() != null && currentTime - lastShownTime > SUPPRESS_DURATION) {//changing location status causes 3 events so surpess the extras
             // Location provider status has changed
             String message = this.isLocationEnabled(context) ? "Location provider turned ON" : "Location provider turned OFF";
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
