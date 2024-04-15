@@ -186,6 +186,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                 opClickable.setOnClickListener(v -> {
                                     Bundle bundle = new Bundle();
                                     bundle.putString("profileId", OPoster.getId());
+                                    bundle.putSerializable("profileObj", OPoster);
                                     navController.navigate(R.id.action_to_profile, bundle);
                                 });
                             } else {
@@ -206,7 +207,8 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                 mainHandler.post(() -> board.append(bPosted.getName()));
                                 board.setOnClickListener(clicked -> {
                                     Bundle bundle = new Bundle();
-                                    bundle.putString("boardId", bPosted.getId());
+                                    bundle.putString("boardId", bPosted.getId());//works wether the api version is sufficent or not
+                                    bundle.putSerializable("boardObj", bPosted);
                                     navController.navigate(R.id.action_to_board, bundle);
                                 });
                             } else {
@@ -223,8 +225,8 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
             });
         renderFlag = true;
         }else{
-        setScreen(view.findViewById(R.id.postImage));
-    }
+            setScreen(view.findViewById(R.id.postImage));
+        }
     }
 
     private void setScreen(ImageView view){

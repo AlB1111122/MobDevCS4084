@@ -4,6 +4,7 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -75,6 +76,9 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             profileId = getArguments().getString(ARG_PROFILE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                viewingAccount = getArguments().getSerializable("profileObj", Account.class);
+            }
         }
         MainActivity act = (MainActivity)getActivity();
         assert act != null;
@@ -92,7 +96,13 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getAccount();
+
+        isSelf = Objects.equals(profileId, ((MainActivity)requireActivity()).signedInAccount.getId());
+        if(viewingAccount == null) {
+            getAccount();
+        }else{
+            profileLatch.countDown();
+        }
 
         pfp = view.findViewById(R.id.imageView);
         usernameText = view.findViewById(R.id.signedInProfileUsername);
@@ -157,7 +167,6 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getAccount(){
-        isSelf = Objects.equals(profileId, ((MainActivity)requireActivity()).signedInAccount.getId());
         if (isSelf) {
             DocumentReference viewingprofileDoc = db.collection("accounts").document(profileId);
             viewingprofileDoc.get().addOnCompleteListener(getAccountTask -> {

@@ -1,5 +1,6 @@
 package ul.ie.cs4084.app;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Board;
 import ul.ie.cs4084.app.dataClasses.Database;
+import ul.ie.cs4084.app.dataClasses.Post;
 
 public class BoardFragment extends Fragment {
 
@@ -37,16 +39,11 @@ public class BoardFragment extends Fragment {
     private String boardId;
     private ExecutorService executor;
     private Handler mainHandler;
-    private String name;
-    private String description;
-    private ArrayList <String> rules;
-    private ArrayList <String> mods;
     private ButtonAdapter tagAdapter;
     private CountDownLatch latch = new CountDownLatch(1);
     private NavController navController;
     private boolean renderFlag = false;
-    private
-    Board b;
+    private Board b;
     public BoardFragment() {
         // Required empty public constructor
     }
@@ -64,6 +61,9 @@ public class BoardFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             boardId = getArguments().getString(ARG_ID);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                b = getArguments().getSerializable("boardObj", Board.class);
+            }
         }
         executor = ((MainActivity)requireActivity()).executorService;
         mainHandler = new Handler(Looper.getMainLooper());
@@ -96,36 +96,35 @@ public class BoardFragment extends Fragment {
             navController.navigate(R.id.action_to_new_post, bundle);
         });
         if (!renderFlag) {
-            DocumentReference boardRef = db.collection("boards").document(boardId);
-            boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(() -> {
-                if (getBoardTask.isSuccessful()) {
-                    DocumentSnapshot boardDoc = getBoardTask.getResult();
-                    //if yes populate local object
-                    if (boardDoc.exists()) {
-                        b = new Board(boardDoc);
-                        name = b.getName();
-                        tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
-
-                        description = b.getDescription();
-                        rules = b.getRules();
-                        mods = b.getStrModerators();
-
-                        latch.countDown();
+            if(b == null) {
+                DocumentReference boardRef = db.collection("boards").document(boardId);
+                boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(() -> {
+                    if (getBoardTask.isSuccessful()) {
+                        DocumentSnapshot boardDoc = getBoardTask.getResult();
+                        //if yes populate local object
+                        if (boardDoc.exists()) {
+                            b = new Board(boardDoc);
+                            tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
+                            latch.countDown();
+                        }
                     }
-                }
-            }));
-            renderFlag=true;
+                }));
+            }else{
+                tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
+                latch.countDown();
+            }
+            renderFlag = true;
         }
         executor.execute(() -> {
             try {
                 latch.await();
                 mainHandler.post(() -> {
-                    ((TextView) view.findViewById(R.id.boardName)).append(name);
+                    ((TextView) view.findViewById(R.id.boardName)).append(b.getName());
                     boardsTags.setAdapter(tagAdapter);
                 });
                 Database.displayPicture(b.getRelatedImageUrl(), view.findViewById(R.id.boardImage), executor, mainHandler, getResources());
                 mainHandler.post(() -> {
-                    pager.setAdapter(new TabsAdapter(this, "b/" + name, description, rules, mods));
+                    pager.setAdapter(new TabsAdapter(this, "b/" + b.getName(), b.getDescription(), b.getRules(), b.getStrModerators()));
                     new TabLayoutMediator(tabLayout, pager,
                             (tab, position) -> tab.setText(position == 0 ? "Posts" : "Info")
                     ).attach();
