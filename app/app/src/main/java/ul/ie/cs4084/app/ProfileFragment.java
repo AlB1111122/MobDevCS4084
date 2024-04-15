@@ -157,7 +157,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getAccount(){
-        isSelf = Objects.equals(profileId, Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        isSelf = Objects.equals(profileId, ((MainActivity)requireActivity()).signedInAccount.getId());
         if (isSelf) {
             DocumentReference viewingprofileDoc = db.collection("accounts").document(profileId);
             viewingprofileDoc.get().addOnCompleteListener(getAccountTask -> {
