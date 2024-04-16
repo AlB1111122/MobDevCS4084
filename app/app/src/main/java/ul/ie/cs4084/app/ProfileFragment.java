@@ -4,9 +4,13 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -33,6 +37,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -57,6 +63,9 @@ public class ProfileFragment extends Fragment {
     private boolean renderFlag = false;
     boolean isSelf;
     private CountDownLatch profileLatch = new CountDownLatch(1);
+
+    ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    Uri localImageUri = null;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -85,6 +94,35 @@ public class ProfileFragment extends Fragment {
         mainHandler = new Handler(Looper.getMainLooper());
         navController = NavHostFragment.findNavController(this);
         db = FirebaseFirestore.getInstance();
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+
+                    if (uri != null) {
+                        executor.execute(()->{
+                            try {
+                                profileLatch.await();
+                        localImageUri = uri;
+                        StorageReference cloudInstance = FirebaseStorage.getInstance().getReference();
+                        StorageReference storageRef = cloudInstance.child("profilePictures/" + localImageUri.getLastPathSegment());
+
+                        storageRef.putFile(localImageUri).addOnCompleteListener(image ->{
+                            if(image.isSuccessful()){
+                                String cloudImageUriStr = "gs://socialmediaapp-38b04.appspot.com/profilePictures/" + localImageUri.getLastPathSegment();
+                                viewingAccount.setProfilePictureUrl(cloudImageUriStr,db);
+                                displayPicture(
+                                        viewingAccount.getProfilePictureUrl(),
+                                        pfp,
+                                        executor,
+                                        mainHandler,
+                                        getResources()
+                                );
+                            }
+                        });} catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }});
+
+                    }
+                });
     }
 
     @Override
@@ -147,10 +185,15 @@ public class ProfileFragment extends Fragment {
                 followedTags.setAdapter(followAdapter);
 
                 if (isSelf) {
+                    view.findViewById(R.id.editImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                            .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                            .build())
+                    );
                     blockedTags.setAdapter(blockedAdapter);
                     (view.findViewById(R.id.blockListTitle)).setVisibility(View.VISIBLE);
                     blockedTags.setVisibility(View.VISIBLE);
                     view.findViewById(R.id.buttonSignOut).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.editImageButton).setVisibility(View.VISIBLE);
 
                     setChangeNameButton(view.findViewById(R.id.editUsernameButton), getContext());
                     setTagFollowButton(view.findViewById(R.id.followTagButton), getContext());
