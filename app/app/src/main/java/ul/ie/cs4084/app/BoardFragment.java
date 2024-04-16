@@ -25,13 +25,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Board;
 import ul.ie.cs4084.app.dataClasses.Database;
-import ul.ie.cs4084.app.dataClasses.Post;
 
 public class BoardFragment extends Fragment {
 
