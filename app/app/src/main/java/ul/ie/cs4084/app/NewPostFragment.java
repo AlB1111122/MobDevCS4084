@@ -7,6 +7,7 @@ import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -67,12 +68,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import ul.ie.cs4084.app.dataClasses.Account;
+import ul.ie.cs4084.app.dataClasses.Board;
 import ul.ie.cs4084.app.dataClasses.Factory;
 
 public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String ARG_BOARD = "boardId";
     private String boardId;
+    private Board parentBoard;
     private ExecutorService executor;
     private Handler mainHandler;
     private NavController navController;
@@ -103,6 +106,9 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             boardId = getArguments().getString(ARG_BOARD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                parentBoard = getArguments().getSerializable("boardObj", Board.class);
+            }
         }
 
         MainActivity act = (MainActivity) getActivity();
@@ -137,6 +143,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         board = view.findViewById(R.id.postBoardText);
         RecyclerView postTags = view.findViewById(R.id.postTagRV);
         addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
+
         view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
             mapView = view.findViewById(R.id.setMapMarkerView);
             mapView.onCreate(savedInstanceState);
@@ -201,7 +208,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        final DocumentReference parentBoard = db.document("boards/" +
+        final DocumentReference parentBoardDoc = db.document("boards/" +
                 boardId);
         executor.execute(() -> {//profile information
             Account op = ((MainActivity)requireActivity()).signedInAccount;
@@ -220,23 +227,30 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             };
             mainHandler.post(runnable);
         });//boardInfo
-        executor.execute(() -> parentBoard.get().addOnCompleteListener(getBoardTask -> {
-            if (getBoardTask.isSuccessful()) {
-                DocumentSnapshot boardDocument = getBoardTask.getResult();
-                if (boardDocument.exists()) {
-                    String name = boardDocument.getString("name");
-                    //post back to ui thred
-                    mainHandler.post(() -> board.append(name));
-                    ArrayList<String> boardTagArray = (ArrayList<String>) Objects.requireNonNull(boardDocument.get("tags"));
-                    boardTagArray.add("b/" + name);
-                    tagSet.addAll(boardTagArray);
-                    tagAdapter.addButtons(boardTagArray);
-                } else {
-                    Log.d(TAG, "error board");
+        Runnable boardRunnable = ()->{
+            mainHandler.post(() -> board.append(parentBoard.getName()));
+            ArrayList<String> boardTagArray = parentBoard.getTags();
+            boardTagArray.add("b/" + parentBoard.getName());
+            tagSet.addAll(boardTagArray);
+            tagAdapter.addButtons(boardTagArray);
+        };
+        if(parentBoard == null) {
+            executor.execute(() -> parentBoardDoc.get().addOnCompleteListener(getBoardTask -> {
+                if (getBoardTask.isSuccessful()) {
+                    DocumentSnapshot boardDocument = getBoardTask.getResult();
+                    if (boardDocument.exists()) {
+                        parentBoard = new Board(boardDocument);
+                        //post back to ui thred
+                        boardRunnable.run();
+                    } else {
+                        Log.d(TAG, "error board");
+                    }
                 }
-            }
 
-        }));
+            }));
+        }else{
+            executor.execute(boardRunnable);
+        }
 //make the post
         (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
             String postTitle = ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString();
@@ -253,7 +267,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             }
             factory.createNewPost(
                     db,
-                    parentBoard,
+                    parentBoardDoc,
                     opDoc,
                     postTitle,
                     ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),

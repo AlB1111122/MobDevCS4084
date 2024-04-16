@@ -27,7 +27,8 @@
             android:layout_height="wrap_content"
             android:text="@string/board_stub"
             android:textSize="30sp"
-            android:layout_gravity="bottom"/>
+            android:layout_gravity="bottom"
+            android:paddingEnd="10dp"/>
 
         <Button
             android:id="@+id/addNewPostButton"

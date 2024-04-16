@@ -93,6 +93,7 @@ public class BoardFragment extends Fragment {
         view.findViewById(R.id.addNewPostButton).setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putString("boardId", boardId);
+            bundle.putSerializable("boardObj",b);
             navController.navigate(R.id.action_to_new_post, bundle);
         });
         if (!renderFlag) {
