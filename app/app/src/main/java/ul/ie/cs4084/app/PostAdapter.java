@@ -85,6 +85,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.card.setOnClickListener(clicked -> {
             Bundle bundle = new Bundle();
             bundle.putString("postId", p.getId());
+            bundle.putSerializable("postObj",p);
             navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
         });
 
@@ -93,6 +94,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void addPost(Post p){
         localDataSet.add(p);
         this.notifyItemInserted(this.getItemCount());
+    }
+
+    public void addAllPosts(ArrayList<Post> posts){
+        int start = this.getItemCount();
+        int length = posts.size();
+        localDataSet.addAll(posts);
+        this.notifyItemRangeInserted(start,length);
     }
 
     @Override

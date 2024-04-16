@@ -1,24 +1,17 @@
 package ul.ie.cs4084.app;
 
 
+import android.content.IntentFilter;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     public NavController navController;
     public Account signedInAccount;
     public BottomNavigationView navView;
+
+    private LocationReceiver locationReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,13 +42,7 @@ public class MainActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
         navView = findViewById(R.id.nav_view);
         navView.setSelectedItemId(R.id.navigation_popular);
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                navController.popBackStack();
-            }
-        };
+//navigation bar
         navView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if(itemId == R.id.navigation_search){
@@ -81,6 +70,25 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+
+//back button
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                navController.popBackStack();
+            }
+        };
         this.getOnBackPressedDispatcher().addCallback(this, callback);
+
+        //Location broadcast reciver
+        locationReceiver = new LocationReceiver();
+        IntentFilter filter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        this.registerReceiver(locationReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(locationReceiver);
     }
 }

@@ -16,6 +16,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
 
     private ArrayList<String> localDataSet;
     private NavController navController;
+    private boolean editable;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final Button button;
@@ -27,14 +28,16 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         }
     }
 
-    public ButtonAdapter(ArrayList<String> dataSet,NavController navController) {
+    public ButtonAdapter(ArrayList<String> dataSet,NavController navController,boolean editable) {
         localDataSet = dataSet;
         this.navController = navController;
+        this.editable = editable;
     }
 
-    public ButtonAdapter(NavController navController) {
+    public ButtonAdapter(NavController navController,boolean editable) {
         localDataSet = new ArrayList<>();
         this.navController = navController;
+        this.editable = editable;
     }
 
     public void addButton(String tag){
@@ -72,6 +75,13 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
             bundle.putString("tagsOnPosts", localDataSet.get(position));
             navController.navigate(R.id.action_to_tag_view, bundle);
         });
+        if(editable){
+        viewHolder.button.setOnLongClickListener(held->{
+            localDataSet.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, localDataSet.size());
+            return true;
+        });}
     }
 
     // Return the size of your dataset (invoked by the layout manager)

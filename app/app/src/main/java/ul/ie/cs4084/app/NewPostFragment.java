@@ -7,6 +7,7 @@ import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,6 +34,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -50,7 +52,6 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,14 +63,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+import ul.ie.cs4084.app.dataClasses.Account;
+import ul.ie.cs4084.app.dataClasses.Board;
 import ul.ie.cs4084.app.dataClasses.Factory;
 
 public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
+    private static final String ARG_BOARD = "boardId";
+    private String boardId;
+    private Board parentBoard;
     private ExecutorService executor;
     private Handler mainHandler;
     private NavController navController;
@@ -86,170 +91,24 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     PlacesClient placesClient;
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     Uri localImageUri = null;
+    DocumentReference opDoc;
 
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_new_post, container, false);
-
-        assert getArguments() != null;
-        String boardId = getArguments().getString("boardId");
-        if (boardId == null) {
-            return null;
-        }
-
-        OPpfp = view.findViewById(R.id.OPpfp);
-        OPname = view.findViewById(R.id.postUsernameText);
-        board = view.findViewById(R.id.postBoardText);
-        RecyclerView postTags = view.findViewById(R.id.postTagRV);
-        addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
-            view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
-                mapView = view.findViewById(R.id.setMapMarkerView);
-                mapView.onCreate(savedInstanceState);
-                mapView.getMapAsync(this);
-                mapView.setVisibility(View.VISIBLE);
-                view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
-                (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.VISIBLE);
-                (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.VISIBLE);
-                this.setLocation();
-                executor.execute(() -> {
-                    try {
-                        mapLatch.await();
-                        mainHandler.post(()-> map.setOnMapClickListener(mapClick -> updateMapMarker(new LatLng(mapClick.latitude, mapClick.longitude))));
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-                final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-                AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                        this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
-
-                assert autocompleteFragment != null;
-                autocompleteFragment.setPlaceFields(placeFields);
-                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                    @Override
-                    public void onError(@NonNull Status status) {
-                        if (status.getStatusMessage() != null) {
-                            Log.i(TAG, status.getStatusMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onPlaceSelected(Place place) {
-                        if (place != null) {
-                            updateMapMarker(place.getLatLng());
-                        }
-                    }
-                });
-            });
-        view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {
-            postLocation = null;
-            mapView.setVisibility(View.GONE);
-            (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.GONE);
-            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
-            view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.GONE);
-        });
-        view.findViewById(R.id.addImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-                .build())
-        );
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-
-        postTags.setLayoutManager(layoutManager);
-
-        tagAdapter = new ButtonAdapter(navController);
-        postTags.setAdapter(tagAdapter);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        final DocumentReference parentBoard = db.document("boards/" +
-                boardId);
-
-        final DocumentReference account = db.document("accounts/" +
-                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-        executor.execute(() -> account.get().addOnCompleteListener(getProfileTask -> {
-            if (getProfileTask.isSuccessful()) {
-                DocumentSnapshot accountDocument = getProfileTask.getResult();
-                if (accountDocument.exists()) {
-                    //post back to ui thred
-                    String pfpUrl = accountDocument.getString("profilePictureUrl");
-                    String username = accountDocument.getString("username");
-
-                    tagAdapter.addButton("u/"+username);
-                    tagSet.add("u/"+username);
-                    Runnable runnable = () -> {
-                        displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
-                        OPname.append(username);
-                    };
-                    mainHandler.post(runnable);
-                } else {
-                    Log.d(TAG, "error fetching posts original poster");
-                }
-            }
-        }));
-        executor.execute(() -> parentBoard.get().addOnCompleteListener(getBoardTask -> {
-            if (getBoardTask.isSuccessful()) {
-                DocumentSnapshot boardDocument = getBoardTask.getResult();
-                if (boardDocument.exists()) {
-                    String name = boardDocument.getString("name");
-                    //post back to ui thred
-                    mainHandler.post(() -> board.append(name));
-                    ArrayList<String> boardTagArray = (ArrayList<String>) Objects.requireNonNull(boardDocument.get("tags"));
-                    boardTagArray.add("b/" + name);
-                    tagSet.addAll(boardTagArray);
-                    tagAdapter.addButtons(boardTagArray);
-                } else {
-                    Log.d(TAG, "error board");
-                }
-            }
-
-        }));
-
-        (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
-            Factory factory = new Factory(executor);
-            String cloudImageUriStr = null;
-
-            Log.d(TAG, "CLOUDCLOUDCLOUD "+ localImageUri);
-            if(localImageUri != null){
-                StorageReference cloudInstance = FirebaseStorage.getInstance().getReference();
-                StorageReference storageRef = cloudInstance.child("postPictures/" + localImageUri.getLastPathSegment());
-
-                storageRef.putFile(localImageUri);
-                cloudImageUriStr = "gs://socialmediaapp-38b04.appspot.com/postPictures/" + localImageUri.getLastPathSegment();
-            }
-            factory.createNewPost(
-                    db,
-                    parentBoard,
-                    account,
-                    ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString(),
-                    ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
-                    postLocation,
-                    tagSet,
-                    cloudImageUriStr,
-                    documentReference -> {
-                        Bundle bundle = new Bundle();
-                        bundle.putString("postId", documentReference.getId());
-                        navController.navigate(R.id.action_Home_to_FullscreenPost, bundle);
-                    }
-            );
-        });
-        return view;
+    public static NewPostFragment newInstance(String boardId) {
+        NewPostFragment fragment = new NewPostFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_BOARD, boardId);
+        fragment.setArguments(args);
+        return fragment;
     }
-
-
-    public static NewPostFragment newInstance() {
-        return new NewPostFragment();
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            boardId = getArguments().getString(ARG_BOARD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                parentBoard = getArguments().getSerializable("boardObj", Board.class);
+            }
+        }
 
         MainActivity act = (MainActivity) getActivity();
         assert act != null;
@@ -270,8 +129,162 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_new_post, container, false);
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        OPpfp = view.findViewById(R.id.OPpfp);
+        OPname = view.findViewById(R.id.postUsernameText);
+        board = view.findViewById(R.id.postBoardText);
+        RecyclerView postTags = view.findViewById(R.id.postTagRV);
+        addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
+
+        view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
+            mapView = view.findViewById(R.id.setMapMarkerView);
+            mapView.onCreate(savedInstanceState);
+            mapView.getMapAsync(this);
+            mapView.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.addLocationButton).setVisibility(View.GONE);
+            (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.VISIBLE);
+            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.VISIBLE);
+            this.setLocation();
+            executor.execute(() -> {
+                try {
+                    mapLatch.await();
+                    mainHandler.post(()-> map.setOnMapClickListener(mapClick -> updateMapMarker(new LatLng(mapClick.latitude, mapClick.longitude))));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+            AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                    this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
+
+            assert autocompleteFragment != null;
+            autocompleteFragment.setPlaceFields(placeFields);
+            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                @Override
+                public void onError(@NonNull Status status) {
+                    if (status.getStatusMessage() != null) {
+                        Log.i(TAG, status.getStatusMessage());
+                    }
+                }
+
+                @Override
+                public void onPlaceSelected(Place place) {
+                    if (place != null) {
+                        updateMapMarker(place.getLatLng());
+                    }
+                }
+            });
+        });
+        view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {
+            postLocation = null;
+            mapView.setVisibility(View.GONE);
+            (view.findViewById(R.id.setMapMarkerView)).setVisibility(View.GONE);
+            (view.findViewById(R.id.cancelGeotag)).setVisibility(View.GONE);
+            view.findViewById(R.id.addLocationButton).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.autoCompleteFragmentView).setVisibility(View.GONE);
+        });
+        view.findViewById(R.id.addImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build())
+        );
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        postTags.setLayoutManager(layoutManager);
+
+        tagAdapter = new ButtonAdapter(navController,true);
+        postTags.setAdapter(tagAdapter);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        final DocumentReference parentBoardDoc = db.document("boards/" +
+                boardId);
+        executor.execute(() -> {//profile information
+            Account op = ((MainActivity)requireActivity()).signedInAccount;
+
+            opDoc = db.document("accounts/" + op.getId());
+            //post back to ui thred
+            String pfpUrl = op.getProfilePictureUrl();
+            String username = op.getUsername();
+
+            tagAdapter.addButton("u/" + username);
+            tagSet.add("u/" + username);
+
+            displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
+            Runnable runnable = () -> {
+                OPname.append(username);
+            };
+            mainHandler.post(runnable);
+        });//boardInfo
+        Runnable boardRunnable = ()->{
+            mainHandler.post(() -> board.append(parentBoard.getName()));
+            ArrayList<String> boardTagArray = parentBoard.getTags();
+            boardTagArray.add("b/" + parentBoard.getName());
+            tagSet.addAll(boardTagArray);
+            tagAdapter.addButtons(boardTagArray);
+        };
+        if(parentBoard == null) {
+            executor.execute(() -> parentBoardDoc.get().addOnCompleteListener(getBoardTask -> {
+                if (getBoardTask.isSuccessful()) {
+                    DocumentSnapshot boardDocument = getBoardTask.getResult();
+                    if (boardDocument.exists()) {
+                        parentBoard = new Board(boardDocument);
+                        //post back to ui thred
+                        boardRunnable.run();
+                    } else {
+                        Log.d(TAG, "error board");
+                    }
+                }
+
+            }));
+        }else{
+            executor.execute(boardRunnable);
+        }
+//make the post
+        (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
+            String postTitle = ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString();
+            if(!postTitle.equals("")){
+            Factory factory = new Factory(executor);
+            String cloudImageUriStr = null;
+
+            if(localImageUri != null){
+                StorageReference cloudInstance = FirebaseStorage.getInstance().getReference();
+                StorageReference storageRef = cloudInstance.child("postPictures/" + localImageUri.getLastPathSegment());
+
+                storageRef.putFile(localImageUri);
+                cloudImageUriStr = "gs://socialmediaapp-38b04.appspot.com/postPictures/" + localImageUri.getLastPathSegment();
+            }
+            factory.createNewPost(
+                    db,
+                    parentBoardDoc,
+                    opDoc,
+                    postTitle,
+                    ((TextInputEditText) view.findViewById(R.id.postBody)).getText().toString(),
+                    postLocation,
+                    tagSet,
+                    cloudImageUriStr,
+                    documentReference -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("postId", documentReference.getId());
+                        navController.navigate(R.id.action_Home_to_FullscreenPost, bundle);
+                    }
+            );
+        }else{
+                Toast toast = Toast.makeText(getContext(), "A post needs a title", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+        );
     }
 
     private void addTagButton(Button button, Context context){
