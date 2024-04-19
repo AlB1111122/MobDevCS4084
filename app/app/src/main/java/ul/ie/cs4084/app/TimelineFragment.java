@@ -91,7 +91,7 @@ public class TimelineFragment extends Fragment {
 
         if (!dataFetched) {
             fetchPosts(view.findViewById(R.id.loadingProgressBar));
-        }else{
+        }else{//end loading
             view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
         }
     }
@@ -99,6 +99,7 @@ public class TimelineFragment extends Fragment {
     private void fetchPosts(View view) {
         Query postsColl;
         if (tagsOnPosts == null) {
+            //if not looking for specific tags show all posts
             postsColl = db.collection("posts");
         } else {
             postsColl = db.collection("posts").whereArrayContainsAny("tags", tagsOnPosts);
@@ -113,15 +114,15 @@ public class TimelineFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Post p = new Post(document);
-                                if (Collections.disjoint(p.retriveTagsSet(), ((MainActivity) requireActivity()).signedInAccount.retriveBlockedSet())
-                                        && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))
-                                        && (searchTerm == null || (p.getTitle().contains(searchTerm) || p.getBody().contains(searchTerm)))) {
+                                if (Collections.disjoint(p.retriveTagsSet(), ((MainActivity) requireActivity()).signedInAccount.retriveBlockedSet())//dont show posts the user has blocked
+                                        && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))//for search dont show excluded posts
+                                        && (searchTerm == null || (p.getTitle().contains(searchTerm) || p.getBody().contains(searchTerm)))) {//for search only show posts contining the string
                                     requireActivity().runOnUiThread(() -> postAdapter.addPost(p));
                                 }
                             }
                             dataFetched = true; // Update data fetch status
                         }
-                        requireActivity().runOnUiThread(() ->view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));
+                        requireActivity().runOnUiThread(() ->view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));//finish loading
                     }));
         });
     }

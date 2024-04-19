@@ -84,9 +84,6 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             profileId = getArguments().getString(ARG_PROFILE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                viewingAccount = getArguments().getSerializable("profileObj", Account.class);
-            }
         }
         MainActivity act = (MainActivity)getActivity();
         assert act != null;
@@ -135,6 +132,10 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         isSelf = Objects.equals(profileId, ((MainActivity)requireActivity()).signedInAccount.getId());
+
+        Log.e(TAG, String.valueOf(isSelf));
+        Log.e(TAG, profileId);
+
         if(viewingAccount == null) {
             getAccount();
         }else{
@@ -158,8 +159,9 @@ public class ProfileFragment extends Fragment {
             profileLatch.await();
 
             if(!renderFlag) {
+                //show followed tags
                 followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController, false);
-
+                //show the accounts posts
                 FragmentManager fragmentManager = getChildFragmentManager();
                 Bundle bundle = new Bundle();
                 bundle.putString("tagsOnPosts", "u/" + viewingAccount.getUsername());
@@ -167,12 +169,13 @@ public class ProfileFragment extends Fragment {
                 fragmentManager.beginTransaction()
                         .replace(R.id.profileTagFragHolder, TagFragment.class, bundle)
                         .commit();
-
                 if (isSelf) {
+                    //show blocked buttons if is viewing self
                     blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController, false);
                 }
             }
             //write to screen
+            //pfp
             displayPicture(
                     viewingAccount.getProfilePictureUrl(),
                     pfp,
@@ -185,16 +188,20 @@ public class ProfileFragment extends Fragment {
                 followedTags.setAdapter(followAdapter);
 
                 if (isSelf) {
+                    view.findViewById(R.id.buttonSignOut).setVisibility(View.VISIBLE);
+                    //let user change their php
                     view.findViewById(R.id.editImageButton).setOnClickListener(task -> pickMedia.launch(new PickVisualMediaRequest.Builder()
                             .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
                             .build())
                     );
+                    view.findViewById(R.id.editImageButton).setVisibility(View.VISIBLE);
+
+                    //show block button and blocks
                     blockedTags.setAdapter(blockedAdapter);
                     (view.findViewById(R.id.blockListTitle)).setVisibility(View.VISIBLE);
                     blockedTags.setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.buttonSignOut).setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.editImageButton).setVisibility(View.VISIBLE);
 
+                    //set buttons for editing profile
                     setChangeNameButton(view.findViewById(R.id.editUsernameButton), getContext());
                     setTagFollowButton(view.findViewById(R.id.followTagButton), getContext());
                     setTagBlockButton(view.findViewById(R.id.blockTagButton), getContext());
@@ -209,7 +216,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getAccount(){
-        if (isSelf) {
+        if (!isSelf) {
             DocumentReference viewingprofileDoc = db.collection("accounts").document(profileId);
             viewingprofileDoc.get().addOnCompleteListener(getAccountTask -> {
                 if (getAccountTask.isSuccessful()) {

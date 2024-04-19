@@ -4,7 +4,6 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -69,19 +68,16 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
     private MapView mapView;
     private GeoPoint location;
     private final CountDownLatch locationLatch = new CountDownLatch(1);
-
     private final CountDownLatch profileLatch = new CountDownLatch(1);
+    private final CountDownLatch boardLatch = new CountDownLatch(1);
+    private final CountDownLatch postLatch = new CountDownLatch(1);
     private boolean renderFlag = false;
-    private DocumentReference userId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             postId = getArguments().getString(ARG_POST);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                p = getArguments().getSerializable("postObj",Post.class);
-            }
         }
 
         MainActivity act = (MainActivity)getActivity();
@@ -127,47 +123,24 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         postTags.setLayoutManager(layoutManager);
 
-        userId = db.document("accounts/" +
-                ((MainActivity)requireActivity()).signedInAccount.getId());
-        if(!renderFlag) {
-            if (p == null) {
-                DocumentReference viewingprofileDoc = db.collection("posts").document(postId);
-                viewingprofileDoc.get().addOnCompleteListener(getPostTask -> {
-                    if (getPostTask.isSuccessful()) {
-                        DocumentSnapshot postDocument = getPostTask.getResult();
-                        //if yes populate local object
-                        if (postDocument.exists()) {
-                            p = new Post(postDocument);
-                            profileLatch.countDown();
-                        }
+        if(!renderFlag) {//get all the information
+            //get post
+            DocumentReference viewingprofileDoc = db.collection("posts").document(postId);
+            viewingprofileDoc.get().addOnCompleteListener(getPostTask -> {
+                if (getPostTask.isSuccessful()) {
+                    DocumentSnapshot postDocument = getPostTask.getResult();
+                    //if yes populate local object
+                    if (postDocument.exists()) {
+                        p = new Post(postDocument);
+                        postLatch.countDown();
                     }
-                });
-            }else{
-                profileLatch.countDown();
-            }
+                }
+            });
             executor.execute(() -> {
+                //get profile
                 try {
-                    profileLatch.await();
-                    if (p.getImageUrl() != null) {
-                        displayPicture(
-                            p.getImageUrl(),
-                            view.findViewById(R.id.postImage),
-                            executor,
-                            mainHandler,
-                            getResources());
-                    }
-
+                    postLatch.await();
                     tagAdapter = new ButtonAdapter(p.getTags(), navController, false);
-                    mainHandler.post(() -> {
-                        postTitle.setText(p.getTitle());
-                        postBody.setText(p.getBody());
-                        postTags.setAdapter(tagAdapter);
-                        //set buttons
-                        upvote.setOnClickListener(v -> p.addUpvote(userId, db));
-                        downvote.setOnClickListener(v -> p.addDownvote(userId, db));
-                    });
-                    location = p.getGeotag();
-                    locationLatch.countDown();
                     DocumentReference op = p.getProfile();
                     DocumentReference parentBoard = p.getParentBoard();
                     //display op information
@@ -177,15 +150,10 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                             DocumentSnapshot accountDocument = getOPTask.getResult();
                             if (accountDocument.exists()) {
                                 OPoster = new Account(accountDocument);
-                                displayPicture(accountDocument.getString("profilePictureUrl"), OPpfp, executor, mainHandler, getResources());
-                                //post back to ui thred
-                                mainHandler.post(() -> OPname.append(OPoster.getUsername()));
-                                opClickable.setOnClickListener(v -> {
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("profileId", OPoster.getId());
-                                    bundle.putSerializable("profileObj", OPoster);
-                                    navController.navigate(R.id.action_to_profile, bundle);
-                                });
+                                profileLatch.countDown();
+                                //add the geotag
+                                location = p.getGeotag();
+                                locationLatch.countDown();
                             } else {
                                 Log.d(TAG, "error fetching posts original poster");
                             }
@@ -193,27 +161,21 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
 
                     });
                 });
-                //display the name of the board it was posted to
+                //get the board it was posted to
                     executor.execute(() -> {//runnig on a thred because its slow
                         parentBoard.get().addOnCompleteListener(getBoardTask -> {
                             if (getBoardTask.isSuccessful()) {
                                 DocumentSnapshot boardDocument = getBoardTask.getResult();
                                 if (boardDocument.exists()) {
-                                bPosted = new Board(boardDocument);
+                                    bPosted = new Board(boardDocument);
+                                    boardLatch.countDown();
                                 //post back to ui thred
-                                mainHandler.post(() -> board.append(bPosted.getName()));
-                                board.setOnClickListener(clicked -> {
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("boardId", bPosted.getId());//works wether the api version is sufficent or not
-                                    bundle.putSerializable("boardObj", bPosted);
-                                    navController.navigate(R.id.action_to_board, bundle);
-                                });
-                            } else {
-                                Log.d(TAG, "error board");
+                                } else {
+                                    Log.d(TAG, "error board");
+                                }
                             }
-                        }
 
-                    });
+                        });
                     });
 
                 } catch (InterruptedException e) {
@@ -221,41 +183,73 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                 }
             });
         renderFlag = true;
-        }else{
-            setScreen(view.findViewById(R.id.postImage));
         }
+        setScreen(view.findViewById(R.id.postImage));
     }
 
     private void setScreen(ImageView view){
-        postTitle.setText(p.getTitle());
-        postBody.setText(p.getBody());
-        board.append(bPosted.getName());
-        OPname.append(OPoster.getUsername());
-        displayPicture(OPoster.getProfilePictureUrl(), OPpfp, executor, mainHandler, getResources());
-        postTags.setAdapter(tagAdapter);
-        if(p.getImageUrl() != null) {
-            displayPicture(
-                    p.getImageUrl(),
-                    view,//.findViewById(R.id.postImage)
-                    executor,
-                    mainHandler,
-                    getResources());
-        }
-        postTags.setAdapter(tagAdapter);
-        opClickable.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("profileId", OPoster.getId());
-            navController.navigate(R.id.action_to_profile, bundle);
+        executor.execute(() -> {//put post info on screen
+            try {
+                postLatch.await();
+                mainHandler.post(()->{
+                    postTitle.setText(p.getTitle());
+                    postBody.setText(p.getBody());
+                    postTags.setAdapter(tagAdapter);
+
+                    DocumentReference userId = db.document("accounts/" +
+                            p.getProfile());
+                    upvote.setOnClickListener(v -> p.addUpvote(userId, db));
+                    downvote.setOnClickListener(v -> p.addDownvote(userId, db));
+                });
+                if(p.getImageUrl() != null) {
+                    displayPicture(
+                            p.getImageUrl(),
+                            view,
+                            executor,
+                            mainHandler,
+                            getResources());
+                }
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
 
-        board.setOnClickListener(clicked -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("boardId", bPosted.getId());
-            navController.navigate(R.id.action_to_board, bundle);
+        executor.execute(() -> {//populate profile info
+            try {
+                profileLatch.await();
+                mainHandler.post(()->{
+                    OPname.append(OPoster.getUsername());
+
+                    opClickable.setOnClickListener(v -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("profileId", OPoster.getId());
+                        navController.navigate(R.id.action_to_profile, bundle);
+                    });
+                });
+                displayPicture(OPoster.getProfilePictureUrl(), OPpfp, executor, mainHandler, getResources());
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
 
-        upvote.setOnClickListener(v -> p.addUpvote(userId, db));
-        downvote.setOnClickListener(v -> p.addDownvote(userId, db));
+        executor.execute(() -> {//populate board
+            try {
+                boardLatch.await();
+                mainHandler.post(()->{
+                    board.append(bPosted.getName());
+                    board.setOnClickListener(clicked -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("boardId", bPosted.getId());
+                        navController.navigate(R.id.action_to_board, bundle);
+                    });
+                });
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override

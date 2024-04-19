@@ -119,6 +119,7 @@ public class SignInFragment extends Fragment {
                 //if yes populate local object
                 if (document.exists()) {
                     Log.d(TAG, "profile exists");
+                    //get profile from db
                     ((MainActivity) requireActivity()).signedInAccount = new Account(document);
                     navController.navigate(R.id.action_to_timeline);
                     ((MainActivity) requireActivity()).navView.setVisibility(View.VISIBLE);

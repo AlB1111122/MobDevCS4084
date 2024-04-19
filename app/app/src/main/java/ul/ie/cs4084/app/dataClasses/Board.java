@@ -5,13 +5,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Board implements Serializable {
+public class Board{
 
     private final String id;
     private final String name;

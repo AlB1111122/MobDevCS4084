@@ -20,6 +20,9 @@ public class BoardInfoFragment extends Fragment {
     private String description;
     private ArrayList<String> rules;
     private ArrayList<String> moderators;
+    private StringBuilder rulesStr;
+    private StringBuilder modsStr;
+    private boolean renderFlag = false;
     public BoardInfoFragment() {
         // Required empty public constructor
     }
@@ -46,16 +49,21 @@ public class BoardInfoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if(!renderFlag) {
+            rulesStr = new StringBuilder();
+            for (String rule : rules) {
+                rulesStr.append("- ").append(rule).append("\n");
+            }
+
+            modsStr = new StringBuilder();
+            for (String mod : moderators) {
+                modsStr.append("- ").append(mod).append("\n");
+            }
+            renderFlag = true;
+        }
+
         ((TextView)view.findViewById(R.id.boardDesc)).setText(description);
-        StringBuilder rulesStr = new StringBuilder();
-        for (String rule: rules) {
-            rulesStr.append("- ").append(rule).append("\n");
-        }
         ((TextView)view.findViewById(R.id.rulesList)).setText(rulesStr);
-        StringBuilder modsStr = new StringBuilder();
-        for (String mod: moderators) {
-            modsStr.append("- ").append(mod).append("\n");
-        }
         ((TextView)view.findViewById(R.id.modsList)).setText(modsStr);
     }
 

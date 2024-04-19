@@ -31,7 +31,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     public ButtonAdapter(ArrayList<String> dataSet,NavController navController,boolean editable) {
         localDataSet = dataSet;
         this.navController = navController;
-        this.editable = editable;
+        this.editable = editable;//determine if tag should be removable
     }
 
     public ButtonAdapter(NavController navController,boolean editable) {
