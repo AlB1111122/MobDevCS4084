@@ -29,7 +29,7 @@ public class Factory {
             String title,
             String body,
             GeoPoint geotag,
-            HashSet<String> tags,
+            ArrayList<String> tags,
             String imageUrl,
             final Callback<DocumentReference> callback
     ){
@@ -42,7 +42,7 @@ public class Factory {
                 docData.put("title", title);
                 docData.put("body", body);
                 docData.put("geotag", geotag);
-                docData.put("tags", new ArrayList<String>(tags));
+                docData.put("tags", tags);
                 docData.put("upvotes", new ArrayList<String>());
                 docData.put("downvotes", new ArrayList<String>());
                 docData.put("imageUrl", imageUrl);
