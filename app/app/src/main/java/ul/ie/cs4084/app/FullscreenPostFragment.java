@@ -197,7 +197,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                     postTags.setAdapter(tagAdapter);
 
                     DocumentReference userId = db.document("accounts/" +
-                            ((MainActivity)requireActivity()).signedInAccount.getId());
+                            p.getProfile());
                     upvote.setOnClickListener(v -> p.addUpvote(userId, db));
                     downvote.setOnClickListener(v -> p.addDownvote(userId, db));
                 });
