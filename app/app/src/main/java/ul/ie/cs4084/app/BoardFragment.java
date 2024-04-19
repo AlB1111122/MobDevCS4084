@@ -91,26 +91,23 @@ public class BoardFragment extends Fragment {
             navController.navigate(R.id.action_to_new_post, bundle);
         });
         if (!renderFlag) {
-            if(b == null) {
-                DocumentReference boardRef = db.collection("boards").document(boardId);
-                boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(() -> {
-                    if (getBoardTask.isSuccessful()) {
-                        DocumentSnapshot boardDoc = getBoardTask.getResult();
-                        //if yes populate local object
-                        if (boardDoc.exists()) {
-                            b = new Board(boardDoc);
-                            tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
-                            latch.countDown();
-                        }
+            //if the boards info is not already fetched
+            DocumentReference boardRef = db.collection("boards").document(boardId);
+            boardRef.get().addOnCompleteListener(getBoardTask -> executor.execute(() -> {
+                if (getBoardTask.isSuccessful()) {
+                    DocumentSnapshot boardDoc = getBoardTask.getResult();
+                    //if yes populate local object
+                    if (boardDoc.exists()) {
+                        b = new Board(boardDoc);
+                        tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
+                        latch.countDown();
                     }
-                }));
-            }else{
-                tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
-                latch.countDown();
-            }
+                }
+            }));
             renderFlag = true;
         }
         executor.execute(() -> {
+            //populate screen
             try {
                 latch.await();
                 mainHandler.post(() -> {
