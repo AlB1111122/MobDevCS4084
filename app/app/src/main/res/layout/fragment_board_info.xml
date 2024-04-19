@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BoardInfoFragment"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/boardRelLay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/boardDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="@string/example_text" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/boardDesc"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/rulesList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/example_text"
+                android:layout_weight="1"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/modsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/example_text"
+                android:padding="5dp"/>
+        </LinearLayout>
+</RelativeLayout>
+</ScrollView>

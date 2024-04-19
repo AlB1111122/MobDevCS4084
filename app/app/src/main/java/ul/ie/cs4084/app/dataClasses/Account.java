@@ -44,9 +44,21 @@ public class Account{
         }
     }
 
+    public void unBlockTag(String tag, FirebaseFirestore db){
+        if(blockedTags.remove(tag)){
+            db.collection("accounts").document(id).update("blockedTags", FieldValue.arrayRemove(tag));
+        }
+    }
+
     public void followTag(String tag, FirebaseFirestore db){
         if(followedTags.add(tag)){
             db.collection("accounts").document(id).update("followedTags", FieldValue.arrayUnion(tag));
+        }
+    }
+
+    public void unfollowTag(String tag, FirebaseFirestore db){
+        if(followedTags.remove(tag)){
+            db.collection("accounts").document(id).update("followedTags", FieldValue.arrayRemove(tag));
         }
     }
 

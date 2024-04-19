@@ -1,110 +1,129 @@
 package ul.ie.cs4084.app;
 
-import static android.content.ContentValues.TAG;
-
 import android.os.Bundle;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.Executor;
-
 import ul.ie.cs4084.app.dataClasses.Post;
-
 
 public class TimelineFragment extends Fragment {
 
+    private static final String ARG_TAG = "tagsOnPosts";
+    private static final String ARG_EX_TAG = "excludeTags";
+    private static final String ARG_TERM = "searchTerm";
+
     private ArrayList<String> tagsOnPosts;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Handler mainHandler;
+    private ArrayList<String> excludeTags;
+    private String searchTerm;
+    private FirebaseFirestore db;
     private NavController navController;
     private DocumentReference signedInDoc;
-    private final CountDownLatch pLatch = new CountDownLatch(2);
     private Executor executor;
-    RecyclerView timeline;
-    LinearLayoutManager layoutManager;
+    private RecyclerView timeline;
+    private Handler mainHandler;
+    private boolean dataFetched = false; // Flag to track data fetch status
+    PostAdapter postAdapter;
 
-    android.os.Parcelable recyclerState;
     public TimelineFragment() {
         // Required empty public constructor
     }
 
-    public static TimelineFragment newInstance() {
+    public static TimelineFragment newInstance(ArrayList<String> tagsOnPosts, ArrayList<String> excludeTags, String searchTerm) {
         TimelineFragment fragment = new TimelineFragment();
+        Bundle args = new Bundle();
+        args.putStringArrayList(ARG_TAG, tagsOnPosts);
+        args.putStringArrayList(ARG_EX_TAG, excludeTags);
+        args.putString(ARG_TERM, searchTerm);
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO add aguments to get diffrent timelines
         if (getArguments() != null) {
-            tagsOnPosts = getArguments().getStringArrayList("tagsOnPosts");
+            tagsOnPosts = getArguments().getStringArrayList(ARG_TAG);
+            excludeTags = getArguments().getStringArrayList(ARG_EX_TAG);
+            searchTerm = getArguments().getString(ARG_TERM);
         }
 
-        MainActivity act = (MainActivity)getActivity();
-        assert act != null;
-        mainHandler = new Handler(Looper.getMainLooper());
+        MainActivity act = (MainActivity) requireActivity();
         navController = act.navController;
-        signedInDoc = db.collection("accounts").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        pLatch.countDown();
-        executor = ((MainActivity) requireActivity()).executorService;
+        db = FirebaseFirestore.getInstance();
+        signedInDoc = db.collection("accounts").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        executor = act.executorService;
+        postAdapter = new PostAdapter(new ArrayList<>(), signedInDoc, db, navController);
+        mainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_timeline, container, false);
+        return inflater.inflate(R.layout.fragment_timeline, container, false);
+    }
 
-        timeline = (RecyclerView) view.findViewById(R.id.postList);
-        layoutManager = new LinearLayoutManager(getContext());
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        timeline = view.findViewById(R.id.postList);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         timeline.setLayoutManager(layoutManager);
+        timeline.setAdapter(postAdapter);
 
-        ArrayList<Post> posts = new ArrayList<Post>();
-        CollectionReference postsColl = db.collection("posts");
-        postsColl.orderBy("upvotes", Query.Direction.DESCENDING)
-                .get()
-                .addOnCompleteListener(task -> executor.execute(() -> {{
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Post p = new Post(document);
-                            posts.add(p);
-                        }
-                        pLatch.countDown();
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                }}));
+        if (!dataFetched) {
+            fetchPosts(view.findViewById(R.id.loadingProgressBar));
+        }else{//end loading
+            view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE);
+        }
+    }
+
+    private void fetchPosts(View view) {
+        Query postsColl;
+        if (tagsOnPosts == null) {
+            //if not looking for specific tags show all posts
+            postsColl = db.collection("posts");
+        } else {
+            postsColl = db.collection("posts").whereArrayContainsAny("tags", tagsOnPosts);
+        }
 
         executor.execute(() -> {
-            try {
-                pLatch.await();
-                PostAdapter postAdapter = new PostAdapter(posts,signedInDoc,db,navController);
-                mainHandler.post(()->timeline.setAdapter(postAdapter));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
+            requireActivity().runOnUiThread(() -> timeline.setAdapter(postAdapter));
 
-        return view;
+            postsColl.orderBy("upvotes", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnCompleteListener(task -> executor.execute(() -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Post p = new Post(document);
+                                if (Collections.disjoint(p.retriveTagsSet(), ((MainActivity) requireActivity()).signedInAccount.retriveBlockedSet())//dont show posts the user has blocked
+                                        && (excludeTags == null || Collections.disjoint(p.retriveTagsSet(), excludeTags))//for search dont show excluded posts
+                                        && (searchTerm == null || (p.getTitle().contains(searchTerm) || p.getBody().contains(searchTerm)))) {//for search only show posts contining the string
+                                    requireActivity().runOnUiThread(() -> postAdapter.addPost(p));
+                                }
+                            }
+                            dataFetched = true; // Update data fetch status
+                        }
+                        requireActivity().runOnUiThread(() ->view.findViewById(R.id.loadingProgressBar).setVisibility(View.GONE));//finish loading
+                    }));
+        });
     }
 }

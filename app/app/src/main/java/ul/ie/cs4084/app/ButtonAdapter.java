@@ -1,11 +1,13 @@
 package ul.ie.cs4084.app;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -13,26 +15,29 @@ import java.util.ArrayList;
 public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder> {
 
     private ArrayList<String> localDataSet;
+    private NavController navController;
+    private boolean editable;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final Button button;
+        public final Button button;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
             button = (Button) view.findViewById(R.id.tagButton);
         }
-        public Button getTextView() {
-            return button;
-        }
     }
 
-    public ButtonAdapter(ArrayList<String> dataSet) {
+    public ButtonAdapter(ArrayList<String> dataSet,NavController navController,boolean editable) {
         localDataSet = dataSet;
+        this.navController = navController;
+        this.editable = editable;//determine if tag should be removable
     }
 
-    public ButtonAdapter() {
+    public ButtonAdapter(NavController navController,boolean editable) {
         localDataSet = new ArrayList<>();
+        this.navController = navController;
+        this.editable = editable;
     }
 
     public void addButton(String tag){
@@ -64,12 +69,28 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
 
-        viewHolder.getTextView().append(localDataSet.get(position));
+        viewHolder.button.append(localDataSet.get(position));
+        viewHolder.button.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("tagsOnPosts", localDataSet.get(position));
+            navController.navigate(R.id.action_to_tag_view, bundle);
+        });
+        if(editable){
+        viewHolder.button.setOnLongClickListener(held->{
+            localDataSet.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, localDataSet.size());
+            return true;
+        });}
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return localDataSet.size();
+    }
+
+    public ArrayList<String> getLocalDataSet() {
+        return localDataSet;
     }
 }

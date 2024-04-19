@@ -67,7 +67,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post p = localDataSet.get(position);
 
-        // Set item views based on your views and data model
+        // Set post cards
         holder.postTitle.setText(p.getTitle());
         holder.postBody.setText(p.getBody());
         holder.upCount.setText(Integer.toString(p.retriveUpvotesSet().size()));
@@ -82,12 +82,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             holder.upCount.setText(Integer.toString(p.retriveUpvotesSet().size()));
             holder.downCount.setText(Integer.toString(p.retriveDownvotesSet().size()));
         });
+        //navigate to post
         holder.card.setOnClickListener(clicked -> {
             Bundle bundle = new Bundle();
             bundle.putString("postId", p.getId());
             navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
         });
 
+    }
+
+    public void addPost(Post p){
+        localDataSet.add(p);
+        this.notifyItemInserted(this.getItemCount());
+    }
+
+    public void addAllPosts(ArrayList<Post> posts){
+        int start = this.getItemCount();
+        int length = posts.size();
+        localDataSet.addAll(posts);
+        this.notifyItemRangeInserted(start,length);
     }
 
     @Override

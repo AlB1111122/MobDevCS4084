@@ -22,20 +22,25 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-public class SignInFragment extends Fragment {
+import ul.ie.cs4084.app.dataClasses.Account;
 
+public class SignInFragment extends Fragment {
     Snackbar snackbar;
     List<AuthUI.IdpConfig> providers = Arrays.asList(
             //email and password auth providers
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build()
     );
-
 
     public SignInFragment() {
         // Required empty public constructor
@@ -49,8 +54,7 @@ public class SignInFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_to_home);
+            loadAccount();
         }
     }
 
@@ -82,8 +86,7 @@ public class SignInFragment extends Fragment {
                 IdpResponse response = result.getIdpResponse();
 
                 if (result.getResultCode() == android.app.Activity.RESULT_OK) {
-                    NavController navController = NavHostFragment.findNavController(this);
-                    navController.navigate(R.id.action_to_home);
+                    loadAccount();
                 } else {
                     // Sign in failed
                     if (response == null) {
@@ -104,4 +107,34 @@ public class SignInFragment extends Fragment {
                 }
             }
     );
+    private void loadAccount(){
+        FirebaseUser fireBaseAuthUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert fireBaseAuthUser != null; // we know its not null because they just signed in
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        NavController navController = NavHostFragment.findNavController(this);
+        DocumentReference signedInUser = db.collection("accounts").document(fireBaseAuthUser.getUid());
+        signedInUser.get().addOnCompleteListener(getAccountTask -> {
+            if (getAccountTask.isSuccessful()) {
+                DocumentSnapshot document = getAccountTask.getResult();
+                //if yes populate local object
+                if (document.exists()) {
+                    Log.d(TAG, "profile exists");
+                    //get profile from db
+                    ((MainActivity) requireActivity()).signedInAccount = new Account(document);
+                    navController.navigate(R.id.action_to_timeline);
+                    ((MainActivity) requireActivity()).navView.setVisibility(View.VISIBLE);
+                } else {
+                    //if not create a document in the db
+                    Log.d(TAG, "profile does not exist");
+                    ((MainActivity) requireActivity()).signedInAccount = new Account(fireBaseAuthUser.getUid(), fireBaseAuthUser.getDisplayName(), new HashSet<String>(), new HashSet<String>());
+                    db.collection("accounts").document(fireBaseAuthUser.getUid())
+                        .set(((MainActivity) requireActivity()).signedInAccount)
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Account successfully written!"))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error writing account", e));
+                    navController.navigate(R.id.action_to_timeline);
+                    ((MainActivity) requireActivity()).navView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
 }

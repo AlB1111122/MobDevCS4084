@@ -4,20 +4,38 @@
     android:id="@+id/nav_graph.xml"
     app:startDestination="@id/signIn">
 
-
     <action
         android:id="@+id/action_Home_to_FullscreenPost"
         app:destination="@id/FullscreenPost" />
+
+    <action
+        android:id="@+id/action_to_tag_view"
+        app:destination="@id/TagView" />
+    <action
+        android:id="@+id/action_to_profile"
+        app:destination="@id/Profile" />
+    <action
+        android:id="@+id/action_to_new_post"
+        app:destination="@id/NewPost" />
+    <action
+        android:id="@+id/action_to_board"
+        app:destination="@id/Board" />
+    <action
+        android:id="@+id/action_to_search"
+        app:destination="@id/Search" />
+    <action
+        android:id="@+id/action_to_timeline"
+        app:destination="@id/Timeline" />
 
     <fragment
         android:id="@+id/signIn"
         android:name="ul.ie.cs4084.app.SignInFragment"
         android:label="SignIn">
 
-        <!-- Switch to home view -->
+        <!-- Switch to home view
         <action
             android:id="@+id/action_to_home"
-            app:destination="@id/Home" />
+            app:destination="@id/Home" />-->
 
     </fragment>
 
@@ -31,24 +49,10 @@
             app:argType="string"
             app:nullable="true" />
 
-        <!-- Switch to home view -->
+        <!-- Switch to home view
         <action
             android:id="@+id/action_to_home"
-            app:destination="@id/Home" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/Home"
-        android:name="ul.ie.cs4084.app.HomeFragment"
-        android:label="Home">
-
-        <!-- Switch to profile view -->
-        <action
-            android:id="@+id/action_to_profile"
-            app:destination="@id/Profile" />
-        <action
-            android:id="@+id/action_to_new_post"
-            app:destination="@id/NewPost" />
+            app:destination="@id/Home" />-->
     </fragment>
 
     <fragment
@@ -69,5 +73,41 @@
             android:name="boardId"
             app:argType="string"
             app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/TagView"
+        android:name="ul.ie.cs4084.app.TagFragment"
+        android:label="ViewTag">
+
+        <argument
+            android:name="tag"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="hideHashtagName"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/Board"
+        android:name="ul.ie.cs4084.app.BoardFragment"
+        android:label="Board">
+        <argument
+            android:name="boardId"
+            app:argType="string"
+            app:nullable="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/Search"
+        android:name="ul.ie.cs4084.app.SearchFragment"
+        android:label="Search">
+    </fragment>
+    <fragment
+        android:id="@+id/Timeline"
+        android:name="ul.ie.cs4084.app.TimelineFragment"
+        android:label="Timeline">
     </fragment>
 </navigation>

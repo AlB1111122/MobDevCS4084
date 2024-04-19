@@ -24,7 +24,7 @@
     <string name="title_placeholder">Title</string>
     <string name="op_s_profile_picture">OP\'s profile picture</string>
     <string name="board_stub">b/</string>
-    <string name="post_tag_desc">list of tags asociated with the post</string>
+    <string name="post_tag_desc">list of tags associated with the post</string>
     <string name="example_text">example text</string>
     <string name="minus_inst_text">-</string>
     <string name="comment_desc">make a comment</string>
@@ -40,4 +40,19 @@
     <string name="location">location</string>
     <string name="hashtag">#</string>
     <string name="zero">0</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">unfollow</string>
+    <string name="block">Block</string>
+    <string name="unblock">unblock</string>
+    <string name="posts">Posts</string>
+    <string name="info">Info</string>
+    <string name="board_contents">board contents</string>
+    <string name="delete_post">Delete Post</string>
+    <string name="required_tags">Required tags</string>
+    <string name="excluded_tags">Excluded tags</string>
+    <string name="search">Search</string>
+    <string name="popular">Popular</string>
+    <string name="following">Following</string>
+    <string name="profile">Profile</string>
+    <string name="add_post_board">+ post</string>
 </resources>
