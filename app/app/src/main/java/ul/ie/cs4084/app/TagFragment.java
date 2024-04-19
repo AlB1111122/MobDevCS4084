@@ -70,6 +70,7 @@ public class TagFragment extends Fragment {
         if(!renderedFlag) {
             isFollowing = ((MainActivity) requireActivity()).signedInAccount.retriveFollowedSet().contains(tag);
             isBlocked = ((MainActivity) requireActivity()).signedInAccount.retriveBlockedSet().contains(tag);
+            //show posts with the tag on them
             ArrayList<String> tags = new ArrayList<>();
             tags.add(tag);
             FragmentManager fragmentManager = getChildFragmentManager();
@@ -78,9 +79,9 @@ public class TagFragment extends Fragment {
                     .replace(R.id.tagPostsFrag, timelineFragment)
                     .commit();
 
-            renderedFlag = true;
             followButton.setOnClickListener(v -> buttonFollow());
             blockButton.setOnClickListener(v -> buttonBlock());
+            renderedFlag = true;
         }
             if (isFollowing) {
                 followButton.setText(R.string.unfollow);
