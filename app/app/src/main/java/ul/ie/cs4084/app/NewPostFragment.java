@@ -105,9 +105,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             boardId = getArguments().getString(ARG_BOARD);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                parentBoard = getArguments().getSerializable("boardObj", Board.class);
-            }
         }
 
         MainActivity act = (MainActivity) getActivity();

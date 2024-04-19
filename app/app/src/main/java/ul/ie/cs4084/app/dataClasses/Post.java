@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-public class Post implements Serializable {
+public class Post{
     private final String id;
     private final DocumentReference parentBoard;
     private final DocumentReference profile;

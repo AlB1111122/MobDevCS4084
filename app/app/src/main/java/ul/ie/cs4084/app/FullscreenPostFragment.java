@@ -79,9 +79,6 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             postId = getArguments().getString(ARG_POST);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                p = getArguments().getSerializable("postObj",Post.class);
-            }
         }
 
         MainActivity act = (MainActivity)getActivity();
@@ -183,7 +180,6 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                 opClickable.setOnClickListener(v -> {
                                     Bundle bundle = new Bundle();
                                     bundle.putString("profileId", OPoster.getId());
-                                    bundle.putSerializable("profileObj", OPoster);
                                     navController.navigate(R.id.action_to_profile, bundle);
                                 });
                             } else {
@@ -205,7 +201,6 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                                 board.setOnClickListener(clicked -> {
                                     Bundle bundle = new Bundle();
                                     bundle.putString("boardId", bPosted.getId());//works wether the api version is sufficent or not
-                                    bundle.putSerializable("boardObj", bPosted);
                                     navController.navigate(R.id.action_to_board, bundle);
                                 });
                             } else {

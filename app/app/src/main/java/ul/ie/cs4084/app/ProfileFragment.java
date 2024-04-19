@@ -84,9 +84,6 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             profileId = getArguments().getString(ARG_PROFILE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                viewingAccount = getArguments().getSerializable("profileObj", Account.class);
-            }
         }
         MainActivity act = (MainActivity)getActivity();
         assert act != null;

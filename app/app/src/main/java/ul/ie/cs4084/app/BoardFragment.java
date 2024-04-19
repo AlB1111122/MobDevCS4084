@@ -59,9 +59,6 @@ public class BoardFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             boardId = getArguments().getString(ARG_ID);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                b = getArguments().getSerializable("boardObj", Board.class);
-            }
         }
         executor = ((MainActivity)requireActivity()).executorService;
         mainHandler = new Handler(Looper.getMainLooper());
@@ -91,7 +88,6 @@ public class BoardFragment extends Fragment {
         view.findViewById(R.id.addNewPostButton).setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putString("boardId", boardId);
-            bundle.putSerializable("boardObj",b);
             navController.navigate(R.id.action_to_new_post, bundle);
         });
         if (!renderFlag) {
