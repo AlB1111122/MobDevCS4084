@@ -210,7 +210,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         postTags.setLayoutManager(layoutManager);
-        tagAdapter = new ButtonAdapter(navController,true);
+        tagAdapter = new ButtonAdapter(navController,true, requireContext());
         postTags.setAdapter(tagAdapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();

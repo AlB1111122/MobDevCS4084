@@ -160,7 +160,7 @@ public class ProfileFragment extends Fragment {
 
             if(!renderFlag) {
                 //show followed tags
-                followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController, false);
+                followAdapter = new ButtonAdapter(viewingAccount.getFollowedTags(), navController, false, requireContext());
                 //show the accounts posts
                 FragmentManager fragmentManager = getChildFragmentManager();
                 Bundle bundle = new Bundle();
@@ -171,7 +171,7 @@ public class ProfileFragment extends Fragment {
                         .commit();
                 if (isSelf) {
                     //show blocked buttons if is viewing self
-                    blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController, false);
+                    blockedAdapter = new ButtonAdapter(viewingAccount.getBlockedTags(), navController, false, requireContext());
                 }
             }
             //write to screen
