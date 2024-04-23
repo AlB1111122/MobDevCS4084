@@ -85,7 +85,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
             if(localDataSet.get(position).contains("/")){
                 Toast toast = Toast.makeText(context, "You cannot remove a u/ or /b tag", Toast.LENGTH_SHORT);
                 toast.show();
-                return false;
+                return true;
             }
             localDataSet.remove(position);
             notifyItemRemoved(position);
