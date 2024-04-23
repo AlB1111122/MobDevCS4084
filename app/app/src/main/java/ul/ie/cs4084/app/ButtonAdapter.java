@@ -1,10 +1,12 @@
 package ul.ie.cs4084.app;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
@@ -17,6 +19,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     private ArrayList<String> localDataSet;
     private NavController navController;
     private boolean editable;
+    private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final Button button;
@@ -28,16 +31,18 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         }
     }
 
-    public ButtonAdapter(ArrayList<String> dataSet,NavController navController,boolean editable) {
+    public ButtonAdapter(ArrayList<String> dataSet,NavController navController,boolean editable, Context context) {
         localDataSet = dataSet;
         this.navController = navController;
         this.editable = editable;//determine if tag should be removable
+        this.context = context;
     }
 
-    public ButtonAdapter(NavController navController,boolean editable) {
+    public ButtonAdapter(NavController navController,boolean editable, Context context) {
         localDataSet = new ArrayList<>();
         this.navController = navController;
         this.editable = editable;
+        this.context = context;
     }
 
     public void addButton(String tag){
@@ -77,6 +82,11 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         });
         if(editable){
         viewHolder.button.setOnLongClickListener(held->{
+            if(localDataSet.get(position).contains("/")){
+                Toast toast = Toast.makeText(context, "You cannot remove a u/ or /b tag", Toast.LENGTH_SHORT);
+                toast.show();
+                return true;
+            }
             localDataSet.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, localDataSet.size());

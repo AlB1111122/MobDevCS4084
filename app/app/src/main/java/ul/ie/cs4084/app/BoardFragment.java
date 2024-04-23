@@ -99,7 +99,7 @@ public class BoardFragment extends Fragment {
                     //if yes populate local object
                     if (boardDoc.exists()) {
                         b = new Board(boardDoc);
-                        tagAdapter = new ButtonAdapter(b.getTags(), navController, false);
+                        tagAdapter = new ButtonAdapter(b.getTags(), navController, false, requireContext());
                         latch.countDown();
                     }
                 }

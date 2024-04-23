@@ -140,7 +140,7 @@ public class FullscreenPostFragment extends Fragment implements OnMapReadyCallba
                 //get profile
                 try {
                     postLatch.await();
-                    tagAdapter = new ButtonAdapter(p.getTags(), navController, false);
+                    tagAdapter = new ButtonAdapter(p.getTags(), navController, false, requireContext());
                     DocumentReference op = p.getProfile();
                     DocumentReference parentBoard = p.getParentBoard();
                     //display op information

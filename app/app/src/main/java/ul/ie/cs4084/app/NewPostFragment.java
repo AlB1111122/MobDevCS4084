@@ -25,7 +25,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -210,7 +212,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         postTags.setLayoutManager(layoutManager);
-        tagAdapter = new ButtonAdapter(navController,true);
+        tagAdapter = new ButtonAdapter(navController,true, requireContext());
         postTags.setAdapter(tagAdapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -299,13 +301,33 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             builder.setCancelable(true);
             builder.setPositiveButton("Add", (dialog, which) -> {
                 String tagStr = input.getText().toString();
-                if(!tagStr.contains("/")) {
                     tagAdapter.addButton(tagStr);
                     tagSet.add(tagStr);
+            });
+            final AlertDialog alertDialog = builder.show();
+            final Button submitButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    // my validation condition
+                    if (input.getText().toString().contains("/")) {
+                        input.setError("you cant add a tag that contains '/'");
+                        submitButton.setEnabled(false);
+                    } else {
+                        input.setError(null);
+                        submitButton.setEnabled(true);
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
                 }
             });
-
-            builder.show();
         });
     }
 

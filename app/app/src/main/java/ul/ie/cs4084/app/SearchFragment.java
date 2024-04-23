@@ -72,8 +72,8 @@ public class SearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //set up recyclers
         if(!renderFlag){
-            rTagAdapter = new ButtonAdapter(navController, true);
-            eTagAdapter = new ButtonAdapter(navController,true);
+            rTagAdapter = new ButtonAdapter(navController, true, requireContext());
+            eTagAdapter = new ButtonAdapter(navController,true, requireContext());
 
             view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
             view.findViewById(R.id.excludeTagButton).setOnClickListener(clicked -> excludeTagButton(getContext()));
