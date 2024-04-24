@@ -147,7 +147,32 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         OPname = view.findViewById(R.id.postUsernameText);
         board = view.findViewById(R.id.postBoardText);
         RecyclerView postTags = view.findViewById(R.id.postTagRV);
+        //setup the enableing and disableing of the create post button
+        view.findViewById(R.id.createPostButton).setEnabled(false);
         addTagButton(view.findViewById(R.id.addPostTagButton), getContext());
+
+        TextInputEditText title = view.findViewById(R.id.postTitle);
+        title.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (title.getText().toString().length() == 0) {
+                    title.setError("A post needs a title!");
+                    view.findViewById(R.id.createPostButton).setEnabled(false);
+                } else {
+                    title.setError(null);
+                    view.findViewById(R.id.createPostButton).setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         view.findViewById(R.id.addLocationButton).setOnClickListener(task -> {
             //set up map
@@ -226,8 +251,8 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             String username = op.getUsername();
 
             //write to screen
-            tagAdapter.addButton("u/" + username);
-            tagSet.add("u/" + username);
+            tagAdapter.addButton("u/" + op.getId());
+            tagSet.add("u/" + op.getId());
             displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
             mainHandler.post(() -> OPname.append(username));
         });//boardInfo
@@ -251,8 +276,7 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
         //make the post
         (view.findViewById(R.id.createPostButton)).setOnClickListener(v -> {
-            String postTitle = ((TextInputEditText) view.findViewById(R.id.postTitle)).getText().toString();
-            if(!postTitle.equals("")){//post needs at least a title
+            String postTitle = title.getText().toString();
                 Factory factory = new Factory(executor);
                 String cloudImageUriStr = null;
 
@@ -278,10 +302,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                         navController.navigate(R.id.action_Home_to_FullscreenPost, bundle);
                     }
                 );
-            }else{
-                Toast toast = Toast.makeText(getContext(), "A post needs a title", Toast.LENGTH_SHORT);
-                toast.show();
-            }
         });
     }
 

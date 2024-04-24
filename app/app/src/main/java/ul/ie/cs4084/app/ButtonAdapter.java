@@ -74,7 +74,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
 
-        viewHolder.button.append(localDataSet.get(position));
+        viewHolder.button.setText(String.format("#%s", localDataSet.get(position)));
         viewHolder.button.setOnClickListener(v->{
             Bundle bundle = new Bundle();
             bundle.putString("tagsOnPosts", localDataSet.get(position));
