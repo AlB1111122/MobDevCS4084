@@ -71,7 +71,6 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //set up recyclers
-        if(!renderFlag){
             rTagAdapter = new ButtonAdapter(navController, true, requireContext());
             eTagAdapter = new ButtonAdapter(navController,true, requireContext());
 
@@ -102,7 +101,6 @@ public class SearchFragment extends Fragment {
                         ).commit();
                 renderFlag = true;
             }));
-        }
 
         view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
         view.findViewById(R.id.excludeTagButton).setOnClickListener(clicked -> excludeTagButton(getContext()));
