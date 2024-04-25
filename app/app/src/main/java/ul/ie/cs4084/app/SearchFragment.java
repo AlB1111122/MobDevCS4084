@@ -71,8 +71,10 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //set up recyclers
+        if(!renderFlag) {
             rTagAdapter = new ButtonAdapter(navController, true, requireContext());
-            eTagAdapter = new ButtonAdapter(navController,true, requireContext());
+            eTagAdapter = new ButtonAdapter(navController, true, requireContext());
+        }
 
             //show results
             view.findViewById(R.id.searchButton).setOnClickListener(clicked -> executor.execute(() ->{
