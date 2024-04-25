@@ -7,19 +7,12 @@
     <action
         android:id="@+id/action_Home_to_FullscreenPost"
         app:destination="@id/FullscreenPost" />
-
     <action
         android:id="@+id/action_to_tag_view"
         app:destination="@id/TagView" />
     <action
         android:id="@+id/action_to_profile"
         app:destination="@id/Profile" />
-    <action
-        android:id="@+id/action_to_new_post"
-        app:destination="@id/NewPost" />
-    <action
-        android:id="@+id/action_to_board"
-        app:destination="@id/Board" />
     <action
         android:id="@+id/action_to_search"
         app:destination="@id/Search" />
@@ -32,11 +25,6 @@
         android:name="ul.ie.cs4084.app.SignInFragment"
         android:label="SignIn">
 
-        <!-- Switch to home view
-        <action
-            android:id="@+id/action_to_home"
-            app:destination="@id/Home" />-->
-
     </fragment>
 
     <fragment
@@ -48,11 +36,6 @@
             android:name="profileId"
             app:argType="string"
             app:nullable="true" />
-
-        <!-- Switch to home view
-        <action
-            android:id="@+id/action_to_home"
-            app:destination="@id/Home" />-->
     </fragment>
 
     <fragment
@@ -63,6 +46,10 @@
             android:name="postId"
             app:argType="string"
             app:nullable="true" />
+
+        <action
+            android:id="@+id/action_to_board"
+            app:destination="@id/Board" />
     </fragment>
 
     <fragment
@@ -99,6 +86,10 @@
             android:name="boardId"
             app:argType="string"
             app:nullable="false" />
+
+        <action
+            android:id="@+id/action_to_new_post"
+            app:destination="@id/NewPost" />
     </fragment>
     <fragment
         android:id="@+id/Search"
