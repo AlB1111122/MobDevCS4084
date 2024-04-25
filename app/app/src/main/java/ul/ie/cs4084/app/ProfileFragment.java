@@ -160,7 +160,7 @@ public class ProfileFragment extends Fragment {
                 //show the accounts posts
                 FragmentManager fragmentManager = getChildFragmentManager();
                 Bundle bundle = new Bundle();
-                bundle.putString("tagsOnPosts", "u/" + viewingAccount.getUsername());
+                bundle.putString("tagsOnPosts", "u/" + viewingAccount.getId());
                 bundle.putBoolean("hideHashtagName", true);
                 fragmentManager.beginTransaction()
                         .replace(R.id.profileTagFragHolder, TagFragment.class, bundle)
