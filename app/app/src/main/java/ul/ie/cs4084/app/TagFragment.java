@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,11 +79,12 @@ public class TagFragment extends Fragment {
             fragmentManager.beginTransaction()
                     .replace(R.id.tagPostsFrag, timelineFragment)
                     .commit();
-
-            followButton.setOnClickListener(v -> buttonFollow());
-            blockButton.setOnClickListener(v -> buttonBlock());
             renderedFlag = true;
         }
+
+
+        followButton.setOnClickListener(v -> buttonFollow());
+        blockButton.setOnClickListener(v -> buttonBlock());
             if (isFollowing) {
                 followButton.setText(R.string.unfollow);
             }

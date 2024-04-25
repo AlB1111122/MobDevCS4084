@@ -75,9 +75,6 @@ public class SearchFragment extends Fragment {
             rTagAdapter = new ButtonAdapter(navController, true, requireContext());
             eTagAdapter = new ButtonAdapter(navController,true, requireContext());
 
-            view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
-            view.findViewById(R.id.excludeTagButton).setOnClickListener(clicked -> excludeTagButton(getContext()));
-
             //show results
             view.findViewById(R.id.searchButton).setOnClickListener(clicked -> executor.execute(() ->{
                 Bundle bundle = null;
@@ -106,6 +103,9 @@ public class SearchFragment extends Fragment {
                 renderFlag = true;
             }));
         }
+
+        view.findViewById(R.id.requireTagButton).setOnClickListener(clicked -> requireTagButton(getContext()));
+        view.findViewById(R.id.excludeTagButton).setOnClickListener(clicked -> excludeTagButton(getContext()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         requiredTags = view.findViewById(R.id.includeTags);
