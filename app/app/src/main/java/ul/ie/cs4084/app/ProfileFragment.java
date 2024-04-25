@@ -5,7 +5,6 @@ import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -132,9 +131,6 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         isSelf = Objects.equals(profileId, ((MainActivity)requireActivity()).signedInAccount.getId());
-
-        Log.e(TAG, String.valueOf(isSelf));
-        Log.e(TAG, profileId);
 
         if(viewingAccount == null) {
             getAccount();

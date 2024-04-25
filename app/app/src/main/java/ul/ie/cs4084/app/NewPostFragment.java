@@ -7,7 +7,6 @@ import static ul.ie.cs4084.app.dataClasses.Database.displayPicture;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,7 +35,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -63,7 +61,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -83,7 +80,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
     private TextView OPname;
     private TextView board;
     private ButtonAdapter tagAdapter;
-    private HashSet<String> tagSet = new HashSet<>();
     private MapView mapView;
     private GoogleMap map;
     private final CountDownLatch mapLatch = new CountDownLatch(1);
@@ -252,7 +248,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
 
             //write to screen
             tagAdapter.addButton("u/" + op.getId());
-            tagSet.add("u/" + op.getId());
             displayPicture(pfpUrl, OPpfp, executor, mainHandler, getResources());
             mainHandler.post(() -> OPname.append(username));
         });//boardInfo
@@ -266,7 +261,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     mainHandler.post(() -> board.append(parentBoard.getName()));
                     ArrayList<String> boardTagArray = parentBoard.getTags();
                     boardTagArray.add("b/" + parentBoard.getName());
-                    tagSet.addAll(boardTagArray);
                     tagAdapter.addButtons(boardTagArray);
                 } else {
                     Log.d(TAG, "error board");
@@ -322,7 +316,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
             builder.setPositiveButton("Add", (dialog, which) -> {
                 String tagStr = input.getText().toString();
                     tagAdapter.addButton(tagStr);
-                    tagSet.add(tagStr);
             });
             final AlertDialog alertDialog = builder.show();
             final Button submitButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
