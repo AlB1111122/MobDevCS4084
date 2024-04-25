@@ -254,7 +254,7 @@ public class ProfileFragment extends Fragment {
             // Set up the buttons
             builder.setCancelable(true);
             builder.setPositiveButton("Follow", (dialog, which) -> viewingAccount.followTag(input.getText().toString(),db));
-
+            followAdapter.addButton(input.getText().toString());
             builder.show();
         });
     }
@@ -274,6 +274,7 @@ public class ProfileFragment extends Fragment {
             // Set up the buttons
             builder.setCancelable(true);
             builder.setPositiveButton("Block", (dialog, which) -> viewingAccount.blockTag(input.getText().toString(),db));
+            blockedAdapter.addButton(input.getText().toString());
 
             builder.show();
         });
