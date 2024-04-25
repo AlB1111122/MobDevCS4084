@@ -51,11 +51,13 @@ public class BoardInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if(!renderFlag) {
             rulesStr = new StringBuilder();
+            rulesStr.append("Rules\n");
             for (String rule : rules) {
                 rulesStr.append("- ").append(rule).append("\n");
             }
 
             modsStr = new StringBuilder();
+            modsStr.append("Moderators\n");
             for (String mod : moderators) {
                 modsStr.append("- ").append(mod).append("\n");
             }
