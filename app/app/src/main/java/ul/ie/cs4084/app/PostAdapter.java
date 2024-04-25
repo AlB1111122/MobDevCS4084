@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -88,7 +90,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             bundle.putString("postId", p.getId());
             navController.navigate(R.id.action_Home_to_FullscreenPost,bundle);
         });
-
+        if(p.getProfile().getId().equals(FirebaseAuth.getInstance().getUid())) {
+            holder.card.setOnLongClickListener(clicked -> {
+                db.document("posts/" + p.getId()).delete();
+                localDataSet.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, localDataSet.size());
+                return true;
+            });
+        }
     }
 
     public void addPost(Post p){

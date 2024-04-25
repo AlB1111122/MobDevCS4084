@@ -74,7 +74,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
 
-        viewHolder.button.append(localDataSet.get(position));
+        viewHolder.button.setText(String.format("#%s", localDataSet.get(position)));
         viewHolder.button.setOnClickListener(v->{
             Bundle bundle = new Bundle();
             bundle.putString("tagsOnPosts", localDataSet.get(position));
@@ -85,7 +85,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
             if(localDataSet.get(position).contains("/")){
                 Toast toast = Toast.makeText(context, "You cannot remove a u/ or /b tag", Toast.LENGTH_SHORT);
                 toast.show();
-                return false;
+                return true;
             }
             localDataSet.remove(position);
             notifyItemRemoved(position);
