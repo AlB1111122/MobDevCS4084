@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -111,9 +112,6 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
         mainHandler = new Handler(Looper.getMainLooper());
         navController = NavHostFragment.findNavController(this);
 
-        //make the places search connect to google
-        Places.initialize(getContext(), getContext().getString(R.string.map_key));
-        placesClient = Places.createClient(getContext());
         //local photo picker sets localImageUri on photo picked
         pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -190,29 +188,35 @@ public class NewPostFragment extends Fragment implements OnMapReadyCallback {
                     throw new RuntimeException(e);
                 }
             });
-
-            //add places autocomplete fragment so users can search for places and place marker
-            final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-            AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                    this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
-            if(autocompleteFragment != null) {
-                autocompleteFragment.setPlaceFields(placeFields);
-                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                    @Override
-                    public void onError(@NonNull Status status) {
-                        if (status.getStatusMessage() != null) {
-                            Log.i(TAG, status.getStatusMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onPlaceSelected(Place place) {
-                        if (place != null) {
-                            updateMapMarker(place.getLatLng());
-                        }
-                    }
-                });
+try {
+    //make the places search connect to google
+    Places.initialize(getContext(), getContext().getString(R.string.map_key));
+    placesClient = Places.createClient(getContext());
+    //add places autocomplete fragment so users can search for places and place marker
+    final List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+    AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+            this.getChildFragmentManager().findFragmentById(R.id.autoCompleteFragmentView);
+    if (autocompleteFragment != null) {
+        autocompleteFragment.setPlaceFields(placeFields);
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onError(@NonNull Status status) {
+                if (status.getStatusMessage() != null) {
+                    Log.i(TAG, status.getStatusMessage());
+                }
             }
+
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (place != null) {
+                    updateMapMarker(place.getLatLng());
+                }
+            }
+        });
+    }
+}catch(Exception e){
+    Toast.makeText(getContext(),"Somethings wrong with places client, check that you have the AIPkey and that the bill is paid", Toast.LENGTH_LONG).show();
+}
         });
 
         view.findViewById(R.id.cancelGeotag).setOnClickListener(task -> {//dont add a geotag to the post
